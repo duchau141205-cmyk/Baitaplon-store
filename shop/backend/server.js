@@ -33,7 +33,23 @@ const app = express();
 
 const path = require('path');
 
-app.use(cors());
+app.use(cors({
+    origin: function(origin, callback) {
+        // Cho phép requests không có origin (mobile apps, Postman, curl)
+        if (!origin) return callback(null, true);
+        // Cho phép localhost dev và tất cả subdomain của onrender.com
+        const allowed = [
+            'http://localhost:5000',
+            'http://localhost:3000',
+            'http://127.0.0.1:5000'
+        ];
+        if (allowed.includes(origin) || origin.endsWith('.onrender.com')) {
+            return callback(null, true);
+        }
+        return callback(null, true); // Cho phép tất cả trong giai đoạn đầu
+    },
+    credentials: true
+}));
 app.use(express.json());
 
 const { protect } = require('./middleware/auth');
