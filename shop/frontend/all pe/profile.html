@@ -939,12 +939,27 @@
 
             document.getElementById('modal-timeline').innerHTML = stepsHTML;
 
-            // Show cancel actions if order is Pending
+            // Show cancel actions, disabling the button if the order cannot be cancelled
+            const btnCancel = document.getElementById('btn-cancel-order');
+            document.getElementById('modal-actions-row').style.display = 'block';
+            
             if (order.status === 'Pending') {
-                document.getElementById('modal-actions-row').style.display = 'block';
+                btnCancel.disabled = false;
+                btnCancel.innerText = 'Hủy đơn hàng';
+                btnCancel.style.background = '#dc3545';
+                btnCancel.style.cursor = 'pointer';
+                btnCancel.style.opacity = '1';
                 window.currentViewingOrderId = orderId;
             } else {
-                document.getElementById('modal-actions-row').style.display = 'none';
+                btnCancel.disabled = true;
+                btnCancel.style.background = '#555';
+                btnCancel.style.cursor = 'not-allowed';
+                btnCancel.style.opacity = '0.6';
+                if (order.status === 'Cancelled') {
+                    btnCancel.innerText = 'Đơn hàng đã hủy';
+                } else {
+                    btnCancel.innerText = 'Không thể hủy đơn hàng';
+                }
             }
 
             // Show modal
