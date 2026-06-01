@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tư vấn & Hỗ trợ | Mô Hình Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .consult-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 3rem;
+            margin-top: 120px;
+            margin-bottom: 80px;
+        }
+
+        .consult-form-container {
+            padding: 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+        }
+
+        .consult-chat-container {
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            border: 1px solid var(--primary-color, #00d4ff);
+            border-radius: 24px;
+            height: 600px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 180, 219, 0.1);
+        }
+
+        .chat-header {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(0, 180, 219, 0.1), rgba(0, 131, 176, 0.1));
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            box-shadow: 0 0 15px rgba(0, 180, 219, 0.3);
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: rgba(0,0,0,0.2);
+            scroll-behavior: smooth;
+        }
+
+        .chat-msg {
+            max-width: 75%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-msg.client {
+            align-self: flex-end;
+        }
+
+        .chat-msg.bot {
+            align-self: flex-start;
+        }
+
+        .chat-bubble {
+            padding: 12px 18px;
+            border-radius: 16px;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .chat-msg.client .chat-bubble {
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            color: white;
+            border-radius: 16px 16px 2px 16px;
+        }
+
+        .chat-msg.bot .chat-bubble {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ddd;
+            border: 1px solid var(--glass-border);
+            border-radius: 16px 16px 16px 2px;
+        }
+
+        .chat-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            margin-left: 2px;
+        }
+
+        .chat-msg.client .chat-meta {
+            text-align: right;
+            margin-right: 2px;
+        }
+
+        .chat-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-textarea {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            outline: none;
+            resize: none;
+            height: 44px;
+            line-height: 1.3;
+            transition: border-color 0.2s;
+        }
+
+        .chat-textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        .chat-send-btn {
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: opacity 0.2s;
+        }
+
+        .chat-send-btn:hover {
+            opacity: 0.85;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ddd;
+            font-size: 0.9rem;
+        }
+
+        .form-group label i {
+            color: var(--primary-color);
+            margin-right: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn-submit-form {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            background: #00d4ff;
+            color: black;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-submit-form:hover {
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 992px) {
+            .consult-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header id="main-header" class="scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="Logo">
+                <span>MÔ HÌNH STORE</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Trang chủ</a>
+                <a href="products.html">Sản phẩm</a>
+                <a href="rewards.html">Khuyến mãi</a>
+                <a href="consultation.html" class="active"><i class="fas fa-headset" style="margin-right: 4px;"></i>Tư vấn</a>
+                <a href="categories.html">Về chúng tôi</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="login.html" id="user-btn"><i class="fas fa-user"></i></a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="consult-grid">
+            <!-- Left: Consultation Booking Form -->
+            <div class="consult-form-container fade-in">
+                <h2 style="margin-bottom: 10px; font-weight: 800; display: flex; align-items: center; gap: 10px;"><i class="fas fa-edit" style="color: var(--primary-color);"></i>Đăng Ký Tư Vấn</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px;">Điền đầy đủ thông tin bên dưới để đội ngũ chuyên viên liên hệ tư vấn trực tiếp sớm nhất.</p>
+                <form id="page-consultation-form" onsubmit="submitFormConsultation(event)">
+                    <div class="form-group">
+                        <label for="p-name"><i class="fas fa-user"></i>Họ và tên của bạn *</label>
+                        <input type="text" id="p-name" class="form-control" placeholder="Nhập họ và tên" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p-phone"><i class="fas fa-phone-alt"></i>Số điện thoại *</label>
+                        <input type="text" id="p-phone" class="form-control" placeholder="Nhập số điện thoại" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p-email"><i class="fas fa-envelope"></i>Email (Không bắt buộc)</label>
+                        <input type="email" id="p-email" class="form-control" placeholder="Nhập địa chỉ email">
+                    </div>
+                    <div class="form-group">
+                        <label for="p-notes"><i class="fas fa-comment-dots"></i>Nội dung cần tư vấn *</label>
+                        <textarea id="p-notes" class="form-control" style="height: 120px; resize: none;" placeholder="Ví dụ: Mình cần tư vấn đặt trước mẫu siêu xe Lamborghini Aventador tỉ lệ 1:18..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit-form">
+                        Gửi Yêu Cầu Tư Vấn
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right: Live AI Chatbox -->
+            <div class="consult-chat-container fade-in" style="animation-delay: 0.2s;">
+                <div class="chat-header">
+                    <div class="chat-avatar"><i class="fas fa-robot"></i></div>
+                    <div>
+                        <h4 style="margin:0;font-size:1rem;color:white;font-weight:700;">Trợ Lý AI Tư Vấn</h4>
+                        <div style="font-size:0.78rem;color:#28a745;display:flex;align-items:center;gap:5px;"><span style="width:6px;height:6px;background:#28a745;border-radius:50%;"></span>Đang trực tuyến</div>
+                    </div>
+                </div>
+                <div class="chat-body" id="page-chat-body">
+                    <div class="chat-msg bot">
+                        <div class="chat-meta">AI Assistant</div>
+                        <div class="chat-bubble">Xin chào! Tôi là Trợ lý AI của Mô Hình Store. Tôi có thể giúp gì cho bạn hôm nay? Hãy hỏi tôi bất cứ thông tin nào về sản phẩm Gundam, Siêu Xe, Máy Bay, hoặc mã Khuyến mãi nhé!</div>
+                    </div>
+                </div>
+                <div class="chat-footer">
+                    <textarea class="chat-textarea" id="page-chat-input" placeholder="Nhập câu hỏi của bạn tại đây..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendPageChatMessage();}"></textarea>
+                    <button class="chat-send-btn" onclick="sendPageChatMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">MÔ HÌNH STORE</div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                        <li><a href="categories.html">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Theo dõi chúng tôi</h3>
+                    <div style="display: flex; gap: 1rem; font-size: 1.5rem;">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by Antigravity.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/shop-api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+
+            // Auto fill user details if logged in
+            const user = ShopAPI.getUserInfo();
+            if (user) {
+                document.getElementById('p-name').value = user.name || '';
+                document.getElementById('p-phone').value = user.phone || '';
+                document.getElementById('p-email').value = user.email || '';
+
+                document.getElementById('user-btn').innerHTML = `<i class="fas fa-user-check" style="color: var(--primary-color);"></i>`;
+                document.getElementById('user-btn').href = 'profile.html';
+            }
+        });
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        async function submitFormConsultation(e) {
+            e.preventDefault();
+            const name = document.getElementById('p-name').value.trim();
+            const phone = document.getElementById('p-phone').value.trim();
+            const email = document.getElementById('p-email').value.trim();
+            const notes = document.getElementById('p-notes').value.trim();
+
+            const userInfo = ShopAPI.getUserInfo();
+            const userId = userInfo ? (userInfo._id || userInfo.id) : null;
+
+            try {
+                const response = await ShopAPI.post('/consultations', { name, phone, email, notes, userId });
+                if (response) {
+                    document.getElementById('page-consultation-form').reset();
+                    if (userId) {
+                        alert('Đăng ký tư vấn thành công! Bạn có thể xem lịch sử trao đổi tại phần "Tư vấn của tôi" trong trang cá nhân.');
+                    } else {
+                        alert('Đăng ký tư vấn thành công! Nhân viên của chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.');
+                    }
+                }
+            } catch (err) {
+                alert('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.');
+            }
+        }
+
+        async function sendPageChatMessage() {
+            const input = document.getElementById('page-chat-input');
+            const content = input.value.trim();
+            if (!content) return;
+
+            input.value = '';
+
+            const body = document.getElementById('page-chat-body');
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+
+            // Add client bubble
+            const clientMsg = document.createElement('div');
+            clientMsg.className = 'chat-msg client';
+            clientMsg.innerHTML = `
+                <div class="chat-meta">Bạn &bull; ${timeStr}</div>
+                <div class="chat-bubble">${content}</div>
+            `;
+            body.appendChild(clientMsg);
+            body.scrollTop = body.scrollHeight;
+
+            // Add typing indicator
+            const typing = document.createElement('div');
+            typing.className = 'typing-indicator';
+            typing.id = 'page-typing-indicator';
+            typing.innerHTML = '<span></span><span></span><span></span>';
+            body.appendChild(typing);
+            body.scrollTop = body.scrollHeight;
+
+            try {
+                // Call local client-side AI dynamic answering
+                const responseText = await getWidgetAiReply(content);
+
+                setTimeout(() => {
+                    const indicator = document.getElementById('page-typing-indicator');
+                    if (indicator) indicator.remove();
+
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'chat-msg bot';
+                    botMsg.innerHTML = `
+                        <div class="chat-meta">AI Assistant &bull; ${timeStr}</div>
+                        <div class="chat-bubble">${responseText.replace(/\n/g, '<br>')}</div>
+                    `;
+                    body.appendChild(botMsg);
+                    body.scrollTop = body.scrollHeight;
+                }, 1000);
+
+            } catch (e) {
+                const indicator = document.getElementById('page-typing-indicator');
+                if (indicator) indicator.remove();
+            }
+        }
+    </script>
+</body>
+</html>
