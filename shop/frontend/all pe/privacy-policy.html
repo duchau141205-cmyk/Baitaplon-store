@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chính sách bảo mật | Mô Hình Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .policy-container {
+            margin-top: 120px;
+            margin-bottom: 80px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .policy-card {
+            padding: 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            line-height: 1.8;
+        }
+        .policy-card h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .policy-card h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 8px;
+        }
+        .policy-card p {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+        .policy-card ul {
+            color: var(--text-muted);
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        .policy-card ul li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header id="main-header" class="scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="Logo">
+                <span>MÔ HÌNH STORE</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Trang chủ</a>
+                <a href="products.html">Sản phẩm</a>
+                <a href="rewards.html">Khuyến mãi</a>
+                <a href="consultation.html"><i class="fas fa-headset" style="margin-right: 4px;"></i>Tư vấn</a>
+                <a href="categories.html">Về chúng tôi</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="login.html" id="user-btn"><i class="fas fa-user"></i></a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="policy-container">
+            <div class="policy-card fade-in">
+                <h1><i class="fas fa-user-shield" style="color: var(--primary-color);"></i>Chính Sách Bảo Mật</h1>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 30px;">Cập nhật lần cuối: Ngày 01 tháng 06 năm 2026</p>
+                
+                <p>Chào mừng bạn đến với <strong>Mô Hình Store</strong>. Chúng tôi tôn trọng quyền riêng tư của bạn và cam kết bảo vệ thông tin cá nhân của bạn. Chính sách bảo mật này giải thích cách chúng tôi thu thập, sử dụng và chia sẻ thông tin cá nhân của bạn khi bạn sử dụng dịch vụ của chúng tôi.</p>
+
+                <h2>1. Thu thập thông tin cá nhân</h2>
+                <p>Chúng tôi thu thập các loại thông tin sau để phục vụ dịch vụ khách hàng tốt nhất:</p>
+                <ul>
+                    <li><strong>Thông tin tài khoản:</strong> Tên, email, số điện thoại, mật khẩu được mã hóa bảo mật khi bạn đăng ký tài khoản.</li>
+                    <li><strong>Thông tin giao dịch:</strong> Địa chỉ giao hàng, chi tiết thanh toán và lịch sử mua các mô hình gundam, siêu xe, máy bay.</li>
+                    <li><strong>Dữ liệu liên hệ tư vấn:</strong> Các yêu cầu tư vấn sản phẩm, ghi chú tư vấn và nội dung trao đổi qua Chatbox AI.</li>
+                </ul>
+
+                <h2>2. Sử dụng thông tin cá nhân</h2>
+                <p>Thông tin của bạn sẽ được sử dụng vào các mục đích sau:</p>
+                <ul>
+                    <li>Xử lý, đóng gói và vận chuyển các đơn đặt hàng mô hình của bạn.</li>
+                    <li>Cung cấp tính năng Trợ lý AI và nhân viên tư vấn giải đáp thắc mắc của bạn nhanh nhất.</li>
+                    <li>Gửi các chương trình khuyến mãi đặc quyền, tích lũy điểm thưởng thành viên và thông báo voucher.</li>
+                    <li>Bảo mật tài khoản và ngăn chặn các hành vi gian lận thanh toán trực tuyến.</li>
+                </ul>
+
+                <h2>3. Bảo mật thông tin</h2>
+                <p>Mô Hình Store sử dụng các biện pháp bảo mật tối tân (mã hóa mật khẩu bằng bcrypt, bảo vệ token xác thực JWT) để bảo mật thông tin cá nhân của bạn chống lại các truy cập trái phép hoặc mất mát dữ liệu.</p>
+
+                <h2>4. Quyền lợi của khách hàng</h2>
+                <p>Bạn có toàn quyền truy cập, chỉnh sửa thông tin cá nhân trong trang Hồ sơ cá nhân của mình, thay đổi mật khẩu hoặc yêu cầu xóa tài khoản khỏi hệ thống của chúng tôi bất kỳ lúc nào.</p>
+
+                <h2>5. Liên hệ</h2>
+                <p>Nếu bạn có bất kỳ câu hỏi nào về chính sách bảo mật này, vui lòng liên hệ với ban quản trị qua email: <strong>Mohinhstore@gmail.com</strong> hoặc hotline chăm sóc khách hàng: <strong>0564821121</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">MÔ HÌNH STORE</div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
+                </div>
+                <div class="footer-col">
+                    <h3><a href="products.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Liên kết</a></h3>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                        <li><a href="categories.html">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3><a href="consultation.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Hỗ trợ</a></h3>
+                    <ul>
+                        <li><a href="privacy-policy.html">Chính sách bảo mật</a></li>
+                        <li><a href="terms-of-use.html">Điều khoản sử dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3><a href="consultation.html" style="color: inherit; text-decoration: none; transition: var(--transition);">Theo dõi chúng tôi</a></h3>
+                    <div style="display: flex; gap: 1rem; font-size: 1.5rem;">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by Antigravity.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/shop-api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            const user = ShopAPI.getUserInfo();
+            if (user) {
+                document.getElementById('user-btn').innerHTML = `<i class="fas fa-user-check" style="color: var(--primary-color);"></i>`;
+                document.getElementById('user-btn').href = 'profile.html';
+            }
+        });
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+    </script>
+</body>
+</html>
