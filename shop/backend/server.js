@@ -1,3 +1,13 @@
+const dns = require('dns');
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
+try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {
+    console.warn("Không thể đổi DNS Server:", e.message);
+}
+
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
