@@ -499,10 +499,12 @@
             try {
                 const result = await ShopAPI.register({ name, email, phone, password });
                 if (result) {
-                    showToast('Đăng ký thành công! Chào mừng bạn đến với Mô Hình Store 🎉', 'success');
+                    localStorage.removeItem('user_token');
+                    localStorage.removeItem('user_info');
+                    showToast('Đăng ký thành công! Hãy đăng nhập bằng tài khoản mới của bạn 🎉', 'success');
                     setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1200);
+                        window.location.href = 'login.html';
+                    }, 1500);
                 }
             } catch (error) {
                 const msg = error.message || 'Có lỗi xảy ra. Vui lòng thử lại!';

@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giới thiệu & Danh mục | Mô Hình Store</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
@@ -15,13 +13,13 @@
             padding: 150px 0 100px;
             text-align: center;
         }
-
+        
         .about-hero h1 {
             font-size: 3.5rem;
             font-weight: 900;
             margin-bottom: 20px;
         }
-
+        
         .about-hero p {
             font-size: 1.2rem;
             color: var(--text-muted);
@@ -29,38 +27,38 @@
             margin: 0 auto;
             line-height: 1.8;
         }
-
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 2rem;
             margin-top: 60px;
         }
-
+        
         .stat-card {
             padding: 40px 20px;
             text-align: center;
             border-radius: 24px;
             transition: var(--transition);
         }
-
+        
         .stat-card:hover {
             transform: translateY(-10px);
             border-color: var(--primary-color);
         }
-
+        
         .stat-card i {
             font-size: 2.5rem;
             color: var(--primary-color);
             margin-bottom: 20px;
         }
-
+        
         .stat-card h3 {
             font-size: 2.5rem;
             font-weight: 800;
             margin-bottom: 5px;
         }
-
+        
         .stat-card p {
             color: var(--text-muted);
             font-weight: 600;
@@ -68,12 +66,12 @@
             letter-spacing: 1px;
             font-size: 0.9rem;
         }
-
+        
         .achievements-section {
             padding: 100px 0;
             position: relative;
         }
-
+        
         .achievements-section::before {
             content: '';
             position: absolute;
@@ -84,7 +82,7 @@
             background: radial-gradient(circle, rgba(121, 40, 202, 0.1) 0%, transparent 70%);
             z-index: -1;
         }
-
+        
         .mission-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -92,66 +90,73 @@
             align-items: center;
             margin-top: 50px;
         }
-
+        
         .mission-img {
             border-radius: 30px;
             overflow: hidden;
             border: 1px solid var(--glass-border);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
-
+        
         .category-explore {
             background: rgba(0, 0, 0, 0.3);
             padding: 100px 0;
         }
-
+        
         .achievement-card {
             padding: 40px;
             border-radius: 24px;
             position: relative;
             overflow: hidden;
             background: rgba(22, 27, 34, 0.5);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             transition: var(--transition);
         }
+        
         .achievement-card.card-1:hover {
             transform: translateY(-10px);
             border-color: var(--primary-color);
         }
+        
         .achievement-card.card-2:hover {
             transform: translateY(-10px);
             border-color: var(--secondary-color);
         }
+        
         .achievement-card.card-3:hover {
             transform: translateY(-10px);
             border-color: var(--accent-color);
         }
+        
         .achievement-card.card-4:hover {
             transform: translateY(-10px);
             border-color: var(--success-color);
         }
-
+        
         .category-card-custom {
             border-radius: 24px;
             overflow: hidden;
             position: relative;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        
         .category-card-custom:hover {
             transform: translateY(-10px) scale(1.02);
             border-color: var(--primary-color);
         }
+        
         .category-card-custom img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.7s ease;
         }
+        
         .category-card-custom:hover img {
             transform: scale(1.1);
         }
-
+        
         .small-card-custom {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--glass-border);
@@ -160,17 +165,17 @@
             text-align: center;
             transition: all 0.3s ease;
         }
+        
         .small-card-custom:hover {
             border-color: var(--primary-color);
             transform: translateY(-5px);
         }
-
+        
         @media (max-width: 768px) {
             .mission-grid {
                 grid-template-columns: 1fr;
                 gap: 2rem;
             }
-
             .about-hero h1 {
                 font-size: 2.5rem;
             }
@@ -213,11 +218,9 @@
                     }
                 }
             </style>
-            <h1 class="logo"
-                style="font-size: 4.5rem; font-weight: 900; line-height: 1.4; padding-top: 10px; margin-bottom: 20px; color: #ffffff;">
+            <h1 class="logo" style="font-size: 4.5rem; font-weight: 900; line-height: 1.4; padding-top: 10px; margin-bottom: 20px; color: #ffffff;">
                 Về Chúng Tôi</h1>
-            <p style="font-size: 1.25rem; font-weight: 300; color: #ffffff; max-width: 800px; margin: 0 auto 50px; line-height: 1.8;">Hành trình xây dựng cộng đồng đam mê mô hình lớn nhất Việt Nam. Chúng tôi không chỉ bán sản phẩm, chúng
-                tôi trao gửi những giá trị tinh thần và đam mê sưu tầm mãnh liệt.</p>
+            <p style="font-size: 1.25rem; font-weight: 300; color: #ffffff; max-width: 800px; margin: 0 auto 50px; line-height: 1.8;">Hành trình xây dựng cộng đồng đam mê mô hình lớn nhất Việt Nam. Chúng tôi không chỉ bán sản phẩm, chúng tôi trao gửi những giá trị tinh thần và đam mê sưu tầm mãnh liệt.</p>
 
             <div class="stats-grid">
                 <div class="stat-card glass" style="background: rgba(22, 27, 34, 0.4); border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
@@ -295,19 +298,20 @@
     <!-- Mission Statement -->
     <section class="achievements-section" style="padding-top: 0;">
         <div class="container">
-            <div class="mission-grid glass"
-                style="padding: 50px; border-radius: 30px; border: 1px solid var(--primary-color);">
+            <div class="mission-grid glass" style="padding: 50px; border-radius: 30px; border: 1px solid var(--primary-color);">
                 <div class="mission-img fade-in">
-                    <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1000&auto=format&fit=crop"
-                        alt="Store Innovation" style="width: 100%; border-radius: 20px;">
+                    <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1000&auto=format&fit=crop" alt="Store Innovation" style="width: 100%; border-radius: 20px;">
                 </div>
                 <div class="mission-content fade-in">
                     <h2 style="font-size: 3rem; margin-bottom: 25px; font-family: var(--font-display); color: var(--primary-color); font-weight: 800;">Tầm nhìn & Sứ mệnh</h2>
-                    
-                    <p style="font-size: 1.15rem; line-height: 1.8; color: #e6edf3; margin-bottom: 15px; font-weight: 300;">Mô Hình Store được sinh ra từ niềm đam mê mãnh liệt với nghệ thuật thu nhỏ. Chúng tôi hiểu rằng mỗi mô hình không chỉ là một món đồ chơi, mà là một tác phẩm nghệ thuật, một người bạn đồng hành lưu giữ ký ức và khơi nguồn cảm hứng vô tận.</p>
-                    
-                    <p style="font-size: 1.05rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 35px;">Với phương châm <strong style="color: var(--primary-color); font-weight: 600;">"Uy tín tạo nên thương hiệu - Chất lượng khẳng định đẳng cấp"</strong>, Mô Hình Store cam kết 100% sản phẩm cung cấp tới tay khách hàng đều là <strong style="color: #fff; font-weight: 500;">hàng chính hãng cao cấp</strong>. Từ những chi tiết cơ khí tinh xảo của siêu xe Lamborghini, sự hầm hố của các cỗ máy Gundam, cho đến thần thái cuốn hút của các siêu anh hùng Marvel... tất cả đều được kiểm định khắt khe.</p>
-                    
+
+                    <p style="font-size: 1.15rem; line-height: 1.8; color: #e6edf3; margin-bottom: 15px; font-weight: 300;">Mô Hình Store được sinh ra từ niềm đam mê mãnh liệt với nghệ thuật thu nhỏ. Chúng tôi hiểu rằng mỗi mô hình không chỉ là một món đồ chơi, mà là một tác phẩm nghệ thuật, một người bạn đồng hành lưu giữ ký ức và khơi nguồn cảm hứng vô
+                        tận.
+                    </p>
+
+                    <p style="font-size: 1.05rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 35px;">Với phương châm <strong style="color: var(--primary-color); font-weight: 600;">"Uy tín tạo nên thương hiệu - Chất lượng khẳng định đẳng cấp"</strong>, Mô Hình Store cam kết 100% sản phẩm cung cấp tới tay khách hàng đều là <strong style="color: #fff; font-weight: 500;">hàng chính hãng cao cấp</strong>.
+                        Từ những chi tiết cơ khí tinh xảo của siêu xe Lamborghini, sự hầm hố của các cỗ máy Gundam, cho đến thần thái cuốn hút của các siêu anh hùng Marvel... tất cả đều được kiểm định khắt khe.</p>
+
                     <div class="glass" style="background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); padding: 25px; border-radius: 20px; margin-bottom: 40px; position: relative; overflow: hidden;">
                         <div style="position: absolute; top: -15px; right: -15px; font-size: 6rem; color: var(--primary-color); opacity: 0.05;"><i class="fas fa-gem"></i></div>
                         <h3 style="color: #fff; margin-bottom: 10px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
@@ -358,11 +362,9 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <div class="logo"
-                        style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">
+                    <div class="logo" style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">
                         MÔ HÌNH STORE</div>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao
-                        cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
                 </div>
                 <div class="footer-col">
                     <h3>Liên kết</h3>
@@ -390,8 +392,7 @@
             </div>
 
             <!-- Contact Section moved here, under the main footer info -->
-            <div class="contact-grid"
-                style="margin-top: 50px; border-top: 1px solid var(--glass-border); padding-top: 50px;">
+            <div class="contact-grid" style="margin-top: 50px; border-top: 1px solid var(--glass-border); padding-top: 50px;">
                 <div class="contact-card glass fade-in" style="padding: 1.5rem;">
                     <i class="fas fa-phone-alt" style="font-size: 1.5rem;"></i>
                     <h3 style="font-size: 1rem;">Hotline</h3>
@@ -410,7 +411,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by Antigravity.</p>
+                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by LeDucHau.</p>
             </div>
         </div>
     </footer>
@@ -433,7 +434,7 @@
             const categories = await ShopAPI.get('/categories');
             if (categories) {
                 const container = document.getElementById('category-list');
-                
+
                 const getAiImageForCategory = (name) => {
                     const lowerName = name.toLowerCase();
                     if (lowerName.includes('gundam')) return 'assets/images/ai_gundam.png';

@@ -16,7 +16,7 @@
             margin-top: 120px;
             margin-bottom: 80px;
         }
-
+        
         .filter-topbar {
             padding: 20px 25px;
             border-radius: 20px;
@@ -29,14 +29,14 @@
             gap: 20px;
             z-index: 10;
         }
-
+        
         .filter-row {
             display: flex;
             align-items: center;
             gap: 15px;
             flex-wrap: wrap;
         }
-
+        
         .filter-row-bottom {
             display: flex;
             justify-content: space-between;
@@ -46,13 +46,13 @@
             padding-top: 15px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
-
+        
         .filter-group-inline {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-
+        
         .filter-label {
             font-weight: 700;
             color: #fff;
@@ -61,7 +61,7 @@
             font-size: 0.9rem;
             white-space: nowrap;
         }
-
+        
         .filter-list.horizontal {
             display: flex;
             flex-wrap: wrap;
@@ -70,7 +70,7 @@
             padding: 0;
             list-style: none;
         }
-
+        
         .filter-list li {
             cursor: pointer;
             color: #8b949e;
@@ -83,30 +83,30 @@
             font-size: 0.9rem;
             white-space: nowrap;
         }
-
+        
         .filter-list li:hover {
             color: #fff;
             background: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
         }
-
+        
         .filter-list li.active {
             color: #000;
             background: var(--primary-color);
             border-color: var(--primary-color);
             font-weight: 700;
         }
-
+        
         .price-inputs {
             display: flex;
             gap: 10px;
             align-items: center;
         }
-
+        
         .price-inputs span {
             color: #8b949e;
         }
-
+        
         .price-inputs input {
             width: 100px;
             background: rgba(0, 0, 0, 0.3);
@@ -118,7 +118,7 @@
             transition: all 0.3s ease;
             text-align: center;
         }
-
+        
         .price-inputs input:focus {
             outline: none;
             border-color: var(--primary-color);
@@ -130,14 +130,14 @@
             font-size: 0.9rem;
             border-radius: 50px;
         }
-
+        
         .shop-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
-
+        
         .sort-select {
             background: #1c2128;
             color: white;
@@ -146,14 +146,14 @@
             border-radius: 8px;
             outline: none;
         }
-
+        
         .pagination {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-top: 50px;
         }
-
+        
         .page-btn {
             width: 40px;
             height: 40px;
@@ -166,22 +166,20 @@
             cursor: pointer;
             transition: var(--transition);
         }
-
+        
         .page-btn.active {
             background: var(--primary-color);
             color: #000;
             border-color: var(--primary-color);
         }
-
+        
         @media (max-width: 992px) {
             .shop-container {
                 grid-template-columns: 1fr;
             }
-
             .filter-sidebar {
                 display: none;
             }
-
             /* Could add a mobile filter drawer later */
         }
     </style>
@@ -284,11 +282,9 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <div class="logo"
-                        style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">
+                    <div class="logo" style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">
                         MÔ HÌNH STORE</div>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao
-                        cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
                 </div>
                 <div class="footer-col">
                     <h3>Liên kết</h3>
@@ -316,8 +312,7 @@
             </div>
 
             <!-- Contact Section moved here, under the main footer info -->
-            <div class="contact-grid"
-                style="margin-top: 50px; border-top: 1px solid var(--glass-border); padding-top: 50px;">
+            <div class="contact-grid" style="margin-top: 50px; border-top: 1px solid var(--glass-border); padding-top: 50px;">
                 <div class="contact-card glass fade-in" style="padding: 1.5rem;">
                     <i class="fas fa-phone-alt" style="font-size: 1.5rem;"></i>
                     <h3 style="font-size: 1rem;">Hotline</h3>
@@ -336,7 +331,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by Antigravity.</p>
+                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by LeDucHau.</p>
             </div>
         </div>
     </footer>
@@ -413,7 +408,15 @@
 
         async function loadProducts() {
             try {
-                const { category, minPrice, maxPrice, sort, page, limit, keyword } = currentFilters;
+                const {
+                    category,
+                    minPrice,
+                    maxPrice,
+                    sort,
+                    page,
+                    limit,
+                    keyword
+                } = currentFilters;
                 let url = `/products?page=${page}&limit=${limit}&sort=${sort}`;
 
                 if (category) url += `&category=${category}`;
@@ -450,10 +453,10 @@
             }
 
             container.innerHTML = products.map(p => {
-                const discount = p.salePrice ? Math.round((1 - p.salePrice / p.price) * 100) : 0;
-                const isOutOfStock = p.countInStock <= 0;
-                
-                return `
+                        const discount = p.salePrice ? Math.round((1 - p.salePrice / p.price) * 100) : 0;
+                        const isOutOfStock = p.countInStock <= 0;
+
+                        return `
                 <div class="product-card glass fade-in ${isOutOfStock ? 'out-of-stock' : ''}" style="${isOutOfStock ? 'opacity: 0.7;' : ''}">
                     ${discount > 0 && !isOutOfStock ? `<div class="product-badge">-${discount}%</div>` : ''}
                     ${isOutOfStock ? `<div class="product-badge" style="background: var(--danger-color); color: white;">Hết hàng</div>` : ''}
