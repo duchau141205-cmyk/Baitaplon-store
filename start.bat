@@ -33,6 +33,10 @@ if not exist node_modules (
     npm install
 )
 
+:: 4. Khoi dong cong cu tu dong dong bo (File Watcher)
+echo [Luu y] Dang khoi dong cong cu tu dong dong bo len website online...
+start /b ..\..\run_watcher.bat
+
 echo.
 echo ===================================================
 echo   KHOI DONG HOAN TAT! WEB DANG CHAY TAI:
