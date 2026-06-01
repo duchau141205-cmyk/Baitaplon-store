@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Lịch hẹn & Tư vấn | Mô Hình Store Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-components.css">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="logo">MÔ HÌNH ADMIN</div></div>
+            <nav class="sidebar-menu">
+                <a href="index.html"><i class="fas fa-th-large"></i> Tổng quan</a>
+                <a href="products.html"><i class="fas fa-box"></i> Sản phẩm</a>
+                <a href="categories.html"><i class="fas fa-list"></i> Danh mục</a>
+                <a href="orders.html"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                <a href="users.html"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
+                <a href="appointments.html" class="active"><i class="fas fa-calendar-check"></i> Lịch hẹn & Tư vấn</a>
+                <a href="promotions.html"><i class="fas fa-percent"></i> Khuyến mãi</a>
+            </nav>
+            <div class="sidebar-footer"><a href="#" onclick="AdminAuth.logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title" style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="mobile-toggle" onclick="AdminUtils.toggleSidebar()"><i class="fas fa-bars"></i></button>
+                    <h2>Quản lý Lịch hẹn & Tư vấn</h2>
+                </div>
+                <div class="admin-info">
+                    <span class="admin-name" id="display-admin-name">Admin</span>
+                    <div class="avatar">A</div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <div  >
+                    <!-- Filter bar -->
+                    <div class="card glass" style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; gap: 1rem; flex-grow: 1; max-width: 600px;">
+                                <input type="text" id="search-appointment" class="form-control" placeholder="Tìm tên, SĐT, email...">
+                                <select id="filter-appointment-status" class="form-control" style="max-width: 200px;">
+                                    <option value="all">Tất cả trạng thái</option>
+                                    <option value="Pending">Chờ xử lý</option>
+                                    <option value="Contacted">Đã liên hệ</option>
+                                    <option value="Completed">Hoàn thành</option>
+                                    <option value="Cancelled">Đã hủy</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Two-column: list + chat -->
+                    <div style="display: grid; grid-template-columns: 380px 1fr; gap: 1.5rem; align-items: start;" id="appt-split-panel">
+                        <!-- List column -->
+                        <div class="card glass" style="padding: 0; overflow: hidden;">
+                            <div style="padding: 1rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 600; font-size: 0.95rem;">
+                                <i class="fas fa-list" style="color: #ffc107; margin-right: 8px;"></i>Danh sách yêu cầu
+                            </div>
+                            <div id="appointments-sidebar-list" style="max-height: 620px; overflow-y: auto;"></div>
+                        </div>
+
+                        <!-- Chat column -->
+                        <div id="staff-chat-panel" class="card glass" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 680px;">
+                            <!-- Empty state -->
+                            <div id="staff-chat-empty" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); padding: 40px;">
+                                <i class="fas fa-comments" style="font-size: 3rem; margin-bottom: 16px; opacity: .25;"></i>
+                                <p style="font-size: 0.95rem;">Chọn một yêu cầu tư vấn để bắt đầu chat</p>
+                            </div>
+
+                            <!-- Active chat -->
+                            <div id="staff-chat-active" style="display: none; flex-direction: column; height: 100%;">
+                                <!-- Chat header -->
+                                <div style="padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(0,180,219,0.07); display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg,#ffc107,#ff8f00); display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-user" style="color: #000; font-size: 1rem;"></i>
+                                        </div>
+                                        <div>
+                                            <div id="staff-chat-customer-name" style="font-weight: 600; font-size: 0.95rem;"></div>
+                                            <div id="staff-chat-customer-contact" style="font-size: 0.8rem; color: #aaa;"></div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <select id="staff-inline-status" class="form-control" style="max-width: 160px; font-size: 0.82rem; padding: 5px 8px;" onchange="saveInlineStatus()">
+                                            <option value="Pending">Chờ xử lý</option>
+                                            <option value="Contacted">Đã liên hệ</option>
+                                            <option value="Completed">Hoàn thành</option>
+                                            <option value="Cancelled">Đã hủy</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Customer info strip -->
+                                <div style="padding: 8px 18px; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.8rem; color: #aaa; display: flex; justify-content: space-between; align-items: center;">
+                                    <div id="staff-chat-info-strip"></div>
+                                    <button onclick="openEditConsultationModal()" class="btn btn-sm" style="padding:2px 8px;font-size:0.75rem;background:rgba(255,255,255,0.1);border:none;color:#fff;border-radius:4px;"><i class="fas fa-edit"></i> Sửa TT</button>
+                                </div>
+
+                                <!-- Messages -->
+                                <div id="staff-chat-messages" style="flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;"></div>
+
+                                <!-- Input -->
+                                <div style="padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; gap: 10px; align-items: flex-end;">
+                                    <textarea id="staff-chat-input" placeholder="Nhập tin nhắn tư vấn..." rows="1" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:9px 13px;border-radius:12px;resize:none;font-family:inherit;font-size:0.88rem;outline:none;max-height:90px;overflow-y:auto;transition:.2s;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendStaffChatMsg();}"></textarea>
+                                    <button onclick="sendStaffChatMsg()" id="btn-staff-send" style="background:var(--gradient-primary);color:#fff;border:none;width:42px;height:42px;border-radius:12px;cursor:pointer;font-size:1rem;flex-shrink:0;transition:.15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i class="fas fa-paper-plane"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Status Modal -->
+    <div id="quick-status-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Cập nhật trạng thái tư vấn</h3>
+                <span class="close-modal" onclick="AdminUtils.hideModal('quick-status-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="quick-status-id">
+                <div class="form-group">
+                    <label>Trạng thái xử lý</label>
+                    <select id="quick-status-select" class="form-control">
+                        <option value="Pending">Chờ xử lý</option>
+                        <option value="Contacted">Đã liên hệ</option>
+                        <option value="Completed">Hoàn thành</option>
+                        <option value="Cancelled">Đã hủy</option>
+                    </select>
+                </div>
+                <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="AdminUtils.hideModal('quick-status-modal')">Hủy</button>
+                    <button class="btn btn-primary" onclick="saveQuickStatus()">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Consultation Modal -->
+    <div id="edit-consultation-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Cập nhật thông tin khách hàng</h3>
+                <span class="close-modal" onclick="AdminUtils.hideModal('edit-consultation-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Họ và tên</label>
+                    <input type="text" id="edit-cons-name" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="text" id="edit-cons-phone" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="edit-cons-email" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Dịch vụ quan tâm</label>
+                    <input type="text" id="edit-cons-service" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Ghi chú / Yêu cầu</label>
+                    <textarea id="edit-cons-notes" class="form-control" rows="3"></textarea>
+                </div>
+                <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="AdminUtils.hideModal('edit-consultation-modal')">Hủy</button>
+                    <button class="btn btn-primary" onclick="saveConsultationDetails()">Lưu thông tin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
+    <script src="../assets/js/admin-utils.js"></script>
+    <script>
+        AdminAuth.checkAuth();
+        let allConsultations = [];
+        let filterStatus = 'all';
+        let searchQuery = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminInfo = AdminAuth.getAdminInfo();
+            if (adminInfo) {
+                document.getElementById('display-admin-name').innerText = adminInfo.name;
+                document.querySelector('.avatar').innerText = adminInfo.name.charAt(0);
+            }
+
+            loadAllData();
+
+            try {
+                const eventSource = new EventSource('/api/consultations/stream');
+                eventSource.onmessage = async (event) => {
+                    if (event.data === 'REFRESH') {
+                        const qm = document.getElementById('quick-status-modal');
+                        const isModalOpen = (qm && qm.classList.contains('active'));
+                        if (!isModalOpen) {
+                            await loadAllData(true);
+                            if (typeof currentStaffChatId !== 'undefined' && currentStaffChatId) {
+                                await openStaffChat(currentStaffChatId);
+                            }
+                        }
+                    }
+                };
+            } catch (e) {}
+
+            setInterval(() => {
+                const qm = document.getElementById('quick-status-modal');
+                const isModalOpen = (qm && qm.classList.contains('active'));
+                if (!isModalOpen) loadAllData(true);
+            }, 30000);
+
+            document.getElementById('filter-appointment-status').addEventListener('change', renderAppointmentsTab);
+            document.getElementById('search-appointment').addEventListener('input', renderAppointmentsTab);
+        });
+
+        async function loadAllData(isSilent = false) {
+            if (!isSilent) AdminUtils.showLoader();
+            try {
+                const consultations = await AdminAPI.get('/consultations/admin', isSilent);
+                if (consultations) {
+                    allConsultations = consultations;
+                    renderAppointmentsTab();
+                }
+            } catch (err) {} finally {
+                if (!isSilent) AdminUtils.hideLoader();
+            }
+        }
+
+        function openQuickStatus(id, currentStatus) {
+            document.getElementById('quick-status-id').value = id;
+            document.getElementById('quick-status-select').value = currentStatus;
+            AdminUtils.showModal('quick-status-modal');
+        }
+
+        async function saveQuickStatus() {
+            const id = document.getElementById('quick-status-id').value;
+            const newStatus = document.getElementById('quick-status-select').value;
+            try {
+                const res = await AdminAPI.put(`/consultations/admin/${id}/status`, { status: newStatus }, true);
+                if (res) {
+                    AdminUtils.toast('Cập nhật trạng thái thành công!');
+                    AdminUtils.hideModal('quick-status-modal');
+                    loadAllData(true);
+                }
+            } catch (err) {
+                AdminUtils.toast('Lỗi cập nhật trạng thái', 'danger');
+            }
+        }
+
+// --- CONSULTATIONS TAB RENDERING (sidebar list) ---
+        let currentStaffChatId = null;
+
+        function renderAppointmentsTab() {
+            const sidebar = document.getElementById('appointments-sidebar-list');
+            const search = document.getElementById('search-appointment').value.toLowerCase().trim();
+            const filter = document.getElementById('filter-appointment-status').value;
+
+            let filtered = allConsultations;
+            if (filter !== 'all') filtered = filtered.filter(c => c.status === filter);
+            if (search) filtered = filtered.filter(c =>
+                (c.name && c.name.toLowerCase().includes(search)) ||
+                (c.phone && c.phone.includes(search)) ||
+                (c.email && c.email.toLowerCase().includes(search))
+            );
+
+            if (!filtered.length) {
+                sidebar.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-muted);font-size:0.9rem;">Không tìm thấy yêu cầu nào.</div>';
+                return;
+            }
+
+            const statusColors = { Pending: '#ffc107', Contacted: '#17a2b8', Completed: '#28a745', Cancelled: '#dc3545' };
+            const statusLabels = { Pending: 'Chờ xử lý', Contacted: 'Đã liên hệ', Completed: 'Hoàn thành', Cancelled: 'Đã hủy' };
+
+            sidebar.innerHTML = filtered.map(c => {
+                const color = statusColors[c.status] || '#ffc107';
+                const label = statusLabels[c.status] || c.status;
+                const lastMsg = c.messages && c.messages.length ? c.messages[c.messages.length - 1] : null;
+                const msgCount = c.messages ? c.messages.length : 0;
+                const isActive = currentStaffChatId === c._id;
+                return `
+                <div onclick="openStaffChat('${c._id}')" style="cursor:pointer;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.05);transition:.15s;
+                    ${isActive ? 'background:rgba(0,180,219,0.1);border-left:3px solid #00b4db;' : 'border-left:3px solid transparent;'}"
+                    onmouseover="if('${c._id}'!==currentStaffChatId)this.style.background='rgba(255,255,255,0.04)'" onmouseout="if('${c._id}'!==currentStaffChatId)this.style.background=''"
+                    id="sidebar-item-${c._id}">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+                        <span style="font-weight:600;font-size:0.9rem;color:#ddd;">${c.name}</span>
+                        <span style="font-size:0.72rem;background:${color}22;color:${color};border:1px solid ${color}44;padding:1px 8px;border-radius:10px;white-space:nowrap;">${label}</span>
+                    </div>
+                    <div style="font-size:0.8rem;color:#888;margin-bottom:3px;"><i class="fas fa-phone-alt" style="width:13px;"></i>${c.phone}${c.email?' &bull; '+c.email:''}</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        ${lastMsg ? (lastMsg.sender==='customer'?'KH: ':'NV: ')+lastMsg.content : (c.notes || 'Yêu cầu tư vấn')}
+                    </div>
+                    ${msgCount > 0 ? `<div style="font-size:0.75rem;color:#555;margin-top:3px;"><i class="fas fa-comment" style="margin-right:3px;"></i>${msgCount} tin nhắn</div>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        
+// ===== STAFF CHAT FUNCTIONS =====
+        async function openStaffChat(id) {
+            currentStaffChatId = id;
+
+            // Highlight active in sidebar
+            document.querySelectorAll('[id^="sidebar-item-"]').forEach(el => {
+                el.style.background = '';
+                el.style.borderLeft = '3px solid transparent';
+            });
+            const activeItem = document.getElementById('sidebar-item-' + id);
+            if (activeItem) { activeItem.style.background = 'rgba(0,180,219,0.1)'; activeItem.style.borderLeft = '3px solid #00b4db'; }
+
+            // Load fresh consultation detail
+            const c = await AdminAPI.get(`/consultations/admin/${id}`);
+            if (!c) return;
+
+            // Update allConsultations cache
+            const idx = allConsultations.findIndex(x => x._id === id);
+            if (idx >= 0) allConsultations[idx] = c;
+
+            // Populate header
+            document.getElementById('staff-chat-customer-name').textContent = c.name;
+            document.getElementById('staff-chat-customer-contact').textContent = c.phone + (c.email ? '  •  ' + c.email : '');
+            document.getElementById('staff-chat-info-strip').innerHTML = `<i class="fas fa-tag" style="margin-right:5px;"></i>${c.service || 'Tư vấn sản phẩm'}${c.notes ? '  •  Ghi chú: ' + c.notes : ''}`;
+            document.getElementById('staff-inline-status').value = c.status;
+
+            // Show chat panel
+            document.getElementById('staff-chat-empty').style.display = 'none';
+            document.getElementById('staff-chat-active').style.display = 'flex';
+
+            renderStaffChatMessages(c.messages || []);
+        }
+
+        function renderStaffChatMessages(messages) {
+            const container = document.getElementById('staff-chat-messages');
+            if (!messages.length) {
+                container.innerHTML = '<div style="text-align:center;color:var(--text-muted);margin:auto;"><i class="fas fa-comments" style="font-size:2rem;margin-bottom:10px;opacity:.25;"></i><p style="font-size:0.85rem;">Chưa có tin nhắn. Hãy bắt đầu tư vấn!</p></div>';
+                return;
+            }
+            const adminInfo = AdminAuth.getAdminInfo();
+            container.innerHTML = messages.map(msg => {
+                const isMe = msg.sender === 'staff';
+                const time = new Date(msg.timestamp);
+                const timeStr = time.getHours().toString().padStart(2,'0') + ':' + time.getMinutes().toString().padStart(2,'0');
+                return `
+                <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};">
+                    <div style="max-width:74%;">
+                        <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:2px;${isMe ? 'text-align:right;' : ''}">${isMe ? msg.senderName + ' (NV)' : '<i class="fas fa-user" style="margin-right:3px;"></i>' + msg.senderName} &bull; ${timeStr}</div>
+                        <div style="padding:9px 13px;border-radius:${isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px'};font-size:0.88rem;line-height:1.5;word-break:break-word;
+                            background:${isMe ? 'linear-gradient(135deg,#00b4db,#0083b0)' : 'rgba(255,255,255,0.07)'};color:#fff;border:1px solid ${isMe ? 'transparent' : 'rgba(255,255,255,0.1)'}">${msg.content}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendStaffChatMsg() {
+            const input = document.getElementById('staff-chat-input');
+            const content = input.value.trim();
+            if (!content || !currentStaffChatId) return;
+
+            const btn = document.getElementById('btn-staff-send');
+            btn.disabled = true;
+            input.value = '';
+            input.style.height = 'auto';
+
+            try {
+                const updated = await AdminAPI.post(`/consultations/admin/${currentStaffChatId}/messages`, { content }, true);
+                if (updated) {
+                    const idx = allConsultations.findIndex(x => x._id === currentStaffChatId);
+                    if (idx >= 0) allConsultations[idx] = updated;
+                    renderStaffChatMessages(updated.messages || []);
+                    renderAppointmentsTab();
+                }
+            } catch(e) {
+                AdminUtils.toast('Không thể gửi tin nhắn!', 'danger');
+                input.value = content;
+            } finally {
+                btn.disabled = false;
+                input.focus();
+            }
+        }
+
+        async function saveInlineStatus() {
+            if (!currentStaffChatId) return;
+            const newStatus = document.getElementById('staff-inline-status').value;
+            try {
+                const res = await AdminAPI.put(`/consultations/admin/${currentStaffChatId}/status`, { status: newStatus }, true);
+                if (res) {
+                    const idx = allConsultations.findIndex(x => x._id === currentStaffChatId);
+                    if (idx >= 0) allConsultations[idx].status = newStatus;
+                    AdminUtils.toast('Cập nhật trạng thái thành công!');
+                    renderAppointmentsTab();
+                }
+            } catch(e) {
+                AdminUtils.toast('Lỗi cập nhật trạng thái', 'danger');
+            }
+        }
+
+        function openEditConsultationModal() {
+            if (!currentStaffChatId) return;
+            const c = allConsultations.find(x => x._id === currentStaffChatId);
+            if (!c) return;
+
+            document.getElementById('edit-cons-name').value = c.name || '';
+            document.getElementById('edit-cons-phone').value = c.phone || '';
+            document.getElementById('edit-cons-email').value = c.email || '';
+            document.getElementById('edit-cons-service').value = c.service || '';
+            document.getElementById('edit-cons-notes').value = c.notes || '';
+
+            AdminUtils.showModal('edit-consultation-modal');
+        }
+
+        async function saveConsultationDetails() {
+            if (!currentStaffChatId) return;
+            const name = document.getElementById('edit-cons-name').value.trim();
+            const phone = document.getElementById('edit-cons-phone').value.trim();
+            const email = document.getElementById('edit-cons-email').value.trim();
+            const service = document.getElementById('edit-cons-service').value.trim();
+            const notes = document.getElementById('edit-cons-notes').value.trim();
+
+            if (!name || !phone) {
+                AdminUtils.toast('Tên và số điện thoại là bắt buộc!', 'danger');
+                return;
+            }
+
+            try {
+                const updated = await AdminAPI.put(`/consultations/admin/${currentStaffChatId}`, {
+                    name, phone, email, service, notes
+                });
+                if (updated) {
+                    AdminUtils.toast('Cập nhật thông tin thành công!', 'success');
+                    AdminUtils.hideModal('edit-consultation-modal');
+                    // Refresh current chat view and list
+                    await openStaffChat(currentStaffChatId);
+                    renderAppointmentsTab();
+                }
+            } catch(e) {
+                console.error(e);
+                AdminUtils.toast('Lỗi cập nhật thông tin', 'danger');
+            }
+        }
+    
+
+    </script>
+</body>
+</html>

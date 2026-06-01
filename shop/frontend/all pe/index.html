@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Hình Store | Thế giới mô hình cao cấp</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="main-header">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="Logo">
+                <span>MÔ HÌNH STORE</span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="index.html" class="active">Trang chủ</a>
+                <a href="products.html">Sản phẩm</a>
+                <a href="rewards.html">Khuyến mãi</a>
+                <a href="#" onclick="openConsultationModal(event)"><i class="fas fa-headset" style="margin-right: 4px;"></i>Tư vấn</a>
+                <a href="categories.html">Về chúng tôi</a>
+            </nav>
+
+            <div class="nav-actions">
+                <div class="search-wrapper">
+                    <input type="text" id="search-input" placeholder="Tìm mô hình..." oninput="executeSearch()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <a href="login.html" id="user-btn"><i class="fas fa-user"></i></a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner with Video Background -->
+    <section class="hero-slider" id="hero-section" style="position: relative; height: 100vh; overflow: hidden; display: flex; align-items: center;">
+        <video autoplay loop muted playsinline id="bg-video" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;">
+            <source src="assets/videos/banner.mp4?v=7" type="video/mp4">
+        </video>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const video = document.getElementById('bg-video');
+                if (video) {
+                    video.muted = true;
+                    video.play().catch(e => console.log('Autoplay prevented:', e));
+                }
+            });
+        </script>
+
+        <!-- Overlay to darken video -->
+        <div style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, rgba(0,0,0,0.1) 100%); z-index: 1;"></div>
+
+        <div class="hero-particles" style="z-index: 2;">
+            <div style="position: absolute; width: 4px; height: 4px; background: var(--primary-color); border-radius: 50%; top: 20%; left: 10%; opacity: 0.5; filter: blur(2px); animation: float 6s infinite ease-in-out;"></div>
+            <div style="position: absolute; width: 6px; height: 6px; background: var(--secondary-color); border-radius: 50%; top: 70%; left: 80%; opacity: 0.4; filter: blur(3px); animation: float 8s infinite ease-in-out;"></div>
+        </div>
+
+        <div class="container" style="position: relative; z-index: 3; width: 100%;">
+            <div class="slide-content" style="max-width: 700px; text-align: left; padding: 2rem 0;">
+                <h1 class="fade-in" style="font-family: var(--font-display); font-size: 4rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.15; letter-spacing: -1px; color: #ffffff;">
+                    Thiên đường <span style="color: var(--primary-color); font-weight: 900;">mô hình</span>
+                </h1>
+                <p class="fade-in" style="font-size: 1.15rem; color: #ffffff; margin-bottom: 2.5rem; font-weight: 400; line-height: 1.7; animation-delay: 0.2s; max-width: 90%;">Khám phá bộ sưu tập mô hình đẳng cấp nhất. Trải nghiệm không gian mua sắm tinh tế, sang trọng hàng đầu.</p>
+                <div class="fade-in" style="display: flex; gap: 1rem; animation-delay: 0.4s;">
+                    <a href="products.html" class="btn btn-primary" style="font-size: 0.95rem; font-weight: 700; padding: 15px 35px; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px;"><i class="fas fa-shopping-cart" style="margin-right: 8px;"></i> Mua ngay</a>
+                    <a href="categories.html" class="btn btn-outline" style="font-size: 0.95rem; font-weight: 700; padding: 15px 35px; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: #fff;">Khám phá</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0) translateX(0);
+            }
+            50% {
+                transform: translateY(-40px) translateX(20px);
+            }
+        }
+    </style>
+
+    <!-- Categories Section -->
+    <section class="categories" id="categories-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Danh mục nổi bật</h2>
+                <div class="underline"></div>
+            </div>
+            <div class="category-grid" id="category-list">
+                <!-- Skeleton Loading or Empty State -->
+                <div style="text-align: center; width: 100%; grid-column: 1/-1;">Đang tải danh mục...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New Arrivals Section -->
+    <section id="new-arrivals" style="background: rgba(0,0,0,0.2); min-height: 400px;">
+        <div class="container">
+            <div class="section-title">
+                <h2 id="products-title">Sản phẩm mới nhất</h2>
+                <div class="underline"></div>
+            </div>
+            <div class="product-grid" id="new-arrivals-list">
+                <!-- Dynamic Content -->
+            </div>
+            <div style="text-align: center; margin-top: 50px;">
+                <a href="products.html" class="btn glass" style="color: var(--primary-color); border: 1px solid var(--primary-color);">Xem tất cả sản phẩm</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="product-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); text-align: center;">
+                <div class="fade-in">
+                    <i class="fas fa-truck-fast" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 20px;"></i>
+                    <h3>Giao hàng siêu tốc</h3>
+                    <p style="color: var(--text-muted);">Giao hàng trong 2h tại nội thành</p>
+                </div>
+                <div class="fade-in" style="animation-delay: 0.2s;">
+                    <i class="fas fa-shield-halved" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 20px;"></i>
+                    <h3>Bảo hành chính hãng</h3>
+                    <p style="color: var(--text-muted);">Cam kết 100% hàng thật</p>
+                </div>
+                <div class="fade-in" style="animation-delay: 0.4s;">
+                    <i class="fas fa-headset" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 20px;"></i>
+                    <h3>Hỗ trợ 24/7</h3>
+                    <p style="color: var(--text-muted);">Luôn lắng nghe ý kiến khách hàng</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">
+                        MÔ HÌNH STORE</div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                        <li><a href="categories.html">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Theo dõi chúng tôi</h3>
+                    <div style="display: flex; gap: 1rem; font-size: 1.5rem;">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Section moved here, under the main footer info -->
+            <div class="contact-grid" style="margin-top: 50px; border-top: 1px solid var(--glass-border); padding-top: 50px;">
+                <div class="contact-card glass fade-in" style="padding: 1.5rem;">
+                    <i class="fas fa-phone-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Hotline</h3>
+                    <p style="font-size: 0.9rem;">0564821121</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.2s;">
+                    <i class="fas fa-map-marker-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Địa chỉ</h3>
+                    <p style="font-size: 0.9rem;">31 Dịch Vọng Hậu, Cầu Giấy, Hà Nội</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.4s;">
+                    <i class="fas fa-envelope" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Email</h3>
+                    <p style="font-size: 0.9rem;">Mohinhstore@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by LeDucHau.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Consultation Request Modal -->
+    <div id="consultation-modal" class="consultation-modal">
+        <div class="consultation-modal-content glass">
+            <div class="consultation-modal-header">
+                <h2><i class="fas fa-calendar-check" style="color: var(--primary-color); margin-right: 10px;"></i>Đăng Ký Tư Vấn & Hỗ Trợ</h2>
+                <span class="consultation-close-btn" onclick="closeConsultationModal()">&times;</span>
+            </div>
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 20px; font-size: 0.95rem;">Điền đầy đủ thông tin để được đội ngũ chuyên viên của Mô Hình Store liên hệ tư vấn trực tiếp sớm nhất.</p>
+            <form id="consultation-form" onsubmit="submitConsultation(event)">
+                <div class="form-group-c">
+                    <label for="c-name"><i class="fas fa-user"></i> Họ và tên của bạn <span style="color: var(--primary-color);">*</span></label>
+                    <input type="text" id="c-name" placeholder="Ví dụ: Nguyễn Văn A" required>
+                </div>
+                <div class="form-group-c">
+                    <label for="c-phone"><i class="fas fa-phone-alt"></i> Số điện thoại <span style="color: var(--primary-color);">*</span></label>
+                    <input type="tel" id="c-phone" placeholder="Ví dụ: 0912345678" pattern="[0-9]{10}" title="Vui lòng nhập đúng 10 số điện thoại" required>
+                </div>
+                <div class="form-group-c">
+                    <label for="c-email"><i class="fas fa-envelope"></i> Email (Không bắt buộc)</label>
+                    <input type="email" id="c-email" placeholder="Ví dụ: name@example.com">
+                </div>
+                <div class="form-group-c">
+                    <label for="c-notes"><i class="fas fa-edit"></i> Nội dung cần tư vấn <span style="color: var(--primary-color);">*</span></label>
+                    <textarea id="c-notes" rows="4" placeholder="Ví dụ: Mình cần tư vấn đặt trước mẫu siêu xe Lamborghini Aventador tỉ lệ 1:18..." required></textarea>
+                </div>
+                <button type="submit" class="submit-consultation-btn">Gửi Yêu Cầu Tư Vấn</button>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        /* Consultation Modal Styles */
+        
+        .consultation-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(10, 10, 12, 0.95);
+            /* Removed backdrop-filter to prevent heavy GPU lag over video */
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .consultation-modal.active {
+            display: flex;
+            animation: fadeIn 0.15s ease-out;
+            /* Sped up animation for instant feedback */
+        }
+        
+        .consultation-modal-content {
+            background: #161b22;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .consultation-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .consultation-modal-header h2 {
+            font-family: system-ui, sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .consultation-close-btn {
+            font-size: 24px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .consultation-close-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        .consultation-modal .form-group-c {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        
+        .consultation-modal .form-group-c label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+        
+        .consultation-modal .form-group-c label i {
+            margin-right: 6px;
+            color: var(--primary-color);
+        }
+        
+        .consultation-modal .form-group-c input,
+        .consultation-modal .form-group-c textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            color: #fff;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .consultation-modal .form-group-c input:focus,
+        .consultation-modal .form-group-c textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .submit-consultation-btn {
+            width: 100%;
+            background: var(--primary-color);
+            color: #0b0e14;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 5px;
+        }
+        
+        .submit-consultation-btn:hover {
+            opacity: 0.9;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script src="assets/js/shop-api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async() => {
+            // Header scroll effect
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('main-header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // Update cart count
+            updateCartCount();
+
+            // Load Categories
+            loadCategories();
+
+            // Load New Arrivals
+            loadNewArrivals();
+
+            // User status
+            const user = ShopAPI.getUserInfo();
+            if (user) {
+                document.getElementById('user-btn').innerHTML = `<i class="fas fa-user-check" style="color: var(--primary-color);"></i>`;
+                document.getElementById('user-btn').href = 'profile.html';
+            }
+
+            // Check if redirecting from another page to open consultation modal
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('consultation') === 'true') {
+                openConsultationModal();
+            }
+        });
+
+
+
+        async function loadCategories() {
+            const categories = await ShopAPI.get('/categories');
+            if (categories) {
+                const container = document.getElementById('category-list');
+
+                const getAiImageForCategory = (name) => {
+                    const lowerName = name.toLowerCase();
+                    if (lowerName.includes('gundam')) return 'assets/images/ai_gundam.png';
+                    if (lowerName.includes('car') || lowerName.includes('xe')) return 'assets/images/ai_car.png';
+                    if (lowerName.includes('marvel') || lowerName.includes('hero')) return 'assets/images/ai_superhero.png';
+                    if (lowerName.includes('plane') || lowerName.includes('bay')) return 'assets/images/ai_plane.png';
+                    // Fallback using the array we had before just in case
+                    const fallbackImages = ['assets/images/ai_gundam.png', 'assets/images/ai_car.png', 'assets/images/ai_superhero.png', 'assets/images/ai_plane.png'];
+                    return fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
+                };
+
+                container.innerHTML = categories.slice(0, 4).map(cat => `
+                    <a href="products.html?category=${cat._id}" class="category-card fade-in">
+                        <img src="${getAiImageForCategory(cat.name)}" alt="${cat.name}">
+                        <div class="category-overlay">
+                            <h3>${cat.name}</h3>
+                        </div>
+                    </a>
+                `).join('');
+            }
+        }
+
+        let allProducts = [];
+        let randomInterval;
+
+        async function loadNewArrivals(keyword = '') {
+            const url = keyword ? `/products?keyword=${encodeURIComponent(keyword)}&limit=20` : '/products?limit=20';
+            const data = await ShopAPI.get(url);
+            const container = document.getElementById('new-arrivals-list');
+
+            if (data && data.products) {
+                if (data.products.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; grid-column: 1/-1; padding: 100px; font-size: 1.2rem; color: var(--text-muted);">Không tìm thấy sản phẩm</div>';
+                    return;
+                }
+
+                allProducts = data.products;
+
+                if (keyword) {
+                    if (randomInterval) clearInterval(randomInterval);
+                    renderProducts(allProducts.slice(0, 4));
+                } else {
+                    renderRandomProducts();
+                    if (randomInterval) clearInterval(randomInterval);
+                    randomInterval = setInterval(renderRandomProducts, 4000);
+                }
+            }
+        }
+
+        function renderRandomProducts() {
+            if (allProducts.length === 0) return;
+            const shuffled = [...allProducts].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 4);
+            renderProducts(selected);
+        }
+
+        function renderProducts(productsToRender) {
+            const container = document.getElementById('new-arrivals-list');
+
+            // Add a smooth fade-out effect
+            container.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(10px)';
+
+            setTimeout(() => {
+                        container.innerHTML = productsToRender.map(p => {
+                                    const discount = p.salePrice ? Math.round((1 - p.salePrice / p.price) * 100) : 0;
+                                    const priceDisplay = p.salePrice ?
+                                        `<span class="price-now">${formatCurrency(p.salePrice)}</span><span class="price-old">${formatCurrency(p.price)}</span>` :
+                                        `<span class="price-now">${formatCurrency(p.price)}</span>`;
+
+                                    const isOutOfStock = p.countInStock <= 0;
+
+                                    return `
+                    <div class="product-card glass ${isOutOfStock ? 'out-of-stock' : ''}" style="${isOutOfStock ? 'opacity: 0.7;' : ''}">
+                        ${discount > 0 && !isOutOfStock ? `<div class="product-badge">-${discount}%</div>` : ''}
+                        ${isOutOfStock ? `<div class="product-badge" style="background: var(--danger-color); color: white;">Hết hàng</div>` : ''}
+                        <div class="product-img-wrapper">
+                            <a href="product-detail.html?id=${p._id}">
+                                <img src="${p.image}" alt="${p.name}" style="${isOutOfStock ? 'filter: grayscale(100%);' : ''}">
+                            </a>
+                        </div>
+                        <div class="product-info">
+                            <a href="product-detail.html?id=${p._id}">
+                                <h3 style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px;">${p.name} ${isOutOfStock ? '<span style="background: var(--danger-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Đã hết hàng</span>' : ''}</h3>
+                            </a>
+                            <div class="product-price">
+                                ${priceDisplay}
+                            </div>
+                            <button class="add-to-cart-btn" onclick="addToCart('${p._id}', '${p.name.replace(/'/g, "\\'")}', ${p.salePrice || p.price}, '${p.image}')">
+                                <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                            </button>
+                        </div>
+                    </div>
+                `}).join('');
+                
+                // Fade back in
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 400);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function addToCart(id, name, price, image) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const index = cart.findIndex(item => item.id === id);
+
+            if (index > -1) {
+                cart[index].quantity += 1;
+            } else {
+                cart.push({ id, name, price, image, quantity: 1 });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            window.location.href = 'cart.html';
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        let searchTimeout;
+        function executeSearch() {
+            clearTimeout(searchTimeout);
+            const keyword = document.getElementById('search-input').value.trim();
+
+            searchTimeout = setTimeout(() => {
+                if (keyword) {
+                    window.location.href = `products.html?keyword=${encodeURIComponent(keyword)}`;
+                }
+            }, 500); // 500ms delay to let user finish typing before redirecting
+        }
+
+        function openConsultationModal(event) {
+            if (event) event.preventDefault();
+            const modal = document.getElementById('consultation-modal');
+            if (modal) {
+                // Populate current user info if logged in
+                const user = ShopAPI.getUserInfo();
+                if (user) {
+                    document.getElementById('c-name').value = user.name || '';
+                    document.getElementById('c-phone').value = user.phone || '';
+                    document.getElementById('c-email').value = user.email || '';
+                }
+                modal.classList.add('active');
+            }
+        }
+
+        function closeConsultationModal() {
+            const modal = document.getElementById('consultation-modal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        async function submitConsultation(event) {
+            event.preventDefault();
+            const name = document.getElementById('c-name').value.trim();
+            const phone = document.getElementById('c-phone').value.trim();
+            const email = document.getElementById('c-email').value.trim();
+            const notes = document.getElementById('c-notes').value.trim();
+
+            const userInfo = ShopAPI.getUserInfo();
+            const userId = userInfo ? (userInfo._id || userInfo.id) : null;
+
+            try {
+                const response = await ShopAPI.post('/consultations', { name, phone, email, notes, userId });
+                if (response) {
+                    document.getElementById('consultation-form').reset();
+                    closeConsultationModal();
+                    if (userId) {
+                        alert('Gửi yêu cầu tư vấn thành công! Bạn có thể xem phản hồi tại mục "Tư vấn của tôi" trong trang Cá nhân.');
+                    } else {
+                        alert('Gửi yêu cầu tư vấn thành công! Chúng tôi sẽ sớm liên hệ với bạn.');
+                    }
+                }
+            } catch (err) {
+                alert('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.');
+            }
+        }
+    </script>
+</body>
+
+</html>

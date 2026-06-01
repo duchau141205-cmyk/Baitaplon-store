@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản phẩm | Mô Hình Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .shop-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 120px;
+            margin-bottom: 80px;
+        }
+
+        .filter-topbar {
+            padding: 20px 25px;
+            border-radius: 20px;
+            background: rgba(20, 24, 30, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .filter-group-inline {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .filter-label {
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .filter-list.horizontal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .filter-list li {
+            cursor: pointer;
+            color: #8b949e;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .filter-list li:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .filter-list li.active {
+            color: #000;
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .price-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .price-inputs span {
+            color: #8b949e;
+        }
+
+        .price-inputs input {
+            width: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .price-inputs input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .btn-sm {
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            border-radius: 50px;
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .sort-select {
+            background: #1c2128;
+            color: white;
+            border: 1px solid var(--glass-border);
+            padding: 8px 15px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 50px;
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            color: #000;
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 992px) {
+            .shop-container {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-sidebar {
+                display: none;
+            }
+
+            /* Could add a mobile filter drawer later */
+        }
+    </style>
+</head>
+
+<body>
+    <header id="main-header" class="scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="Logo">
+                <span>MÔ HÌNH STORE</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Trang chủ</a>
+                <a href="products.html" class="active">Sản phẩm</a>
+                <a href="rewards.html">Khuyến mãi</a>
+                <a href="index.html?consultation=true"><i class="fas fa-headset" style="margin-right: 4px;"></i>Tư vấn</a>
+                <a href="categories.html">Về chúng tôi</a>
+            </nav>
+            <div class="nav-actions">
+                <div class="search-wrapper">
+                    <input type="text" id="search-input" placeholder="Tìm mô hình..." oninput="executeSearch()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <a href="login.html" id="user-btn"><i class="fas fa-user"></i></a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="shop-container">
+            <!-- Top Filter Bar -->
+            <div class="filter-topbar glass">
+                <div class="filter-row">
+                    <span class="filter-label">Danh mục:</span>
+                    <ul class="filter-list horizontal" id="category-filter">
+                        <li class="active" data-id="">Tất cả danh mục</li>
+                        <!-- Dynamic -->
+                    </ul>
+                </div>
+
+                <div class="filter-row-bottom">
+                    <div class="filter-group-inline">
+                        <span class="filter-label">Sắp xếp:</span>
+                        <ul class="filter-list horizontal" id="sort-filter">
+                            <li class="active" data-sort="-createdAt">Mới nhất</li>
+                            <li data-sort="price">Giá tăng dần</li>
+                            <li data-sort="-price">Giá giảm dần</li>
+                            <li data-sort="-sold">Bán chạy nhất</li>
+                        </ul>
+                    </div>
+
+                    <div class="filter-group-inline">
+                        <span class="filter-label">Khoảng giá:</span>
+                        <div class="price-inputs">
+                            <input type="number" id="min-price" placeholder="Từ">
+                            <span>-</span>
+                            <input type="number" id="max-price" placeholder="Đến">
+                            <button class="btn btn-primary btn-sm" onclick="applyFilters()">Áp dụng</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Shop -->
+            <main>
+                <div class="shop-header">
+                    <div>
+                        <h2 id="page-title" style="margin-bottom: 5px;">Tất cả sản phẩm</h2>
+                        <p id="result-count" style="color: var(--text-muted); font-size: 0.9rem;">Đang tải sản phẩm...
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <span>Hiển thị:</span>
+                        <select class="sort-select" onchange="changeLimit(this.value)">
+                            <option value="12">12 mỗi trang</option>
+                            <option value="24">24 mỗi trang</option>
+                            <option value="48">48 mỗi trang</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="product-grid" id="product-list">
+                    <!-- Dynamic Content -->
+                </div>
+
+                <div class="pagination" id="pagination-container">
+                    <!-- Dynamic -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo"
+                        style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">
+                        MÔ HÌNH STORE</div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao
+                        cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                        <li><a href="categories.html">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Theo dõi chúng tôi</h3>
+                    <div style="display: flex; gap: 1rem; font-size: 1.5rem;">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Section moved here, under the main footer info -->
+            <div class="contact-grid"
+                style="margin-top: 50px; border-top: 1px solid var(--glass-border); padding-top: 50px;">
+                <div class="contact-card glass fade-in" style="padding: 1.5rem;">
+                    <i class="fas fa-phone-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Hotline</h3>
+                    <p style="font-size: 0.9rem;">0564821121</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.2s;">
+                    <i class="fas fa-map-marker-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Địa chỉ</h3>
+                    <p style="font-size: 0.9rem;">31 Dịch Vọng Hậu, Cầu Giấy, Hà Nội</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.4s;">
+                    <i class="fas fa-envelope" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Email</h3>
+                    <p style="font-size: 0.9rem;">Mohinhstore@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by Antigravity.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/shop-api.js"></script>
+    <script>
+        let currentFilters = {
+            category: '',
+            minPrice: '',
+            maxPrice: '',
+            sort: '-createdAt',
+            page: 1,
+            limit: 12,
+            keyword: ''
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check URL for category
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('category')) {
+                currentFilters.category = urlParams.get('category');
+            }
+            if (urlParams.has('keyword')) {
+                currentFilters.keyword = urlParams.get('keyword');
+                document.getElementById('search-input').value = currentFilters.keyword;
+            }
+
+            loadCategories();
+            loadProducts();
+            updateCartCount();
+
+            // Update user button based on login status
+            const user = ShopAPI.getUserInfo();
+            if (user) {
+                document.getElementById('user-btn').innerHTML = `<i class="fas fa-user-check" style="color: var(--primary-color);"></i>`;
+                document.getElementById('user-btn').href = 'profile.html';
+            }
+
+            // Handle sort filter clicks
+            document.querySelectorAll('#sort-filter li').forEach(li => {
+                li.addEventListener('click', () => {
+                    document.querySelectorAll('#sort-filter li').forEach(item => item.classList.remove('active'));
+                    li.classList.add('active');
+                    currentFilters.sort = li.dataset.sort;
+                    currentFilters.page = 1;
+                    loadProducts();
+                });
+            });
+        });
+
+        async function loadCategories() {
+            const categories = await ShopAPI.get('/categories');
+            if (categories) {
+                const container = document.getElementById('category-filter');
+                const html = categories.map(cat => `
+                    <li class="${currentFilters.category === cat._id ? 'active' : ''}" data-id="${cat._id}">
+                        ${cat.name}
+                    </li>
+                `).join('');
+                container.innerHTML += html;
+
+                // Handle category clicks
+                container.querySelectorAll('li').forEach(li => {
+                    li.addEventListener('click', () => {
+                        container.querySelectorAll('li').forEach(item => item.classList.remove('active'));
+                        li.classList.add('active');
+                        currentFilters.category = li.dataset.id;
+                        currentFilters.page = 1;
+                        loadProducts();
+                    });
+                });
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const { category, minPrice, maxPrice, sort, page, limit, keyword } = currentFilters;
+                let url = `/products?page=${page}&limit=${limit}&sort=${sort}`;
+
+                if (category) url += `&category=${category}`;
+                if (minPrice) url += `&minPrice=${minPrice}`;
+                if (maxPrice) url += `&maxPrice=${maxPrice}`;
+                if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+
+                const data = await ShopAPI.get(url);
+                if (data && data.products) {
+                    renderProducts(data.products);
+                    renderPagination(data.pages, data.page);
+
+                    const titleEl = document.getElementById('page-title');
+                    if (keyword) {
+                        titleEl.innerText = `Kết quả tìm kiếm: "${keyword}"`;
+                    } else {
+                        titleEl.innerText = 'Tất cả sản phẩm';
+                    }
+
+                    document.getElementById('result-count').innerText = `Tìm thấy ${data.total} sản phẩm`;
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('product-list').innerHTML = '<div style="text-align: center; grid-column: 1/-1; padding: 50px;">Có lỗi xảy ra khi tải sản phẩm. Vui lòng thử lại sau.</div>';
+                document.getElementById('result-count').innerText = 'Lỗi tải dữ liệu';
+            }
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('product-list');
+            if (products.length === 0) {
+                container.innerHTML = '<div style="text-align: center; grid-column: 1/-1; padding: 100px; font-size: 1.2rem; color: var(--text-muted);">Không tìm thấy sản phẩm</div>';
+                return;
+            }
+
+            container.innerHTML = products.map(p => {
+                const discount = p.salePrice ? Math.round((1 - p.salePrice / p.price) * 100) : 0;
+                const isOutOfStock = p.countInStock <= 0;
+                
+                return `
+                <div class="product-card glass fade-in ${isOutOfStock ? 'out-of-stock' : ''}" style="${isOutOfStock ? 'opacity: 0.7;' : ''}">
+                    ${discount > 0 && !isOutOfStock ? `<div class="product-badge">-${discount}%</div>` : ''}
+                    ${isOutOfStock ? `<div class="product-badge" style="background: var(--danger-color); color: white;">Hết hàng</div>` : ''}
+                    <div class="product-img-wrapper">
+                        <a href="product-detail.html?id=${p._id}">
+                            <img src="${p.image}" alt="${p.name}" style="${isOutOfStock ? 'filter: grayscale(100%);' : ''}">
+                        </a>
+                    </div>
+                    <div class="product-info">
+                        <a href="product-detail.html?id=${p._id}">
+                            <h3 style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px;">${p.name} ${isOutOfStock ? '<span style="background: var(--danger-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Đã hết hàng</span>' : ''}</h3>
+                        </a>
+                        <div class="product-price">
+                            ${p.salePrice
+                        ? `<span class="price-now">${formatCurrency(p.salePrice)}</span><span class="price-old">${formatCurrency(p.price)}</span>`
+                        : `<span class="price-now">${formatCurrency(p.price)}</span>`}
+                        </div>
+                        <button class="add-to-cart-btn" onclick="addToCart('${p._id}', '${p.name.replace(/'/g, "\\'")}', ${p.salePrice || p.price}, '${p.image}')">
+                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function renderPagination(pages, currentPage) {
+            const container = document.getElementById('pagination-container');
+            if (pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            for (let i = 1; i <= pages; i++) {
+                html += `<div class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentFilters.page = page;
+            loadProducts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeLimit(limit) {
+            currentFilters.limit = limit;
+            currentFilters.page = 1;
+            loadProducts();
+        }
+
+        function applyFilters() {
+            currentFilters.minPrice = document.getElementById('min-price').value;
+            currentFilters.maxPrice = document.getElementById('max-price').value;
+            currentFilters.page = 1;
+            loadProducts();
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function addToCart(id, name, price, image) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const index = cart.findIndex(item => item.id === id);
+            if (index > -1) cart[index].quantity += 1;
+            else cart.push({ id, name, price, image, quantity: 1 });
+            localStorage.setItem('cart', JSON.stringify(cart));
+            window.location.href = 'cart.html';
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        let searchTimeout;
+        function executeSearch() {
+            clearTimeout(searchTimeout);
+            const keyword = document.getElementById('search-input').value.trim();
+
+            // Debounce to avoid too many API calls
+            searchTimeout = setTimeout(() => {
+                currentFilters.keyword = keyword;
+                currentFilters.page = 1;
+                loadProducts();
+
+                // Update URL quietly
+                const url = new URL(window.location);
+                if (keyword) url.searchParams.set('keyword', keyword);
+                else url.searchParams.delete('keyword');
+                window.history.pushState({}, '', url);
+            }, 300);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng quan | MÔ HÌNH ADMIN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-components.css">
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">MÔ HÌNH ADMIN</div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="index.html" class="active"><i class="fas fa-th-large"></i> Tổng quan</a>
+                <a href="products.html"><i class="fas fa-box"></i> Sản phẩm</a>
+                <a href="categories.html"><i class="fas fa-list"></i> Danh mục</a>
+                <a href="orders.html"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                <a href="users.html"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
+                <a href="appointments.html"><i class="fas fa-calendar-check"></i> Lịch hẹn & Tư vấn</a>
+                <a href="promotions.html"><i class="fas fa-percent"></i> Khuyến mãi</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" onclick="AdminAuth.logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title" style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="mobile-toggle" onclick="AdminUtils.toggleSidebar()"><i
+                            class="fas fa-bars"></i></button>
+                    <h2>Tổng quan</h2>
+                </div>
+                <div class="admin-info">
+                    <span class="admin-name" id="display-admin-name">Admin</span>
+                    <div class="avatar">A</div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- Stats Cards -->
+                <div class="stats-container">
+                    <a href="reports.html" id="revenue-card-link" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                            <div class="stat-details">
+                                <h3 id="stat-revenue">0đ</h3>
+                                <p>Doanh thu (30 ngày)</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="orders.html" id="orders-card-link" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                            <div class="stat-details">
+                                <h3 id="stat-orders">0</h3>
+                                <p>Đơn hàng (30 ngày)</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="users.html" id="users-card-link" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-details">
+                                <h3 id="stat-users">0</h3>
+                                <p>Khách hàng</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="products.html" id="products-card-link" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-box-open"></i></div>
+                            <div class="stat-details">
+                                <h3 id="stat-products">0</h3>
+                                <p>Sản phẩm</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="card" id="chart-row-container">
+                    <h3>Doanh thu 30 ngày gần nhất</h3>
+                    <div style="height: 300px; margin-top: 1rem;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tables Row -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="card">
+                        <h3>Đơn hàng mới nhất</h3>
+                        <div class="table-responsive" style="box-shadow: none;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Sản phẩm</th>
+                                        <th style="text-align: center;">Số lượng</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-orders-table">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Sản phẩm đã bán</h3>
+                        <div class="table-responsive" style="box-shadow: none;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10%;">STT</th>
+                                        <th style="width: 50%;">Sản phẩm</th>
+                                        <th style="width: 20%; text-align: center;">Đã bán</th>
+                                        <th style="width: 20%; text-align: right;">Doanh thu</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top-products-table">
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Loader -->
+    <div id="global-loader" class="loader-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
+    <script src="../assets/js/admin-utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Display admin name
+            const adminInfo = AdminAuth.getAdminInfo();
+            if (adminInfo) {
+                document.getElementById('display-admin-name').innerText = adminInfo.name;
+                document.querySelector('.avatar').innerText = adminInfo.name.charAt(0);
+
+                if (adminInfo.role === 'staff') {
+                    const revenueLink = document.getElementById('revenue-card-link');
+                    if (revenueLink) revenueLink.style.display = 'none';
+
+                    const chartRow = document.getElementById('chart-row-container');
+                    if (chartRow) chartRow.style.display = 'none';
+
+                    const usersLink = document.getElementById('users-card-link');
+                    if (usersLink) {
+                        usersLink.setAttribute('href', '#');
+                        usersLink.style.cursor = 'default';
+                    }
+
+                    const productsLink = document.getElementById('products-card-link');
+                    if (productsLink) {
+                        productsLink.setAttribute('href', '#');
+                        productsLink.style.cursor = 'default';
+                    }
+                }
+            }
+
+            // Load Stats
+            loadDashboardData();
+
+            // Auto refresh stats/orders continuously every 10 seconds
+            setInterval(loadDashboardData, 10000);
+        });
+
+        async function loadDashboardData() {
+            // Fetch real data from Report APIs
+            const summary = await AdminAPI.get('/admin/reports/summary?period=month');
+            const topProducts = await AdminAPI.get('/admin/reports/top-products?period=month');
+            const recentOrdersRes = await AdminAPI.get('/admin/orders'); // already sorted by createdAt: -1
+
+            if (summary) {
+                document.getElementById('stat-products').innerText = summary.numProducts;
+                document.getElementById('stat-users').innerText = summary.numUsers;
+                document.getElementById('stat-orders').innerText = summary.numOrders;
+                document.getElementById('stat-revenue').innerText = AdminUtils.formatCurrency(summary.totalRevenue);
+            }
+
+            if (recentOrdersRes) {
+                renderRecentOrders(recentOrdersRes);
+                // Real Chart Data logic (last 7 days)
+                renderChart(recentOrdersRes);
+            }
+
+            if (topProducts) {
+                renderTopProducts(topProducts);
+            }
+        }
+
+        function renderRecentOrders(orders) {
+            const tbody = document.getElementById('recent-orders-table');
+            const statusMap = {
+                'Pending': 'Chờ xử lý',
+                'Shipping': 'Đang giao',
+                'Delivered': 'Đã giao',
+                'Cancelled': 'Đã hủy'
+            };
+            tbody.innerHTML = orders.map(order => {
+                const statusText = statusMap[order.status] || order.status;
+                return `
+                <tr>
+                    <td>#${order._id.slice(-6)}</td>
+                    <td>${order.user ? order.user.name : 'Khách'}</td>
+                    <td style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${order.orderItems ? order.orderItems.map(i => i.name + ' (x' + i.qty + ')').join(', ') : ''}">
+                        ${order.orderItems && order.orderItems.length > 0 ? order.orderItems.map(i => i.name).join(', ') : 'Trống'}
+                    </td>
+                    <td style="text-align: center;">
+                        ${order.orderItems ? order.orderItems.reduce((acc, i) => acc + i.qty, 0) : 0}
+                    </td>
+                    <td>${AdminUtils.formatDate(order.createdAt)}</td>
+                    <td>${AdminUtils.formatCurrency(order.totalPrice)}</td>
+                    <td><span class="badge badge-${order.status.toLowerCase()}">${statusText}</span></td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function renderTopProducts(products) {
+            const tbody = document.getElementById('top-products-table');
+            tbody.innerHTML = products.map((p, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="${p.image}" alt="${p.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                            <span style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="${p.name}">${p.name}</span>
+                        </div>
+                    </td>
+                    <td style="text-align: center; font-weight: 600;">${p.sold}</td>
+                    <td style="text-align: right;">${AdminUtils.formatCurrency(p.price * p.sold)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderChart(orders) {
+            // Calculate last 30 days revenue
+            const last30Days = Array.from({ length: 30 }, (_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (29 - i));
+                return { date: d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }), total: 0 };
+            });
+
+            orders.forEach(o => {
+                const orderDate = new Date(o.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+                const dayMatch = last30Days.find(d => d.date === orderDate);
+                if (dayMatch && o.status !== 'Cancelled') {
+                    dayMatch.total += o.totalPrice;
+                }
+            });
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last30Days.map(d => d.date),
+                    datasets: [{
+                        label: 'Doanh thu (VNĐ)',
+                        data: last30Days.map(d => d.total),
+                        borderColor: '#00d4ff',
+                        backgroundColor: 'rgba(0, 212, 255, 0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#00d4ff',
+                        pointBorderColor: '#00d4ff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            ticks: { color: '#8b949e' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        },
+                        y: {
+                            ticks: { color: '#8b949e' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

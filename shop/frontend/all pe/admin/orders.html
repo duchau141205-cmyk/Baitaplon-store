@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Đơn hàng | Mô Hình Store Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-components.css">
+    <style>
+        .order-item-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-item-img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           INVOICE MODAL — Full A4 portrait preview
+           Modal = full-screen overlay with vertical scroll.
+           Inner card = A4 width (794px) centered, auto height.
+        ═══════════════════════════════════════════════════════════ */
+
+        #invoice-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.72);
+            z-index: 9999;
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 24px 16px 48px;
+        }
+
+        /* Sticky toolbar at the top of the overlay */
+        #invoice-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 10000;
+            width: 100%;
+            max-width: 794px;
+            margin: 0 auto 12px;
+            background: #1a1f2e;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        #invoice-toolbar .toolbar-left {
+            font-size: 0.85rem;
+            color: #8b949e;
+            font-weight: 500;
+        }
+        #invoice-toolbar .toolbar-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* The A4 card itself */
+        #invoice-card {
+            width: 794px;           /* A4 @ 96dpi */
+            max-width: 100%;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+            overflow: visible;      /* let content flow naturally */
+        }
+
+        /* ── Invoice Print Area ─────────────────────────────────── */
+        #invoice-printable {
+            padding: 2cm 2.2cm 1.8cm;   /* A4 margin simulation */
+            background: #fff;
+            color: #000 !important;
+            font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Force ALL text inside invoice to black */
+        #invoice-printable *  {
+            color: #000 !important;
+        }
+        /* Exceptions: keep red seal/border intact */
+        #invoice-printable .inv-seal,
+        #invoice-printable .inv-seal::before {
+            color: #c00 !important;
+            border-color: #c00 !important;
+        }
+
+        /* ── Official document styles ──────────────────────────── */
+        .inv-doc-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 12px;
+        }
+        .inv-doc-left  { text-align: center; border-right: 1px solid #ccc; padding-right: 1rem; }
+        .inv-doc-right { text-align: center; padding-left: 1rem; }
+        .inv-doc-left .company-name { font-weight: bold; font-size: 18px; margin-bottom: 2px; }
+        .inv-doc-left .dept         { font-size: 12px; margin-bottom: 4px; }
+        .inv-doc-left .doc-ref      { font-size: 12px; }
+        .inv-doc-right .republic    { font-weight: bold; font-size: 18px; margin-bottom: 2px; }
+        .inv-doc-right .motto       { font-weight: bold; font-size: 12px; margin-bottom: 2px; }
+        .inv-doc-right .motto-underline { border-bottom: 1px solid #111; width: 58%; margin: 0 auto 4px; }
+        .inv-doc-right .place-date  { font-style: italic; font-size: 12px; }
+        .inv-doc-divider { border: none; border-top: 1px solid #555; margin: 0.5rem 0 1rem; }
+
+        .inv-doc-title-block { text-align: center; margin-bottom: 0.7rem; }
+        .inv-doc-title   { font-weight: bold; font-size: 24px; letter-spacing: 0.5px; }
+        .inv-doc-subtitle{ font-size: 12px; font-style: italic; margin-top: 3px; }
+
+        .inv-customer-table { margin: 0.8rem 0; width: 100%; font-size: 14px; }
+        .inv-customer-table tr td:first-child { font-weight: bold; width: 135px; vertical-align: top; padding-bottom: 3px; }
+        .inv-customer-table tr td { padding-bottom: 3px; }
+
+        .inv-intro { font-size: 14px; margin: 0.5rem 0 0.8rem; text-align: left; }
+
+        /* Items table */
+        .inv-items-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 0; font-size: 14px;
+        }
+        .inv-items-table th,
+        .inv-items-table td {
+            border: 1px solid #444;
+            padding: 5px 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .inv-items-table thead tr { background: #f2f2f2; }
+        .inv-items-table th  { font-weight: bold; text-transform: none; }
+        .inv-items-table .td-name  { text-align: left; }
+        .inv-items-table .td-right { text-align: right; }
+
+        /* Total row */
+        .inv-total-row td { font-weight: bold; background: #f9f9f9; }
+
+        /* Note & Closing */
+        .inv-note    { font-style: italic; font-size: 12px; margin: 0.6rem 0 1rem; }
+        .inv-closing { font-size: 14px; text-align: left; margin-bottom: 1.2rem; }
+
+        /* Signature */
+        .inv-signature-block  { display: flex; justify-content: flex-end; margin-top: 0.3rem; }
+        .inv-signature-inner  { text-align: center; min-width: 200px; }
+        .inv-signature-inner .sig-title { font-weight: bold; font-size: 18px; margin-bottom: 2px; }
+        .inv-signature-inner .sig-sub   { font-size: 12px; margin-bottom: 55px; }
+        .inv-signature-inner .inv-seal {
+            width: 84px; height: 84px;
+            border: 3px solid #c00;
+            border-radius: 50%;
+            margin: 0 auto 6px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #c00; font-size: 12px; font-weight: bold;
+            line-height: 1.3; letter-spacing: 0.5px;
+            position: relative;
+        }
+        .inv-signature-inner .inv-seal::before {
+            content: ''; position: absolute; inset: 5px;
+            border: 1.5px solid #c00; border-radius: 50%;
+        }
+        .inv-signature-inner .sig-name { font-weight: bold; font-size: 18px; }
+
+        /* Bottom action bar (inside card, not printable) */
+        .inv-btn-row {
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.7rem;
+        }
+
+        /* Print media */
+        @media print {
+            body * { visibility: hidden; }
+            #invoice-printable, #invoice-printable * { visibility: visible; }
+            #invoice-printable {
+                position: fixed; top: 0; left: 0;
+                width: 210mm; padding: 1.5cm 2cm;
+                background: #fff !important; color: #000 !important;
+            }
+            .inv-btn-row, #invoice-toolbar { display: none !important; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">MÔ HÌNH ADMIN</div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="index.html"><i class="fas fa-th-large"></i> Tổng quan</a>
+                <a href="products.html"><i class="fas fa-box"></i> Sản phẩm</a>
+                <a href="categories.html"><i class="fas fa-list"></i> Danh mục</a>
+                <a href="orders.html" class="active"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                <a href="users.html"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
+                <a href="appointments.html"><i class="fas fa-calendar-check"></i> Lịch hẹn & Tư vấn</a>
+                <a href="promotions.html"><i class="fas fa-percent"></i> Khuyến mãi</a>
+            </nav>
+            <div class="sidebar-footer"><a href="#" onclick="AdminAuth.logout()"><i class="fas fa-sign-out-alt"></i>
+                    Đăng xuất</a></div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title" style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="mobile-toggle" onclick="AdminUtils.toggleSidebar()"><i
+                            class="fas fa-bars"></i></button>
+                    <h2>Quản lý Đơn hàng</h2>
+                </div>
+                <div class="admin-info">
+                    <span class="admin-name" id="display-admin-name">Admin</span>
+                    <div class="avatar">A</div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <div class="card" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <label>Từ ngày:</label>
+                        <input type="date" id="filter-date-from" class="form-control">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <label>Đến ngày:</label>
+                        <input type="date" id="filter-date-to" class="form-control">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <label>Trạng thái:</label>
+                        <select id="filter-status" class="form-control" style="min-width: 150px;">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Pending">Chờ xử lý</option>
+                            <option value="Shipping">Đang giao</option>
+                            <option value="Delivered">Đã giao</option>
+                            <option value="Cancelled">Đã hủy</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="applyFilters()">Lọc</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Sản phẩm</th>
+                                <th>Số lượng đặt</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
+                                <th>Thanh toán</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body">
+                            <!-- Dynamic -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Order Detail Modal ───────────────────────────── -->
+    <div id="order-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Chi tiết đơn hàng <span id="m-order-id"></span></h3>
+                <i class="fas fa-times" style="cursor: pointer;" onclick="AdminUtils.hideModal('order-modal')"></i>
+            </div>
+            <div id="order-details-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem; color: var(--primary-color);">Thông tin khách hàng</h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <strong style="width: 100px;">Tên:</strong>
+                                <input type="text" id="m-user-name" class="form-control" style="padding: 4px 8px;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <strong style="width: 100px;">SĐT:</strong>
+                                <input type="text" id="m-user-phone" class="form-control" style="padding: 4px 8px;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <strong style="width: 100px;">Địa chỉ:</strong>
+                                <input type="text" id="m-user-address" class="form-control" style="padding: 4px 8px;">
+                            </div>
+                            <div>
+                                <strong>Ghi chú:</strong> <span id="m-user-notes" style="color: var(--danger-color); font-style: italic;"></span>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="updateCustomerInfo()" style="margin-top: 5px; width: fit-content;">Lưu thông tin KH</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem; color: var(--primary-color);">Trạng thái đơn hàng</h4>
+                        <p><strong>Ngày đặt:</strong> <span id="m-order-date"></span></p>
+                        <p><strong>Phương thức:</strong> <span id="m-payment-method" class="badge badge-primary"></span></p>
+                        <select id="m-status-select" class="form-control" style="margin-bottom: 0.5rem; margin-top: 0.5rem;"></select>
+                        <button class="btn btn-primary btn-sm" onclick="updateStatus()">Cập nhật trạng thái</button>
+                    </div>
+                </div>
+
+                <h4 style="margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">Danh sách sản phẩm</h4>
+                <div id="m-order-items">
+                    <!-- Dynamic -->
+                </div>
+
+                <div style="text-align: right; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
+                    <div id="m-subtotal-row" style="display: none; font-size: 0.95rem; color: var(--text-muted);">
+                        Tạm tính: <span id="m-subtotal-price" style="color: #fff; font-weight: 600;"></span>
+                    </div>
+                    <div id="m-discount-row" style="display: none; font-size: 0.95rem; color: #28a745; font-weight: 600;">
+                        Giảm giá (<span id="m-promo-code"></span>): <span id="m-discount-price"></span>
+                    </div>
+                    <h3>Tổng cộng: <span id="m-total-price" style="color: var(--danger-color);"></span></h3>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="AdminUtils.hideModal('order-modal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Invoice Modal — Full A4 portrait ─────────────────── -->
+    <div id="invoice-modal">
+
+        <!-- Sticky toolbar -->
+        <div id="invoice-toolbar">
+            <div class="toolbar-left">
+                <i class="fas fa-file-invoice" style="color:#00d4ff; margin-right:6px;"></i>
+                Xem hóa đơn — <span id="inv-number-label"></span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-secondary" onclick="closeInvoice()" style="padding:6px 14px; font-size:0.85rem;">
+                    <i class="fas fa-times" style="margin-right:5px;"></i>Đóng
+                </button>
+                <button class="btn btn-primary" onclick="printInvoice()" style="padding:6px 14px; font-size:0.85rem;">
+                    <i class="fas fa-print" style="margin-right:5px;"></i>In hóa đơn
+                </button>
+                <button class="btn btn-secondary" onclick="saveInvoicePDF()" style="padding:6px 14px; font-size:0.85rem;">
+                    <i class="fas fa-file-pdf" style="color: #2ea043; margin-right:5px;"></i>Lưu PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- A4 card -->
+        <div id="invoice-card">
+
+            <!-- ═══ PRINTABLE AREA ══════════════════════════ -->
+            <div id="invoice-printable">
+
+                <!-- Official header: company left / republic right -->
+                <div class="inv-doc-header">
+                    <div class="inv-doc-left">
+                        <h4 class="company-name">Mô Hình Store</h4>
+                        <div class="dept">Ban Quản lý Chất lượng</div>
+                        <div class="doc-ref">Số: <span id="inv-number">---</span></div>
+                    </div>
+                    <div class="inv-doc-right">
+                        <h4 class="republic">Cộng hòa Xã hội Chủ nghĩa Việt Nam</h4>
+                        <div class="motto">Độc lập – Tự do – Hạnh phúc</div>
+                        <div class="motto-underline"></div>
+                        <div class="place-date" id="inv-date">Hà Nội, ngày -- tháng -- năm ----</div>
+                    </div>
+                </div>
+
+                <hr class="inv-doc-divider">
+
+                <!-- Document title -->
+                <div class="inv-doc-title-block">
+                    <div class="inv-doc-title">Giấy chứng nhận sản phẩm &amp; hóa đơn bán hàng</div>
+                    <div class="inv-doc-subtitle">(Kèm theo đơn hàng số: <span id="inv-order-id">---</span>)</div>
+                </div>
+
+                <!-- Customer info -->
+                <table class="inv-customer-table">
+                    <tr><td>Khách hàng:</td><td><strong id="inv-cust-name">—</strong></td></tr>
+                    <tr><td>Email:</td><td><span id="inv-cust-email">—</span></td></tr>
+                    <tr><td>Số điện thoại:</td><td><span id="inv-cust-phone">—</span></td></tr>
+                    <tr><td>Địa chỉ:</td><td><span id="inv-cust-address">—</span></td></tr>
+                    <tr><td>Hình thức:</td><td><span id="inv-payment">—</span></td></tr>
+                </table>
+
+                <!-- Intro paragraph -->
+                <p class="inv-intro">
+                    Mô Hình Store trân trọng cảm ơn quý khách đã tin tưởng lựa chọn các sản phẩm của chúng tôi.
+                    Chúng tôi cam kết về nguồn gốc, chất lượng hàng hóa chính hãng và sẽ hỗ trợ quý khách
+                    trong suốt quá trình sử dụng sản phẩm.
+                </p>
+
+                <!-- Items table -->
+                <table class="inv-items-table">
+                    <thead>
+                        <tr>
+                            <th style="width:36px;">STT</th>
+                            <th class="td-name">Tên sản phẩm</th>
+                            <th style="width:52px;">Số lượng</th>
+                            <th style="width:110px;">Đơn giá</th>
+                            <th style="width:110px;">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inv-items-tbody"></tbody>
+                    <tfoot>
+                        <tr id="inv-subtotal-tr" style="display: none;">
+                            <td colspan="4" style="text-align:right; padding-right:12px; font-weight:normal; border-top:1px solid #eee; font-size:0.9rem;">Cộng tiền hàng (Tạm tính):</td>
+                            <td id="inv-subtotal" style="text-align:right; font-weight:normal; border-top:1px solid #eee; font-size:0.9rem;">—</td>
+                        </tr>
+                        <tr id="inv-discount-tr" style="display: none;">
+                            <td colspan="4" style="text-align:right; padding-right:12px; font-weight:normal; color:#28a745; font-size:0.9rem;">Chiết khấu thương mại (Giảm giá <span id="inv-promo-code"></span>):</td>
+                            <td id="inv-discount" style="text-align:right; font-weight:normal; color:#28a745; font-size:0.9rem;">—</td>
+                        </tr>
+                        <tr class="inv-total-row">
+                            <td colspan="4" style="text-align:right; padding-right:12px; border-top:2px solid #000;">Tổng cộng tiền thanh toán:</td>
+                            <td id="inv-total" style="text-align:right; border-top:2px solid #000;">—</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <!-- Note -->
+                <p class="inv-note"><em>Bằng chữ: <span id="inv-total-words">---</span> đồng chẵn.</em></p>
+
+                <!-- Closing -->
+                <p class="inv-closing">
+                    <strong>Cam kết chất lượng:</strong> Tất cả sản phẩm trong giao dịch tại Mô Hình Store đều được bảo hành
+                    theo chính sách đổi trả và bảo hành của nhà sản xuất. Mọi ý kiến vui lòng liên hệ hotline hoặc email
+                    để được hỗ trợ kịp thời từ đội ngũ CSKH của chúng tôi.
+                </p>
+
+                <!-- Signature -->
+                <div class="inv-signature-block">
+                    <div class="inv-signature-inner">
+                        <h4 class="sig-title">TM. Hội đồng Quản trị</h4>
+                        <div class="sig-sub">Giám đốc điều hành</div>
+                        <div class="inv-seal">
+                            <span style="font-size:12px;text-align:center;padding:0 6px;letter-spacing:0;">MÔ HÌNH STORE</span>
+                        </div>
+                        <div class="sig-name" id="inv-admin-name">Admin</div>
+                    </div>
+                </div>
+
+                <!-- System note (hidden on print/pdf) -->
+                <p style="font-size:12px;color:#aaa;margin-top:1.2rem;text-align:center;" class="inv-sys-note">
+                    Tài liệu tạo tự động — <span id="inv-generated-at"></span>
+                </p>
+
+            </div><!-- end #invoice-printable -->
+        </div><!-- end #invoice-card -->
+    </div><!-- end #invoice-modal -->
+
+    <div id="global-loader" class="loader-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
+    <script src="../assets/js/admin-utils.js"></script>
+    <script>
+        let allOrders = [];
+        let currentEditingOrderId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const adminInfo = AdminAuth.getAdminInfo();
+            if (adminInfo) {
+                document.getElementById('display-admin-name').innerText = adminInfo.name;
+                const avatar = document.querySelector('.avatar');
+                if (avatar) avatar.innerText = adminInfo.name.charAt(0).toUpperCase();
+            }
+            await loadOrders();
+            setInterval(loadOrders, 10000);
+
+            // Close invoice modal when clicking the dark backdrop (not the card)
+            const invModal = document.getElementById('invoice-modal');
+            if (invModal) {
+                invModal.addEventListener('click', (e) => {
+                    if (e.target === invModal) closeInvoice();
+                });
+            }
+
+            // ESC key closes invoice modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('invoice-modal');
+                    if (modal && modal.style.display === 'flex') closeInvoice();
+                }
+            });
+        });
+
+
+        async function loadOrders() {
+            const modal = document.getElementById('order-modal');
+            if (modal && modal.style.display === 'flex') return;
+            const orders = await AdminAPI.get('/admin/orders');
+            if (orders) {
+                allOrders = orders;
+                renderOrders(orders);
+            }
+        }
+
+        function renderOrders(orders) {
+            const tbody = document.getElementById('orders-table-body');
+            const statusMap = {
+                'Pending': 'Chờ xử lý',
+                'Shipping': 'Đang giao',
+                'Delivered': 'Đã giao',
+                'Cancelled': 'Đã hủy'
+            };
+            tbody.innerHTML = orders.map(o => {
+                const status = o.status || 'Pending';
+                const method = o.paymentMethod || 'COD';
+                const statusText = statusMap[status] || status;
+                return `
+                <tr>
+                    <td><strong>#${o._id ? o._id.slice(-6) : 'N/A'}</strong></td>
+                    <td>${o.user ? o.user.name : 'Khách'}</td>
+                    <td style="max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${o.orderItems ? o.orderItems.map(i => i.name + ' (x' + i.qty + ')').join(', ') : ''}">
+                        ${o.orderItems && o.orderItems.length > 0 ? o.orderItems.map(i => i.name).join(', ') : 'Trống'}
+                    </td>
+                    <td style="text-align: center;">
+                        ${o.orderItems ? o.orderItems.reduce((acc, i) => acc + i.qty, 0) : 0}
+                    </td>
+                    <td>${AdminUtils.formatDate(o.createdAt || new Date())}</td>
+                    <td>${AdminUtils.formatCurrency(o.totalPrice || 0)}</td>
+                    <td><span class="badge badge-${method === 'COD' ? 'secondary' : 'success'}">${method}</span></td>
+                    <td><span class="badge badge-${status.toLowerCase()}">${statusText}</span></td>
+                    <td style="display:flex; gap:4px; flex-wrap:wrap;">
+                        <button class="btn btn-sm btn-primary" onclick="viewOrderDetails('${o._id}')">Chi tiết</button>
+                        <button class="btn btn-sm btn-secondary" onclick="openInvoice('${o._id}')"><i class="fas fa-file-invoice" style="color: #2ea043;"></i> HĐ</button>
+                        <button class="btn btn-sm btn-danger" onclick="confirmDeleteOrder('${o._id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        }
+
+        function confirmDeleteOrder(id) {
+            AdminUtils.confirm('Bạn có chắc chắn muốn xóa đơn hàng này? Hành động này không thể hoàn tác.', async () => {
+                const result = await AdminAPI.delete(`/admin/orders/${id}`);
+                if (result) {
+                    AdminUtils.toast('Đã xóa đơn hàng thành công!');
+                    loadOrders();
+                }
+            });
+        }
+
+        function viewOrderDetails(id) {
+            const order = allOrders.find(o => o._id === id);
+            if (!order) return;
+            currentEditingOrderId = id;
+
+            document.getElementById('m-order-id').innerText = '#' + id.slice(-6);
+            document.getElementById('m-user-name').value = order.user ? order.user.name : '';
+            document.getElementById('m-user-phone').value = order.shippingAddress.phone;
+            document.getElementById('m-user-address').value = order.shippingAddress.address + (order.shippingAddress.city ? ', ' + order.shippingAddress.city : '');
+            document.getElementById('m-user-notes').innerText = order.notes || 'Không có';
+            document.getElementById('m-payment-method').innerText = order.paymentMethod || 'COD';
+            document.getElementById('m-order-date').innerText = AdminUtils.formatDate(order.createdAt);
+            const subtotalRow = document.getElementById('m-subtotal-row');
+            const subtotalPrice = document.getElementById('m-subtotal-price');
+            const discountRow = document.getElementById('m-discount-row');
+            const promoCode = document.getElementById('m-promo-code');
+            const discountPrice = document.getElementById('m-discount-price');
+            
+            const hasPromo = order.promoCode && order.discountAmount > 0;
+            
+            if (hasPromo) {
+                const subtotal = order.totalPrice + order.discountAmount;
+                if (subtotalPrice) subtotalPrice.innerText = AdminUtils.formatCurrency(subtotal);
+                if (promoCode) promoCode.innerText = order.promoCode;
+                if (discountPrice) discountPrice.innerText = '-' + AdminUtils.formatCurrency(order.discountAmount);
+                if (subtotalRow) subtotalRow.style.display = 'block';
+                if (discountRow) discountRow.style.display = 'block';
+            } else {
+                if (subtotalRow) subtotalRow.style.display = 'none';
+                if (discountRow) discountRow.style.display = 'none';
+            }
+            
+            document.getElementById('m-total-price').innerText = AdminUtils.formatCurrency(order.totalPrice);
+
+            const statusSelect = document.getElementById('m-status-select');
+            const statuses = [
+                { value: 'Pending', label: 'Chờ xử lý' },
+                { value: 'Shipping', label: 'Đang giao' },
+                { value: 'Delivered', label: 'Đã giao' },
+                { value: 'Cancelled', label: 'Đã hủy' }
+            ];
+            statusSelect.innerHTML = statuses.map(s => `<option value="${s.value}" ${s.value === order.status ? 'selected' : ''}>${s.label}</option>`).join('');
+
+            renderOrderItemsEditable(currentEditingOrderId);
+            AdminUtils.showModal('order-modal');
+        }
+
+        function renderOrderItemsEditable(orderId) {
+            const order = allOrders.find(o => o._id === orderId);
+            const itemsContainer = document.getElementById('m-order-items');
+
+            if (!order || !order.orderItems || order.orderItems.length === 0) {
+                itemsContainer.innerHTML = '<p>Đơn hàng trống.</p>';
+                return;
+            }
+
+            itemsContainer.innerHTML = order.orderItems.map((item, index) => `
+                <div class="order-item-row" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                    <img src="${item.image}" class="order-item-img">
+                    <div style="flex: 1;">
+                        <p style="margin-bottom: 5px;"><strong>${item.name}</strong></p>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 0.85rem; color: #666;">Đơn giá: ${AdminUtils.formatCurrency(item.price)}</span>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <label style="font-size: 0.85rem;">SL:</label>
+                                <input type="number" class="form-control" style="width: 70px; padding: 2px 5px;" value="${item.qty}" min="1" onchange="updateItemQty('${orderId}', ${index}, this.value)">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-weight: 600; min-width: 100px; text-align: right;">${AdminUtils.formatCurrency(item.qty * item.price)}</div>
+                    <button class="btn btn-sm btn-danger" onclick="removeOrderItem('${orderId}', ${index})" style="margin-left: 15px;"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+
+            itemsContainer.innerHTML += `
+                <div style="text-align: right; margin-top: 15px;">
+                    <button class="btn btn-success btn-sm" onclick="saveOrderItems('${orderId}')"><i class="fas fa-save"></i> Lưu thay đổi sản phẩm</button>
+                </div>
+            `;
+        }
+
+        function updateItemQty(orderId, itemIndex, newQty) {
+            const order = allOrders.find(o => o._id === orderId);
+            if (order) {
+                order.orderItems[itemIndex].qty = Number(newQty);
+                order.totalPrice = order.orderItems.reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
+                document.getElementById('m-total-price').innerText = AdminUtils.formatCurrency(order.totalPrice);
+                renderOrderItemsEditable(orderId);
+            }
+        }
+
+        function removeOrderItem(orderId, itemIndex) {
+            const order = allOrders.find(o => o._id === orderId);
+            if (order) {
+                order.orderItems.splice(itemIndex, 1);
+                order.totalPrice = order.orderItems.reduce((acc, curr) => acc + (curr.qty * curr.price), 0);
+                document.getElementById('m-total-price').innerText = AdminUtils.formatCurrency(order.totalPrice);
+                renderOrderItemsEditable(orderId);
+            }
+        }
+
+        async function saveOrderItems(orderId) {
+            const order = allOrders.find(o => o._id === orderId);
+            if (!order) return;
+            if (order.orderItems.length === 0) {
+                AdminUtils.toast('Đơn hàng không thể trống. Vui lòng xóa đơn hàng thay thế!', 'error');
+                return;
+            }
+            const result = await AdminAPI.put(`/admin/orders/${orderId}/items`, { orderItems: order.orderItems });
+            if (result) {
+                AdminUtils.toast('Đã lưu thay đổi sản phẩm thành công!');
+                loadOrders();
+            }
+        }
+
+        async function updateStatus() {
+            const newStatus = document.getElementById('m-status-select').value;
+            const result = await AdminAPI.put(`/admin/orders/${currentEditingOrderId}/status`, { status: newStatus }, true);
+
+            if (result) {
+                // Update local state
+                const orderIdx = allOrders.findIndex(o => o._id === currentEditingOrderId);
+                if (orderIdx >= 0) allOrders[orderIdx].status = newStatus;
+
+                AdminUtils.toast('Cập nhật trạng thái thành công!');
+                AdminUtils.hideModal('order-modal');
+                loadOrders();
+
+                // Auto-show invoice when marked as Delivered
+                if (newStatus === 'Delivered') {
+                    setTimeout(() => {
+                        openInvoice(currentEditingOrderId);
+                    }, 600);
+                }
+            }
+        }
+
+        async function updateCustomerInfo() {
+            if (!currentEditingOrderId) return;
+            const name = document.getElementById('m-user-name').value;
+            const phone = document.getElementById('m-user-phone').value;
+            const address = document.getElementById('m-user-address').value;
+
+            const result = await AdminAPI.put(`/admin/orders/${currentEditingOrderId}/customer`, { name, phone, address });
+            if (result) {
+                AdminUtils.toast('Cập nhật thông tin khách hàng thành công!');
+                loadOrders();
+            }
+        }
+
+        function applyFilters() {
+            const status = document.getElementById('filter-status').value;
+            const dateFrom = document.getElementById('filter-date-from').value;
+            const dateTo = document.getElementById('filter-date-to').value;
+
+            let filtered = allOrders;
+            if (status) filtered = filtered.filter(o => o.status === status);
+            if (dateFrom) {
+                const fromTime = new Date(dateFrom).getTime();
+                filtered = filtered.filter(o => new Date(o.createdAt).getTime() >= fromTime);
+            }
+            if (dateTo) {
+                const toTime = new Date(dateTo).getTime() + 86400000;
+                filtered = filtered.filter(o => new Date(o.createdAt).getTime() <= toTime);
+            }
+            renderOrders(filtered);
+        }
+
+        // ── Invoice Functions ─────────────────────────────
+        function fmtCurr(n) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n || 0);
+        }
+
+        function fmtDate(d) {
+            if (!d) return '—';
+            const dt = new Date(d);
+            return dt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        async function openInvoice(orderId) {
+            const loader = document.getElementById('global-loader');
+            if (loader) loader.style.display = 'flex';
+            try {
+                const data = await AdminAPI.get(`/admin/orders/${orderId}/invoice`, true);
+                if (!data) { AdminUtils.toast('Không thể tải dữ liệu hóa đơn!', 'error'); return; }
+                renderInvoice(data);
+                const modal = document.getElementById('invoice-modal');
+                modal.style.display = 'flex';
+                modal.scrollTop = 0;         // reset scroll to top
+                document.body.style.overflow = 'hidden';  // prevent body scroll
+            } finally {
+                if (loader) loader.style.display = 'none';
+            }
+        }
+
+        function numberToWords(n) {
+            // Robust Vietnamese number-to-words conversion
+            if (!n || n === 0) return 'không';
+            n = Math.round(n);
+
+            const ones  = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+            const teens = ['mười', 'mười một', 'mười hai', 'mười ba', 'mười bốn', 'mười lăm',
+                           'mười sáu', 'mười bảy', 'mười tám', 'mười chín'];
+            const tens  = ['', 'mười', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi',
+                           'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
+
+            function readHundreds(num) {
+                let result = '';
+                const h = Math.floor(num / 100);
+                const rem = num % 100;
+                if (h > 0) result += ones[h] + ' trăm';
+                if (rem === 0) return result;
+                if (rem < 10) {
+                    result += (h > 0 ? ' linh ' : '') + ones[rem];
+                } else if (rem < 20) {
+                    result += (h > 0 ? ' ' : '') + teens[rem - 10];
+                } else {
+                    const t = Math.floor(rem / 10);
+                    const o = rem % 10;
+                    result += (h > 0 ? ' ' : '') + tens[t];
+                    if (o === 5) result += ' lăm';
+                    else if (o > 0) result += ' ' + ones[o];
+                }
+                return result.trim();
+            }
+
+            let parts = [];
+            const ty = Math.floor(n / 1e9); n %= 1e9;
+            const trieu = Math.floor(n / 1e6); n %= 1e6;
+            const nghin = Math.floor(n / 1e3); n %= 1e3;
+            const remainder = n;
+
+            if (ty > 0)      parts.push(readHundreds(ty) + ' tỷ');
+            if (trieu > 0)   parts.push(readHundreds(trieu) + ' triệu');
+            if (nghin > 0)   parts.push(readHundreds(nghin) + ' nghìn');
+            if (remainder > 0) parts.push(readHundreds(remainder));
+
+            // Capitalise first letter
+            const text = parts.join(' ');
+            return text.charAt(0).toUpperCase() + text.slice(1);
+        }
+
+        function fmtDateVN(d) {
+            if (!d) return '---';
+            const dt = new Date(d);
+            return `Hà Nội, ngày ${String(dt.getDate()).padStart(2,'0')} tháng ${String(dt.getMonth()+1).padStart(2,'0')} năm ${dt.getFullYear()}`;
+        }
+
+        function renderInvoice(data) {
+            document.getElementById('inv-number').textContent = data.invoiceNumber;
+            // Update toolbar label
+            const label = document.getElementById('inv-number-label');
+            if (label) label.textContent = data.invoiceNumber;
+            document.getElementById('inv-date').textContent = fmtDateVN(data.deliveredAt || new Date());
+            document.getElementById('inv-generated-at').textContent = fmtDate(new Date());
+
+            // Customer
+            document.getElementById('inv-cust-name').textContent = data.customer.name || '—';
+            document.getElementById('inv-cust-email').textContent = data.customer.email || '—';
+            document.getElementById('inv-cust-phone').textContent = data.customer.phone || '—';
+            const addr = [data.customer.address, data.customer.city].filter(Boolean).join(', ');
+            document.getElementById('inv-cust-address').textContent = addr || '—';
+
+            // Order
+            document.getElementById('inv-order-id').textContent = '#' + String(data.orderId).slice(-8).toUpperCase();
+            document.getElementById('inv-payment').textContent = data.paymentMethod === 'COD' ? 'Giao hàng thu tiền (COD)' : 'Chuyển khoản ngân hàng';
+
+            // Admin name from auth
+            try {
+                const adminInfo = AdminAuth.getAdminInfo();
+                if (adminInfo) document.getElementById('inv-admin-name').textContent = adminInfo.name;
+            } catch(e) {}
+
+            // Items
+            const tbody = document.getElementById('inv-items-tbody');
+            tbody.innerHTML = data.items.map((item, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td class="td-name">
+                        <strong>${item.name}</strong>
+                    </td>
+                    <td>${item.qty}</td>
+                    <td class="td-right">${fmtCurr(item.price)}</td>
+                    <td class="td-right">${fmtCurr(item.subtotal)}</td>
+                </tr>
+            `).join('');
+
+            // Totals
+            const hasPromo = data.promoCode && data.discountAmount > 0;
+            const subtotalTr = document.getElementById('inv-subtotal-tr');
+            const discountTr = document.getElementById('inv-discount-tr');
+
+            if (hasPromo) {
+                const subtotal = data.totalPrice + data.discountAmount;
+                document.getElementById('inv-subtotal').textContent = fmtCurr(subtotal);
+                document.getElementById('inv-promo-code').textContent = data.promoCode;
+                document.getElementById('inv-discount').textContent = '-' + fmtCurr(data.discountAmount);
+                if (subtotalTr) subtotalTr.style.display = 'table-row';
+                if (discountTr) discountTr.style.display = 'table-row';
+            } else {
+                if (subtotalTr) subtotalTr.style.display = 'none';
+                if (discountTr) discountTr.style.display = 'none';
+            }
+
+            document.getElementById('inv-total').textContent = fmtCurr(data.totalPrice);
+            // Words
+            try { document.getElementById('inv-total-words').textContent = numberToWords(Math.round(data.totalPrice)) + ' đồng'; } catch(e){}
+        }
+
+        function closeInvoice() {
+            document.getElementById('invoice-modal').style.display = 'none';
+            document.body.style.overflow = '';  // restore body scroll
+        }
+
+        function printInvoice() {
+            const printContents = document.getElementById('invoice-printable').innerHTML;
+            const printWindow = window.open('', '_blank', 'width=900,height=750');
+            printWindow.document.write(`<!DOCTYPE html>
+<html lang="vi"><head>
+<meta charset="UTF-8">
+<title>Hóa đơn – Mô Hình Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 14px; background:#fff; color:#111; padding: 1.5cm 2cm; line-height: 1.6; }
+.inv-doc-header { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.6rem; font-size: 12px; }
+.inv-doc-left { text-align: center; border-right: 1px solid #ccc; padding-right: 1rem; }
+.inv-doc-right { text-align: center; padding-left: 1rem; }
+.inv-doc-left .company-name { font-weight: bold; font-size: 18px; margin-bottom: 2px; }
+.inv-doc-left .dept { font-size: 12px; margin-bottom: 6px; }
+.inv-doc-left .doc-ref { font-size: 12px; margin-top: 4px; }
+.inv-doc-right .republic { font-weight: bold; font-size: 18px; margin-bottom: 2px; }
+.inv-doc-right .motto { font-weight: bold; font-size: 12px; margin-bottom: 2px; }
+.inv-doc-right .motto-underline { border-bottom: 1px solid #111; width: 60%; margin: 0 auto 6px; }
+.inv-doc-right .place-date { font-style: italic; font-size: 12px; margin-top: 6px; }
+.inv-doc-divider { border: none; border-top: 1px solid #555; margin: 0.5rem 0 1.2rem; }
+.inv-doc-title-block { text-align: center; margin-bottom: 0.8rem; }
+.inv-doc-title { font-weight: bold; font-size: 24px; letter-spacing: 0.5px; }
+.inv-doc-subtitle { font-size: 12px; font-style: italic; margin-top: 3px; }
+.inv-customer-table { margin: 1rem 0; width: 100%; font-size: 14px; }
+.inv-customer-table tr td:first-child { font-weight: bold; width: 130px; vertical-align: top; padding-bottom: 3px; }
+.inv-customer-table tr td { padding-bottom: 4px; }
+.inv-intro { font-size: 14px; margin: 0.6rem 0 1rem; text-align: left; }
+.inv-items-table { width: 100%; border-collapse: collapse; margin-bottom: 0; font-size: 14px; }
+.inv-items-table th, .inv-items-table td { border: 1px solid #444; padding: 6px 10px; text-align: center; vertical-align: middle; }
+.inv-items-table thead tr { background: #f2f2f2; }
+.inv-items-table th { font-weight: bold; text-transform: none; }
+.inv-items-table .td-name { text-align: left; }
+.inv-items-table .td-right { text-align: right; }
+.inv-total-row td { font-weight: bold; background: #f9f9f9; }
+.inv-note { font-style: italic; font-size: 12px; margin: 0.8rem 0 1.2rem; }
+.inv-closing { font-size: 14px; text-align: left; margin-bottom: 1.5rem; }
+.inv-signature-block { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+.inv-signature-inner { text-align: center; min-width: 200px; }
+.sig-title { font-weight: bold; font-size: 18px; margin-bottom: 2px; }
+.sig-sub { font-size: 12px; margin-bottom: 60px; }
+.inv-seal { width: 90px; height: 90px; border: 3px solid #c00; border-radius: 50%; margin: 0 auto 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #c00; font-size: 12px; font-weight: bold; line-height: 1.3; letter-spacing: 0.5px; position: relative; }
+.inv-seal::before { content: ''; position: absolute; inset: 5px; border: 1.5px solid #c00; border-radius: 50%; }
+.sig-name { font-weight: bold; font-size: 18px; }
+.inv-sys-note, .inv-btn-row { display: none; }
+</style></head><body>${printContents}</body></html>`);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => { printWindow.print(); }, 800);
+        }
+
+        async function saveInvoicePDF() {
+            const invNum = document.getElementById('inv-number').textContent || 'HoaDon';
+            const btn = document.querySelector('button[onclick="saveInvoicePDF()"]');
+            const originalText = btn ? btn.innerHTML : '';
+            if (btn) { btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xuất...'; btn.disabled = true; }
+
+            const element = document.getElementById('invoice-printable');
+
+            // Hide system note temporarily
+            const sysNote = element.querySelector('.inv-sys-note');
+            if (sysNote) sysNote.style.display = 'none';
+
+            const opt = {
+                margin:      [10, 12, 10, 12],
+                filename:    `HoaDon_${invNum}.pdf`,
+                image:       { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                if (sysNote) sysNote.style.display = '';
+                if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                AdminUtils.toast(`Đã lưu PDF: HoaDon_${invNum}.pdf`);
+            }).catch(() => {
+                if (sysNote) sysNote.style.display = '';
+                if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                AdminUtils.toast('Lỗi khi xuất PDF!', 'error');
+            });
+        }
+    </script>
+</body>
+
+</html>

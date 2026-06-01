@@ -1,0 +1,22 @@
+const fs = require('fs');
+const AdmZip = require('adm-zip');
+
+const backupPath = './Báo cáo bài tập lớn.docx.bak';
+const zip = new AdmZip(backupPath);
+const documentXml = zip.getEntry('word/document.xml').getData().toString('utf8');
+const parts = documentXml.split('</w:p>');
+
+function getPlainText(pXml) {
+    const tRegex = /<w:t\b[^>]*>([^<]*)<\/w:t>/g;
+    let match;
+    let text = '';
+    while ((match = tRegex.exec(pXml)) !== null) {
+        text += match[1];
+    }
+    return text;
+}
+
+for (let i = 110; i <= 125; i++) {
+    const text = getPlainText(parts[i] + '</w:p>').trim();
+    console.log(`${i}: "${text}"`);
+}

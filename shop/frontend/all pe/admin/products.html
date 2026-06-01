@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Sản phẩm | Mô Hình Store Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-components.css">
+    <style>
+        .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .tech-spec-row { display: grid; grid-template-columns: 1fr 1fr 40px; gap: 0.5rem; margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">MÔ HÌNH ADMIN</div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="index.html"><i class="fas fa-th-large"></i> Tổng quan</a>
+                <a href="products.html" class="active"><i class="fas fa-box"></i> Sản phẩm</a>
+                <a href="categories.html"><i class="fas fa-list"></i> Danh mục</a>
+                <a href="orders.html"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                <a href="users.html"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
+                <a href="appointments.html"><i class="fas fa-calendar-check"></i> Lịch hẹn & Tư vấn</a>
+                <a href="promotions.html"><i class="fas fa-percent"></i> Khuyến mãi</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" onclick="AdminAuth.logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-title">
+                    <h2>Quản lý Sản phẩm</h2>
+                    <p>Quản lý kho hàng và thông tin sản phẩm của bạn</p>
+                </div>
+                <div class="admin-info" style="display: flex; align-items: center; gap: 15px;">
+                    <span id="display-admin-name">Admin</span>
+                    <div class="avatar" style="width: 40px; height: 40px; background: var(--primary-color); border-radius: 50%; color: black; display: flex; align-items: center; justify-content: center; font-weight: 800;">A</div>
+                </div>
+            </header>
+
+            <div class="glass-card" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+                <div style="display: flex; gap: 15px; flex: 1;">
+                    <input type="text" id="search-product" class="form-control" placeholder="Tìm tên sản phẩm..." style="max-width: 300px;">
+                    <select id="filter-category" class="form-control" style="max-width: 200px;">
+                        <option value="">Tất cả danh mục</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i> Thêm sản phẩm mới
+                </button>
+            </div>
+
+            <div class="glass-card table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Giá</th>
+                            <th>Tồn kho</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+                <div id="pagination" style="display: flex; justify-content: center; gap: 10px; margin-top: 30px;">
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title" style="margin-bottom: 30px;">Thêm sản phẩm mới</h2>
+            <form id="product-form">
+                <input type="hidden" id="p-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Tên sản phẩm</label>
+                        <input type="text" id="p-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Danh mục</label>
+                        <select id="p-category" class="form-control" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Giá niêm yết (VNĐ)</label>
+                        <input type="number" id="p-price" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Giá khuyến mãi (VNĐ - Để trống nếu không giảm)</label>
+                        <input type="number" id="p-salePrice" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Thương hiệu</label>
+                        <input type="text" id="p-brand" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số lượng trong kho</label>
+                        <input type="number" id="p-stock" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Hình ảnh sản phẩm</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <input type="file" id="p-image-file" class="form-control" accept="image/*">
+                        <input type="text" id="p-image-url" class="form-control" placeholder="Hoặc nhập URL ảnh...">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mô tả sản phẩm</label>
+                    <textarea id="p-desc" class="form-control" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <label>Thông số kỹ thuật</label>
+                        <button type="button" class="btn btn-sm" style="background: var(--glass-border);" onclick="addTechSpecRow()">+ Thêm dòng</button>
+                    </div>
+                    <div id="tech-specs-container"></div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;">
+                    <button type="button" class="btn" style="background: #333;" onclick="AdminUtils.hideModal('product-modal')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu sản phẩm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Global Loader -->
+    <div id="global-loader" class="loader-overlay"><div class="loader"></div></div>
+
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
+    <script src="../assets/js/admin-utils.js"></script>
+    <script>
+        let allProducts = [];
+        let currentPage = 1;
+        const LIMIT = 10;
+        let searchQuery = '';
+        let categoryQuery = '';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const adminInfo = AdminAuth.getAdminInfo();
+            if (adminInfo) {
+                document.getElementById('display-admin-name').innerText = adminInfo.name;
+                const avatar = document.querySelector('.avatar');
+                if (avatar) avatar.innerText = adminInfo.name.charAt(0).toUpperCase();
+            }
+
+            await loadCategories();
+            await loadProducts();
+        });
+
+        async function loadCategories() {
+            const categories = await AdminAPI.get('/categories');
+            if (categories) {
+                const filterSelect = document.getElementById('filter-category');
+                const modalSelect = document.getElementById('p-category');
+                
+                const options = categories.map(c => `<option value="${c._id}">${c.name}</option>`).join('');
+                filterSelect.innerHTML += options;
+                modalSelect.innerHTML = options;
+            }
+        }
+
+        async function loadProducts(page = 1) {
+            currentPage = page;
+            let url = `/products?page=${page}&limit=${LIMIT}`;
+            if (searchQuery) url = `/products/search?q=${searchQuery}`;
+            else if (categoryQuery) url += `&category=${categoryQuery}`;
+
+            const response = await AdminAPI.get(url);
+            if (response) {
+                const products = response.products || response; // search API returns array, products API returns object
+                allProducts = products;
+                renderProducts(products);
+
+                if (response.pages) {
+                    renderPagination(response.pages, page);
+                } else {
+                    document.getElementById('pagination').innerHTML = ''; // search doesn't have pagination yet
+                }
+            }
+        }
+
+        function renderPagination(totalPages, currentPage) {
+            let html = '';
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="loadProducts(${i})">${i}</button>`;
+            }
+            document.getElementById('pagination').innerHTML = html;
+        }
+
+        function renderProducts(products) {
+            const tbody = document.getElementById('products-table-body');
+            tbody.innerHTML = products.map(p => {
+                const status = p.countInStock > 0 ? '<span class="badge badge-success">Còn hàng</span>' : '<span class="badge badge-danger">Hết hàng</span>';
+                const priceHtml = p.salePrice > 0 
+                    ? `<span style="text-decoration: line-through; color: #999; font-size: 0.9em;">${AdminUtils.formatCurrency(p.price)}</span><br><span style="color: red; font-weight: bold;">${AdminUtils.formatCurrency(p.salePrice)}</span>` 
+                    : AdminUtils.formatCurrency(p.price);
+
+                return `
+                <tr>
+                    <td><img src="${p.image}" class="product-img"></td>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.category ? p.category.name : 'N/A'}</td>
+                    <td>${priceHtml}</td>
+                    <td>${p.countInStock}</td>
+                    <td>${status}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="openEditModal('${p._id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="confirmDelete('${p._id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        // Modal Logic
+        function openAddModal() {
+            document.getElementById('modal-title').innerText = 'Thêm sản phẩm mới';
+            document.getElementById('product-form').reset();
+            document.getElementById('p-id').value = '';
+            document.getElementById('tech-specs-container').innerHTML = '';
+            AdminUtils.showModal('product-modal');
+        }
+
+        function openEditModal(id) {
+            const product = allProducts.find(p => p._id === id);
+            if (!product) return;
+
+            document.getElementById('modal-title').innerText = 'Chỉnh sửa sản phẩm';
+            document.getElementById('p-id').value = product._id;
+            document.getElementById('p-name').value = product.name;
+            document.getElementById('p-category').value = product.category ? product.category._id : '';
+            document.getElementById('p-price').value = product.price;
+            document.getElementById('p-salePrice').value = product.salePrice || '';
+            document.getElementById('p-brand').value = product.brand;
+            document.getElementById('p-stock').value = product.countInStock;
+            document.getElementById('p-image-url').value = product.image || '';
+            document.getElementById('p-image-file').value = '';
+            document.getElementById('p-desc').value = product.description;
+
+            // Load tech specs
+            const container = document.getElementById('tech-specs-container');
+            container.innerHTML = '';
+            if (product.technicalSpecs) {
+                for (const [key, value] of Object.entries(product.technicalSpecs)) {
+                    addTechSpecRow(key, value);
+                }
+            }
+
+            AdminUtils.showModal('product-modal');
+        }
+
+        function addTechSpecRow(key = '', value = '') {
+            const container = document.getElementById('tech-specs-container');
+            const row = document.createElement('div');
+            row.className = 'tech-spec-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Tên thông số (CPU, RAM...)" class="form-control spec-key" value="${key}">
+                <input type="text" placeholder="Giá trị" class="form-control spec-value" value="${value}">
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            `;
+            container.appendChild(row);
+        }
+
+        // Form Submit
+        document.getElementById('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('p-id').value;
+            const technicalSpecs = {};
+            document.querySelectorAll('.tech-spec-row').forEach(row => {
+                const key = row.querySelector('.spec-key').value;
+                const value = row.querySelector('.spec-value').value;
+                if (key) technicalSpecs[key] = value;
+            });
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('p-name').value);
+            formData.append('category', document.getElementById('p-category').value);
+            formData.append('price', document.getElementById('p-price').value);
+            formData.append('salePrice', document.getElementById('p-salePrice').value || 0);
+            formData.append('brand', document.getElementById('p-brand').value);
+            formData.append('countInStock', document.getElementById('p-stock').value);
+            formData.append('description', document.getElementById('p-desc').value);
+            formData.append('manufacturer', document.getElementById('p-brand').value);
+            formData.append('technicalSpecs', JSON.stringify(technicalSpecs));
+            
+            const imageFile = document.getElementById('p-image-file').files[0];
+            const imageUrl = document.getElementById('p-image-url').value;
+            
+            if (imageFile) {
+                formData.append('image', imageFile);
+            } else if (imageUrl) {
+                formData.append('image', imageUrl);
+            } else {
+                AdminUtils.toast('Vui lòng chọn ảnh hoặc nhập URL ảnh', 'error');
+                return;
+            }
+
+            let result;
+            if (id) {
+                result = await AdminAPI.put(`/admin/products/${id}`, formData);
+            } else {
+                result = await AdminAPI.post('/admin/products', formData);
+            }
+
+            if (result) {
+                AdminUtils.toast(id ? 'Cập nhật thành công!' : 'Thêm sản phẩm thành công!');
+                AdminUtils.hideModal('product-modal');
+                loadProducts(currentPage);
+            }
+        });
+
+        function confirmDelete(id) {
+            AdminUtils.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?', async () => {
+                const result = await AdminAPI.delete(`/admin/products/${id}`);
+                if (result) {
+                    AdminUtils.toast('Đã xóa sản phẩm');
+                    loadProducts();
+                }
+            });
+        }
+
+        // Search & Filter
+        document.getElementById('search-product').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchQuery = e.target.value.trim();
+                loadProducts(1);
+            }
+        });
+
+        document.getElementById('filter-category').addEventListener('change', (e) => {
+            categoryQuery = e.target.value;
+            loadProducts(1);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản của tôi | Mô Hình Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .profile-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            margin-top: 120px;
+            margin-bottom: 80px;
+        }
+
+        .profile-sidebar {
+            padding: 30px;
+            border-radius: 20px;
+            height: fit-content;
+        }
+
+        .user-info-side {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .user-info-side .avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-color);
+            background-color: #00d4ff;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto 15px;
+        }
+
+        .side-menu li {
+            margin-bottom: 10px;
+        }
+
+        .side-menu a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .side-menu a:hover,
+        .side-menu a.active {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .order-card {
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .order-item-small {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .order-item-small img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-Pending {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .status-Delivered {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .status-Cancelled {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .status-Shipping {
+            background: #17a2b8;
+            color: #fff;
+        }
+
+        .pwd-field {
+            position: relative;
+        }
+
+        .pwd-field input {
+            width: 100%;
+            padding: 12px 44px 12px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 0.95rem;
+            transition: border-color .3s;
+        }
+
+        .pwd-field input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .pwd-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .pwd-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength-bar div {
+            height: 100%;
+            border-radius: 2px;
+            transition: transform .4s, background .4s;
+            transform-origin: left;
+            width: 100%;
+            transform: scaleX(0);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 22px;
+            border-radius: 14px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            backdrop-filter: blur(12px);
+            animation: toastIn .4s ease;
+            min-width: 280px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.9), rgba(0, 200, 83, 0.85));
+            border: 1px solid rgba(40, 167, 69, 0.5);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.9), rgba(255, 82, 82, 0.85));
+            border: 1px solid rgba(220, 53, 69, 0.5);
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+        }
+
+        .toast.hide {
+            animation: toastOut .3s ease forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+        }
+
+        /* Order Tracking Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 20px;
+            padding: 30px;
+            animation: modalIn .3s ease;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .tracking-timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 30px 0 40px;
+            padding: 0 10px;
+        }
+
+        .tracking-timeline::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 30px;
+            right: 30px;
+            height: 3px;
+            background: var(--glass-border);
+            z-index: 1;
+        }
+
+        .tracking-step {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+        }
+
+        .tracking-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 3px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: .3s;
+        }
+
+        .tracking-step.active .tracking-icon {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            background-color: #00d4ff;
+            color: #000;
+            box-shadow: none;
+        }
+
+        .tracking-step.active {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .tracking-step p {
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .order-card {
+            cursor: pointer;
+            transition: transform .2s, border-color .2s;
+            border: 1px solid transparent;
+        }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 15px var(--primary-glow);
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header id="main-header" class="scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="Logo">
+                <span>MÔ HÌNH STORE</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Trang chủ</a>
+                <a href="products.html">Sản phẩm</a>
+                <a href="rewards.html">Khuyến mãi</a>
+                <a href="index.html?consultation=true"><i class="fas fa-headset" style="margin-right: 4px;"></i>Tư vấn</a>
+                <a href="categories.html">Về chúng tôi</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </a>
+                <button class="btn btn-primary" style="padding: 5px 15px; font-size: 0.8rem;"
+                    onclick="ShopAPI.logout()">Đăng xuất</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="profile-container">
+            <aside class="profile-sidebar glass">
+                <div class="user-info-side">
+                    <div class="avatar" id="user-avatar">A</div>
+                    <h4 id="user-name">Người dùng</h4>
+                    <p id="user-email" style="font-size: 0.8rem; color: var(--text-muted);">email@example.com</p>
+
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
+                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-color);" id="user-points">
+                            0</div>
+                        <p
+                            style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted);">
+                            Điểm tích lũy</p>
+                        <div id="user-rank-badge"
+                            style="display: inline-block; padding: 2px 10px; border-radius: 10px; background: var(--primary-color); background-color: #00d4ff; color: #000; font-size: 0.7rem; font-weight: 700; margin-top: 5px;">
+                            BRONZE</div>
+                    </div>
+                </div>
+                <ul class="side-menu">
+                    <li><a href="#" id="tab-orders" class="active" onclick="switchTab('orders')"><i class="fas fa-shopping-bag"></i> Đơn hàng của tôi</a></li>
+                    <li><a href="rewards.html"><i class="fas fa-gift"></i> Đặc quyền thành viên</a></li>
+                    <li><a href="#" id="tab-consultations" onclick="switchTab('consultations')"><i class="fas fa-headset"></i> Tư vấn của tôi</a></li>
+                    <li><a href="#" id="tab-security" onclick="switchTab('security')"><i class="fas fa-shield-alt"></i> Bảo mật & Mật khẩu</a></li>
+                </ul>
+            </aside>
+
+            <main>
+                <!-- Orders Tab -->
+                <div id="section-orders">
+                    <h2 style="margin-bottom: 30px;">Lịch sử đơn hàng</h2>
+                    <div id="orders-list">
+                        <!-- Dynamic -->
+                    </div>
+                </div>
+
+                <!-- Consultations Tab -->
+                <div id="section-consultations" style="display: none;">
+                    <div id="consultations-list-view">
+                        <h2 style="margin-bottom: 30px;"><i class="fas fa-headset" style="color: var(--primary-color); margin-right: 10px;"></i>Yêu cầu tư vấn của tôi</h2>
+                        <div id="consultations-list">
+                            <div style="text-align:center;padding:60px;color:var(--text-muted);"><i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Chat View -->
+                    <div id="consultation-chat-view" style="display:none;">
+                        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+                            <button onclick="backToConsultationList()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:#ccc;padding:8px 16px;border-radius:30px;cursor:pointer;font-size:0.9rem;transition:.2s;" onmouseover="this.style.borderColor='var(--primary-color)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='#ccc'"><i class="fas fa-arrow-left"></i> Quay lại</button>
+                            <div>
+                                <h3 id="chat-consult-name" style="margin:0;font-size:1.1rem;"></h3>
+                                <span id="chat-consult-status" class="status-badge"></span>
+                            </div>
+                        </div>
+
+                        <div class="glass" style="border-radius:20px;overflow:hidden;display:flex;flex-direction:column;height:520px;">
+                            <!-- Chat info header -->
+                            <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(0,180,219,0.07);display:flex;align-items:center;gap:12px;">
+                                <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#00b4db,#0083b0);display:flex;align-items:center;justify-content:center;"><i class="fas fa-headset" style="color:#fff;"></i></div>
+                                <div>
+                                    <div style="font-weight:600;font-size:0.95rem;">Nhân viên tư vấn Mô Hình Store</div>
+                                    <div style="font-size:0.8rem;color:#aaa;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#28a745;margin-right:5px;"></span>Đang trực tuyến</div>
+                                </div>
+                            </div>
+
+                            <!-- Messages -->
+                            <div id="chat-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;">
+                            </div>
+
+                            <!-- Input -->
+                            <div style="padding:14px 16px;border-top:1px solid rgba(255,255,255,0.08);display:flex;gap:10px;align-items:flex-end;">
+                                <textarea id="chat-input" placeholder="Nhập tin nhắn..." rows="1" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:10px 14px;border-radius:12px;resize:none;font-family:inherit;font-size:0.9rem;outline:none;max-height:100px;overflow-y:auto;transition:.2s;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCustomerChat();}"></textarea>
+                                <button onclick="sendCustomerChat()" id="btn-send-chat" style="background:var(--gradient-primary);color:#fff;border:none;width:44px;height:44px;border-radius:12px;cursor:pointer;font-size:1.1rem;flex-shrink:0;transition:.15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div id="section-security" style="display: none;">
+                    <h2 style="margin-bottom: 30px;">Đổi mật khẩu</h2>
+                    <div class="glass" style="padding: 40px; border-radius: 24px; max-width: 500px;">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: 600;">Mật khẩu hiện
+                                tại</label>
+                            <div class="pwd-field">
+                                <input type="password" id="old-password" placeholder="Nhập mật khẩu cũ">
+                                <button type="button" class="pwd-toggle" onclick="togglePwd(this)"><i
+                                        class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: 600;">Mật khẩu mới</label>
+                            <div class="pwd-field">
+                                <input type="password" id="new-password" placeholder="Tối thiểu 6 ký tự"
+                                    oninput="checkStrength(this.value)">
+                                <button type="button" class="pwd-toggle" onclick="togglePwd(this)"><i
+                                        class="fas fa-eye"></i></button>
+                            </div>
+                            <div class="strength-bar">
+                                <div id="strength-fill"></div>
+                            </div>
+                            <p id="strength-text" style="font-size:0.75rem;margin-top:4px;color:var(--text-muted)"></p>
+                        </div>
+                        <div style="margin-bottom: 30px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: 600;">Xác nhận mật khẩu
+                                mới</label>
+                            <div class="pwd-field">
+                                <input type="password" id="confirm-password" placeholder="Nhập lại mật khẩu mới">
+                                <button type="button" class="pwd-toggle" onclick="togglePwd(this)"><i
+                                        class="fas fa-eye"></i></button>
+                            </div>
+                        </div>
+                        <button id="btn-change-pwd" class="btn btn-primary" style="width: 100%;"
+                            onclick="handleChangePassword()">Cập nhật mật khẩu</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Order Tracking Modal -->
+    <div class="modal-overlay" id="order-modal"
+        onclick="if(event.target===this) document.getElementById('order-modal').classList.remove('active')">
+        <div class="modal-card">
+            <button class="modal-close"
+                onclick="document.getElementById('order-modal').classList.remove('active')">&times;</button>
+            <h2 style="font-size: 1.5rem; margin-bottom: 5px;">Chi tiết đơn hàng</h2>
+            <p id="modal-order-id" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;"></p>
+
+            <div class="tracking-timeline" id="modal-timeline">
+                <!-- Timeline populated via JS -->
+            </div>
+
+            <div class="glass" style="padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--primary-color);"><i class="fas fa-map-marker-alt"></i>
+                    Thông tin giao hàng</h3>
+                <p id="modal-shipping-name" style="font-weight: 600; margin-bottom: 5px;"></p>
+                <p id="modal-shipping-phone" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2px;">
+                </p>
+                <p id="modal-shipping-address" style="font-size: 0.9rem; color: var(--text-muted);"></p>
+                <p id="modal-shipping-note" style="font-size: 0.9rem; color: #ffc107; margin-top: 5px;"></p>
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px;">Sản phẩm đã đặt</h3>
+            <div id="modal-order-items"
+                style="max-height: 250px; overflow-y: auto; padding-right: 10px; margin-bottom: 20px;">
+                <!-- Items populated via JS -->
+            </div>
+
+            <div style="border-top: 1px solid var(--glass-border); padding-top: 15px; text-align: right; display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
+                <p style="color: var(--text-muted); margin-bottom: 0;">Phương thức thanh toán: <strong
+                        id="modal-payment-method" style="color: #fff;">COD</strong></p>
+                <div id="modal-subtotal-row" style="display: none; font-size: 0.95rem; color: var(--text-muted); margin-top: 5px;">
+                    Tạm tính: <span id="modal-subtotal-price" style="color: #fff; font-weight: 600;"></span>
+                </div>
+                <div id="modal-discount-row" style="display: none; font-size: 0.95rem; color: #28a745; font-weight: 600;">
+                    Giảm giá (<span id="modal-promo-code"></span>): <span id="modal-discount-price"></span>
+                </div>
+                <h3 style="font-size: 1.3rem; margin-top: 5px;">Tổng cộng: <span id="modal-total-price"
+                        style="color: var(--primary-color);"></span></h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo"
+                        style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">
+                        MÔ HÌNH STORE</div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao
+                        cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                        <li><a href="categories.html">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Theo dõi chúng tôi</h3>
+                    <div style="display: flex; gap: 1rem; font-size: 1.5rem;">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Section moved here, under the main footer info -->
+            <div class="contact-grid"
+                style="margin-top: 50px; border-top: 1px solid var(--glass-border); padding-top: 50px;">
+                <div class="contact-card glass fade-in" style="padding: 1.5rem;">
+                    <i class="fas fa-phone-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Điện thoại</h3>
+                    <p style="font-size: 0.9rem;">0564821121</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.2s;">
+                    <i class="fas fa-map-marker-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Địa chỉ</h3>
+                    <p style="font-size: 0.9rem;">31 Dịch Vọng Hậu, Cầu Giấy, Hà Nội</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.4s;">
+                    <i class="fas fa-envelope" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Email</h3>
+                    <p style="font-size: 0.9rem;">Mohinhstore@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by Antigravity.</p>
+            </div>
+        </div>
+    </footer>
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="assets/js/shop-api.js"></script>
+    <script>
+        function populateUserUI(user) {
+            if (!user) return;
+            document.getElementById('user-name').innerText  = user.name  || 'Người dùng';
+            document.getElementById('user-email').innerText = user.email || '';
+            document.getElementById('user-avatar').innerText = (user.name || 'U').charAt(0).toUpperCase();
+            document.getElementById('user-points').innerText = (user.points || 0).toLocaleString();
+            document.getElementById('user-rank-badge').innerText = (user.rank || 'Bronze').toUpperCase();
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!ShopAPI.isAuthenticated()) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // ── Bước 1: Load ngay từ localStorage để UI hiện liền ──
+            const cachedUser = ShopAPI.getUserInfo();
+            if (cachedUser && cachedUser.name) {
+                populateUserUI(cachedUser);
+            }
+
+            // ── Bước 2: Fetch API để cập nhật thông tin mới nhất ──
+            try {
+                const user = await ShopAPI.get('/auth/me', true);
+                if (user) {
+                    populateUserUI(user);
+                    // Cập nhật lại cache với đầy đủ thông tin
+                    localStorage.setItem('user_info', JSON.stringify(user));
+                }
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+                // Token hết hạn hoặc lỗi xác thực → bắt buộc đăng nhập lại
+                if (error.message && (error.message.includes('401') || error.message.toLowerCase().includes('token'))) {
+                    showToast('Phiên đăng nhập hết hạn. Đang chuyển hướng...', 'error');
+                    setTimeout(() => ShopAPI.logout(), 1800);
+                    return;
+                }
+                // API lỗi khác → dùng cache
+                if (!cachedUser || !cachedUser.name) {
+                    showToast('Không tải được thông tin. Vui lòng đăng xuất và đăng nhập lại.', 'error');
+                }
+            }
+
+            loadOrders();
+            updateCartCount();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab) switchTab(tab);
+        });
+
+        let allOrders = [];
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        async function loadOrders() {
+            const container = document.getElementById('orders-list');
+            // Show loading spinner
+            container.innerHTML = `
+                <div style="text-align:center;padding:60px;color:var(--text-muted);">
+                    <i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:16px;"></i>
+                    <p>Đang tải đơn hàng...</p>
+                </div>`;
+
+            try {
+                const orders = await ShopAPI.get('/orders/my-orders', true);
+
+                if (!orders || orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="glass" style="padding:50px;text-align:center;border-radius:20px;">
+                            <i class="fas fa-box-open" style="font-size:3rem;color:rgba(0,212,255,0.3);margin-bottom:16px;"></i>
+                            <h3 style="margin-bottom:10px;font-size:1.2rem;">Chưa có đơn hàng nào</h3>
+                            <p style="color:var(--text-muted);margin-bottom:24px;">Hãy khám phá và đặt hàng ngay hôm nay!</p>
+                            <a href="products.html" class="btn btn-primary" style="padding:12px 28px;">Mua sắm ngay</a>
+                        </div>`;
+                    return;
+                }
+
+                allOrders = orders;
+
+                const statusMap = {
+                    'Pending':   'Chờ xử lý',
+                    'Confirmed': 'Xác nhận',
+                    'Shipping':  'Đang giao',
+                    'Delivered': 'Đã giao',
+                    'Cancelled': 'Đã hủy'
+                };
+
+                container.innerHTML = orders.map(order => {
+                    const date = new Date(order.createdAt);
+                    const h  = date.getHours().toString().padStart(2, '0');
+                    const mi = date.getMinutes().toString().padStart(2, '0');
+                    const d  = date.getDate().toString().padStart(2, '0');
+                    const mo = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const y  = date.getFullYear();
+                    const formattedDate = `${h}:${mi} - ${d}/${mo}/${y}`;
+                    const statusText = statusMap[order.status] || order.status;
+                    return `
+                    <div class="order-card glass fade-in" onclick="viewOrderDetails('${order._id}')">
+                        <div class="order-header">
+                            <div>
+                                <strong>Đơn hàng #${order._id.slice(-6).toUpperCase()}</strong>
+                                <p style="font-size: 0.8rem; color: var(--text-muted);">${formattedDate}</p>
+                            </div>
+                            <span class="status-badge status-${order.status}">${statusText}</span>
+                        </div>
+                        <div class="order-items">
+                            ${order.orderItems.map(item => `
+                                <div class="order-item-small">
+                                    <img src="${item.image}" alt="${item.name}" onerror="this.src='assets/images/placeholder.png'">
+                                    <div>
+                                        <p style="font-size: 0.9rem;">${item.name}</p>
+                                        <p style="font-size: 0.8rem; color: var(--text-muted);">${item.qty} x ${formatCurrency(item.price)}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 15px;">
+                            <div style="color: var(--primary-color); font-weight: 600; font-size: 0.9rem;">
+                                <i class="fas fa-gift"></i> +${Math.floor(order.totalPrice / 10000)} điểm ${order.status === 'Delivered' ? 'đã cộng' : 'dự kiến'}
+                            </div>
+                            <div style="text-align: right;">
+                                ${order.discountAmount ? `<div style="font-size: 0.85rem; color: #28a745; margin-bottom: 4px;">Đã giảm: -${formatCurrency(order.discountAmount)} <span style="background: rgba(40,167,69,0.1); padding: 2px 6px; border-radius: 4px; font-weight: bold;">${order.promoCode}</span></div>` : ''}
+                                <div style="font-weight: 700;">
+                                    Phải thanh toán: <span style="color: var(--primary-color); font-size: 1.2rem;">${formatCurrency(order.totalPrice)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align:right;margin-top:10px;">
+                            <span style="font-size:0.8rem;color:var(--text-muted);"><i class="fas fa-mouse-pointer" style="margin-right:4px;"></i>Click để xem chi tiết</span>
+                        </div>
+                    </div>
+                `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Load orders error:', error);
+                // If 401/unauthorized, token may be expired — force re-login
+                if (error.message && (error.message.includes('401') || error.message.toLowerCase().includes('unauthorized') || error.message.toLowerCase().includes('token'))) {
+                    showToast('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!', 'error');
+                    setTimeout(() => {
+                        ShopAPI.logout();
+                    }, 1500);
+                    return;
+                }
+                container.innerHTML = `
+                    <div class="glass" style="padding:40px;text-align:center;border-radius:20px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size:2.5rem;color:#ffc107;margin-bottom:16px;"></i>
+                        <h3 style="margin-bottom:10px;">Không thể tải đơn hàng</h3>
+                        <p style="color:var(--text-muted);margin-bottom:20px;">${error.message || 'Lỗi kết nối tới máy chủ'}</p>
+                        <button class="btn btn-primary" onclick="loadOrders()" style="padding:10px 24px;">
+                            <i class="fas fa-redo" style="margin-right:6px;"></i>Thử lại
+                        </button>
+                    </div>`;
+            }
+        }
+
+        function viewOrderDetails(orderId) {
+            const order = allOrders.find(o => o._id === orderId);
+            if (!order) return;
+
+            const date = new Date(order.createdAt);
+            const h = date.getHours().toString().padStart(2, '0');
+            const m = date.getMinutes().toString().padStart(2, '0');
+            const d = date.getDate().toString().padStart(2, '0');
+            const mo = (date.getMonth() + 1).toString().padStart(2, '0');
+            const y = date.getFullYear();
+            const formattedDate = `${h}:${m} - ${d}/${mo}/${y}`;
+
+            document.getElementById('modal-order-id').innerText = `#${order._id.slice(-8).toUpperCase()} - Đặt lúc: ${formattedDate}`;
+
+            // Set shipping info
+            document.getElementById('modal-shipping-name').innerText = order.shippingAddress?.fullName || (order.user && order.user.name) || 'Khách hàng';
+            document.getElementById('modal-shipping-phone').innerText = `SĐT: ${order.shippingAddress?.phone || 'N/A'}`;
+            document.getElementById('modal-shipping-address').innerText = `${order.shippingAddress?.address || ''}, ${order.shippingAddress?.city || ''}`;
+            document.getElementById('modal-shipping-note').innerText = order.notes ? `Ghi chú: ${order.notes}` : '';
+
+            // Payment info
+            document.getElementById('modal-payment-method').innerText = order.paymentMethod;
+            
+            const subtotalRow = document.getElementById('modal-subtotal-row');
+            const subtotalPrice = document.getElementById('modal-subtotal-price');
+            const discountRow = document.getElementById('modal-discount-row');
+            const promoCode = document.getElementById('modal-promo-code');
+            const discountPrice = document.getElementById('modal-discount-price');
+            
+            const hasPromo = order.promoCode && order.discountAmount > 0;
+            
+            if (hasPromo) {
+                const subtotal = order.totalPrice + order.discountAmount;
+                if (subtotalPrice) subtotalPrice.innerText = formatCurrency(subtotal);
+                if (promoCode) promoCode.innerText = order.promoCode;
+                if (discountPrice) discountPrice.innerText = '-' + formatCurrency(order.discountAmount);
+                if (subtotalRow) subtotalRow.style.display = 'block';
+                if (discountRow) discountRow.style.display = 'block';
+            } else {
+                if (subtotalRow) subtotalRow.style.display = 'none';
+                if (discountRow) discountRow.style.display = 'none';
+            }
+            
+            document.getElementById('modal-total-price').innerText = formatCurrency(order.totalPrice);
+
+            // Set items
+            document.getElementById('modal-order-items').innerHTML = order.orderItems.map(item => `
+                <div class="order-item-small" style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px; border: 1px solid var(--glass-border);">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div style="flex: 1;">
+                        <p style="font-size: 0.9rem; font-weight: 600;">${item.name}</p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">${item.qty} x ${formatCurrency(item.price)}</p>
+                    </div>
+                    <div style="font-weight: 700; color: var(--primary-color);">
+                        ${formatCurrency(item.qty * item.price)}
+                    </div>
+                </div>
+            `).join('');
+
+            // Setup Timeline
+            const isCancelled = order.status === 'Cancelled';
+            let stepsHTML = '';
+
+            if (isCancelled) {
+                stepsHTML = `
+                    <div class="tracking-step active" style="color: #dc3545;">
+                        <div class="tracking-icon" style="border-color: #dc3545; background: #dc3545; color: #fff;"><i class="fas fa-times"></i></div>
+                        <p>Đã hủy</p>
+                    </div>
+                `;
+                document.querySelector('.tracking-timeline').style.justifyContent = 'center';
+            } else {
+                document.querySelector('.tracking-timeline').style.justifyContent = 'space-between';
+                const statuses = ['Pending', 'Confirmed', 'Shipping', 'Delivered'];
+                const labels = ['Chờ xử lý', 'Xác nhận', 'Đang giao', 'Đã giao'];
+                const icons = ['fa-box', 'fa-check-circle', 'fa-truck-fast', 'fa-check'];
+
+                const currentIdx = statuses.indexOf(order.status);
+
+                stepsHTML = statuses.map((status, i) => {
+                    const isActive = i <= currentIdx;
+                    return `
+                        <div class="tracking-step ${isActive ? 'active' : ''}">
+                            <div class="tracking-icon"><i class="fas ${icons[i]}"></i></div>
+                            <p>${labels[i]}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('modal-timeline').innerHTML = stepsHTML;
+
+            // Show modal
+            document.getElementById('order-modal').classList.add('active');
+        }
+
+        // formatCurrency is defined above at line 638 — removed duplicate
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            const tabs = ['orders', 'consultations', 'security'];
+            tabs.forEach(t => {
+                const sec = document.getElementById('section-' + t);
+                const btn = document.getElementById('tab-' + t);
+                if (sec) sec.style.display = t === tab ? 'block' : 'none';
+                if (btn) btn.classList.toggle('active', t === tab);
+            });
+            if (tab === 'consultations') loadConsultations();
+        }
+
+        function showToast(msg, type = 'success') {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = 'toast ' + type;
+            t.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i><span>${msg}</span>`;
+            c.appendChild(t);
+            setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 300); }, 3500);
+        }
+
+        function togglePwd(btn) {
+            const inp = btn.parentElement.querySelector('input');
+            const icon = btn.querySelector('i');
+            if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+            else { inp.type = 'password'; icon.className = 'fas fa-eye'; }
+        }
+
+        function checkStrength(val) {
+            const fill = document.getElementById('strength-fill');
+            const txt = document.getElementById('strength-text');
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 10) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const levels = ['', 'Rất yếu', 'Yếu', 'Trung bình', 'Mạnh', 'Rất mạnh'];
+            const colors = ['', '#dc3545', '#ff6b35', '#ffc107', '#28a745', '#00d4ff'];
+            const widths = ['0%', '20%', '40%', '60%', '80%', '100%'];
+            fill.style.transform = `scaleX(${score / 5})`; fill.style.background = colors[score] || '#555';
+            txt.textContent = val ? levels[score] : ''; txt.style.color = colors[score] || 'var(--text-muted)';
+        }
+
+        async function handleChangePassword() {
+            const oldPassword = document.getElementById('old-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                showToast('Vui lòng điền đầy đủ các trường!', 'error'); return;
+            }
+            if (newPassword.length < 6) {
+                showToast('Mật khẩu mới phải có ít nhất 6 ký tự!', 'error'); return;
+            }
+            if (newPassword !== confirmPassword) {
+                showToast('Mật khẩu mới không khớp!', 'error'); return;
+            }
+
+            const btn = document.getElementById('btn-change-pwd');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...'; btn.disabled = true;
+
+            try {
+                await ShopAPI.put('/users/password', { oldPassword, newPassword }, true);
+                showToast('Đổi mật khẩu thành công!', 'success');
+                document.getElementById('old-password').value = '';
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+                checkStrength('');
+            } catch (error) {
+                showToast(error.message || 'Mật khẩu cũ không chính xác!', 'error');
+            } finally {
+                btn.innerHTML = 'Cập nhật mật khẩu'; btn.disabled = false;
+            }
+        }
+
+        // ===== CONSULTATION CHAT =====
+        let allConsultations = [];
+        let currentChatConsultationId = null;
+        let chatSSE = null;
+
+        async function loadConsultations() {
+            const container = document.getElementById('consultations-list');
+            container.innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted);"><i class="fas fa-spinner fa-spin" style="font-size:2rem;"></i></div>';
+            try {
+                const data = await ShopAPI.get('/consultations/my', true);
+                allConsultations = data || [];
+                renderConsultationList();
+            } catch (e) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;color:#aaa;">Bạn chưa có yêu cầu tư vấn nào.</div>';
+            }
+        }
+
+        function renderConsultationList() {
+            const container = document.getElementById('consultations-list');
+            if (!allConsultations.length) {
+                container.innerHTML = `
+                    <div class="glass" style="padding:40px;text-align:center;border-radius:20px;">
+                        <i class="fas fa-headset" style="font-size:3rem;color:rgba(0,180,219,0.3);margin-bottom:16px;"></i>
+                        <p style="color:#888;margin-bottom:20px;">Bạn chưa có yêu cầu tư vấn nào.</p>
+                        <a href="index.html?consultation=true" class="btn btn-primary">Gửi yêu cầu tư vấn</a>
+                    </div>`;
+                return;
+            }
+
+            const statusMap = { Pending: ['Chờ xử lý', '#ffc107'], Contacted: ['Đã liên hệ', '#17a2b8'], Completed: ['Hoàn thành', '#28a745'], Cancelled: ['Đã hủy', '#dc3545'] };
+
+            container.innerHTML = allConsultations.map(c => {
+                const [label, color] = statusMap[c.status] || ['Chờ xử lý', '#ffc107'];
+                const lastMsg = c.messages && c.messages.length ? c.messages[c.messages.length - 1] : null;
+                const msgCount = c.messages ? c.messages.length : 0;
+                const date = new Date(c.createdAt);
+                const dateStr = `${date.getDate().toString().padStart(2,'0')}/${(date.getMonth()+1).toString().padStart(2,'0')}/${date.getFullYear()}`;
+                return `
+                <div onclick="openChat('${c._id}')" style="cursor:pointer;padding:20px;border-radius:16px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);margin-bottom:14px;transition:.2s;display:flex;align-items:center;gap:16px;" onmouseover="this.style.borderColor='rgba(0,180,219,0.4)';this.style.background='rgba(0,180,219,0.05)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.background='rgba(255,255,255,0.03)'">
+                    <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#00b4db22,#0083b044);border:2px solid rgba(0,180,219,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fas fa-headset" style="color:#00b4db;font-size:1.2rem;"></i>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                            <span style="font-weight:600;color:#ddd;">${c.name}</span>
+                            <span style="font-size:0.78rem;color:#666;">${dateStr}</span>
+                        </div>
+                        <div style="font-size:0.85rem;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px;">
+                            ${lastMsg ? (lastMsg.sender === 'customer' ? 'Bạn: ' : 'Nhân viên: ') + lastMsg.content : (c.notes || 'Yêu cầu tư vấn')}
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="background:${color}22;color:${color};border:1px solid ${color}44;padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;">${label}</span>
+                            ${msgCount > 0 ? `<span style="font-size:0.78rem;color:#888;"><i class="fas fa-comment" style="margin-right:3px;"></i>${msgCount} tin nhắn</span>` : ''}
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color:#555;font-size:0.85rem;"></i>
+                </div>`;
+            }).join('');
+        }
+
+        async function openChat(id) {
+            currentChatConsultationId = id;
+            const c = allConsultations.find(x => x._id === id);
+            if (!c) return;
+
+            const statusMap = { Pending: ['Chờ xử lý', '#ffc107'], Contacted: ['Đã liên hệ', '#17a2b8'], Completed: ['Hoàn thành', '#28a745'], Cancelled: ['Đã hủy', '#dc3545'] };
+            const [label, color] = statusMap[c.status] || ['Chờ xử lý', '#ffc107'];
+
+            document.getElementById('chat-consult-name').textContent = `Yêu cầu: ${c.service || 'Tư vấn sản phẩm'} - ${c.name}`;
+            const badge = document.getElementById('chat-consult-status');
+            badge.textContent = label;
+            badge.style.cssText = `background:${color}22;color:${color};border:1px solid ${color}44;padding:2px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;`;
+
+            document.getElementById('consultations-list-view').style.display = 'none';
+            document.getElementById('consultation-chat-view').style.display = 'block';
+
+            renderChatMessages(c.messages || []);
+
+            // Start SSE if not already
+            if (!chatSSE) {
+                chatSSE = new EventSource('/api/consultations/stream');
+                chatSSE.onmessage = async (e) => {
+                    if (e.data === 'REFRESH' && currentChatConsultationId) {
+                        try {
+                            const updated = await ShopAPI.get(`/consultations/${currentChatConsultationId}`, true);
+                            if (updated) {
+                                const idx = allConsultations.findIndex(x => x._id === currentChatConsultationId);
+                                if (idx >= 0) allConsultations[idx] = updated;
+                                renderChatMessages(updated.messages || []);
+                            }
+                        } catch(err) {}
+                    }
+                };
+            }
+        }
+
+        function backToConsultationList() {
+            currentChatConsultationId = null;
+            document.getElementById('consultation-chat-view').style.display = 'none';
+            document.getElementById('consultations-list-view').style.display = 'block';
+            renderConsultationList();
+        }
+
+        function renderChatMessages(messages) {
+            const container = document.getElementById('chat-messages');
+            if (!messages.length) {
+                container.innerHTML = `<div style="text-align:center;color:#666;margin:auto;">
+                    <i class="fas fa-comments" style="font-size:2.5rem;margin-bottom:12px;opacity:.3;"></i>
+                    <p style="font-size:0.9rem;">Chưa có tin nhắn nào. Hãy gửi tin nhắn đầu tiên!</p></div>`;
+                return;
+            }
+
+            const currentUser = ShopAPI.getUserInfo();
+            container.innerHTML = messages.map(msg => {
+                const isMe = msg.sender === 'customer';
+                const time = new Date(msg.timestamp);
+                const timeStr = `${time.getHours().toString().padStart(2,'0')}:${time.getMinutes().toString().padStart(2,'0')}`;
+                return `
+                <div style="display:flex;flex-direction:column;align-items:${isMe ? 'flex-end' : 'flex-start'};">
+                    <div style="max-width:72%;">
+                        <div style="font-size:0.75rem;color:#666;margin-bottom:3px;${isMe ? 'text-align:right;' : ''}">${isMe ? 'Bạn' : '<i class="fas fa-headset" style="margin-right:4px;"></i>' + msg.senderName} &bull; ${timeStr}</div>
+                        <div style="padding:10px 14px;border-radius:${isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px'};font-size:0.9rem;line-height:1.5;word-break:break-word;
+                            background:${isMe ? 'linear-gradient(135deg,#00b4db,#0083b0)' : 'rgba(255,255,255,0.07)'};color:#fff;border:1px solid ${isMe ? 'transparent' : 'rgba(255,255,255,0.1)'}">${msg.content}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendCustomerChat() {
+            const input = document.getElementById('chat-input');
+            const content = input.value.trim();
+            if (!content || !currentChatConsultationId) return;
+
+            const btn = document.getElementById('btn-send-chat');
+            btn.disabled = true;
+            input.value = '';
+            input.style.height = 'auto';
+
+            try {
+                const updated = await ShopAPI.post(`/consultations/${currentChatConsultationId}/messages`, { content }, true);
+                if (updated) {
+                    const idx = allConsultations.findIndex(x => x._id === currentChatConsultationId);
+                    if (idx >= 0) allConsultations[idx] = updated;
+                    renderChatMessages(updated.messages || []);
+                }
+            } catch(e) {
+                showToast('Không thể gửi tin nhắn, vui lòng thử lại!', 'error');
+                input.value = content;
+            } finally {
+                btn.disabled = false;
+                input.focus();
+            }
+        }
+    </script>
+</body>
+
+</html>

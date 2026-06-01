@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm | Mô Hình Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .detail-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 120px;
+            margin-bottom: 80px;
+        }
+
+        .product-gallery {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .main-img {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #1c2128;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
+        }
+
+        .main-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-info-detail h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .product-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .product-meta span i {
+            color: var(--primary-color);
+            margin-right: 5px;
+        }
+
+        .price-big {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .price-big .old {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+            font-weight: 400;
+        }
+
+        .description {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .purchase-actions {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .qty-input {
+            display: flex;
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 5px;
+        }
+
+        .qty-input button {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .qty-input button:hover {
+            color: var(--primary-color);
+        }
+
+        .qty-input input {
+            width: 50px;
+            background: transparent;
+            border: none;
+            color: white;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .btn-buy {
+            flex: 1;
+            font-size: 1.1rem;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .specs-table td {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .specs-table td:first-child {
+            color: var(--text-muted);
+            width: 150px;
+        }
+
+        @media (max-width: 768px) {
+            .detail-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .product-info-detail h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header id="main-header" class="scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="Logo">
+                <span>MÔ HÌNH STORE</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Trang chủ</a>
+                <a href="products.html">Sản phẩm</a>
+                <a href="rewards.html">Khuyến mãi</a>
+                <a href="index.html?consultation=true"><i class="fas fa-headset" style="margin-right: 4px;"></i>Tư vấn</a>
+                <a href="categories.html">Về chúng tôi</a>
+            </nav>
+            <div class="nav-actions">
+                <div class="search-wrapper">
+                    <input type="text" id="search-input" placeholder="Tìm mô hình..." oninput="executeSearch()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <a href="login.html" id="user-btn"><i class="fas fa-user"></i></a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="detail-container" id="product-detail">
+            <!-- Loading State -->
+            <div style="text-align: center; grid-column: 1/-1; padding: 100px;">Đang tải thông tin sản phẩm...</div>
+        </div>
+
+        <!-- Related Products -->
+        <section>
+            <div class="section-title">
+                <h2>Sản phẩm tương tự</h2>
+                <div class="underline"></div>
+            </div>
+            <div class="product-grid" id="related-products">
+                <!-- Dynamic -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo"
+                        style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">
+                        MÔ HÌNH STORE</div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao
+                        cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                        <li><a href="categories.html">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Theo dõi chúng tôi</h3>
+                    <div style="display: flex; gap: 1rem; font-size: 1.5rem;">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Section moved here, under the main footer info -->
+            <div class="contact-grid"
+                style="margin-top: 50px; border-top: 1px solid var(--glass-border); padding-top: 50px;">
+                <div class="contact-card glass fade-in" style="padding: 1.5rem;">
+                    <i class="fas fa-phone-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Hotline</h3>
+                    <p style="font-size: 0.9rem;">0564821121</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.2s;">
+                    <i class="fas fa-map-marker-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Địa chỉ</h3>
+                    <p style="font-size: 0.9rem;">31 Dịch Vọng Hậu, Cầu Giấy, Hà Nội</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.4s;">
+                    <i class="fas fa-envelope" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Email</h3>
+                    <p style="font-size: 0.9rem;">Mohinhstore@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by Antigravity.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/shop-api.js"></script>
+    <script>
+        let currentProduct = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) {
+                window.location.href = 'products.html';
+                return;
+            }
+
+            await loadProductDetail(productId);
+            updateCartCount();
+        });
+
+        async function loadProductDetail(id) {
+            const product = await ShopAPI.get(`/products/${id}`);
+            if (product) {
+                currentProduct = product;
+                renderDetail(product);
+                loadRelatedProducts(product.category._id || product.category);
+            } else {
+                document.getElementById('product-detail').innerHTML = '<div style="text-align: center; grid-column: 1/-1; padding: 100px;">Không tìm thấy sản phẩm.</div>';
+            }
+        }
+
+        function renderDetail(p) {
+            const container = document.getElementById('product-detail');
+            const discount = p.salePrice ? Math.round((1 - p.salePrice / p.price) * 100) : 0;
+            const isOutOfStock = p.countInStock <= 0;
+
+            container.innerHTML = `
+                <div class="product-gallery fade-in">
+                    <div class="main-img">
+                        <img src="${p.image}" alt="${p.name}" id="main-image-display" style="${isOutOfStock ? 'filter: grayscale(100%); opacity: 0.8;' : ''}">
+                    </div>
+                </div>
+
+                <div class="product-info-detail fade-in">
+                    <p style="color: var(--primary-color); font-weight: 600; margin-bottom: 10px;">${p.category.name || 'Mô hình'}</p>
+                    <h1 style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">${p.name} ${isOutOfStock ? '<span style="background: var(--danger-color); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Đã hết hàng</span>' : ''}</h1>
+                    <div class="product-meta">
+                        <span><i class="fas fa-star"></i> 4.9 (120 đánh giá)</span>
+                        <span><i class="fas fa-box"></i> <span style="${isOutOfStock ? 'color: var(--danger-color); font-weight: bold;' : 'color: var(--success-color);'}">${isOutOfStock ? 'Hết hàng' : `Còn ${p.countInStock} sản phẩm`}</span></span>
+                        <span><i class="fas fa-shopping-cart"></i> Đã bán ${p.sold || 0}</span>
+                    </div>
+
+                    <div class="price-big">
+                        ${p.salePrice
+                    ? `<span>${formatCurrency(p.salePrice)}</span> <span class="old">${formatCurrency(p.price)}</span>`
+                    : `<span>${formatCurrency(p.price)}</span>`}
+                    </div>
+
+                    <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 10px;">
+                        <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid var(--primary-color); color: var(--primary-color); padding: 8px 15px; border-radius: 10px; font-size: 0.9rem; font-weight: 700;">
+                            <i class="fas fa-gift"></i> Tặng ngay ${Math.floor((p.salePrice || p.price) / 10000)} điểm thưởng
+                        </div>
+                    </div>
+
+                    <div class="description">
+                        ${p.description || 'Chưa có mô tả cho sản phẩm này.'}
+                    </div>
+
+                    <div class="purchase-actions">
+                        <div class="qty-input">
+                            <button onclick="changeQty(-1)">-</button>
+                            <input type="number" id="qty" value="1" min="1" max="99">
+                            <button onclick="changeQty(1)">+</button>
+                        </div>
+                        <button class="btn btn-primary btn-buy" onclick="addToCartDetailed()">
+                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                        </button>
+                    </div>
+
+                    <div class="specs glass">
+                        <table class="specs-table">
+                            <tr>
+                                <td>Thương hiệu</td>
+                                <td>${p.brand || 'Chính hãng'}</td>
+                            </tr>
+                            <tr>
+                                <td>Chất liệu</td>
+                                <td>PVC, ABS cao cấp</td>
+                            </tr>
+                            <tr>
+                                <td>Tình trạng</td>
+                                <td>Mới 100% fullbox</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadRelatedProducts(catId) {
+            const data = await ShopAPI.get(`/products?category=${catId}&limit=4`);
+            if (data && data.products) {
+                const filtered = data.products.filter(p => p._id !== currentProduct._id);
+                const container = document.getElementById('related-products');
+                container.innerHTML = filtered.map(p => {
+                    const isOutOfStock = p.countInStock <= 0;
+                    return `
+                    <div class="product-card glass fade-in ${isOutOfStock ? 'out-of-stock' : ''}" style="${isOutOfStock ? 'opacity: 0.7;' : ''}">
+                        ${isOutOfStock ? `<div class="product-badge" style="background: var(--danger-color); color: white;">Hết hàng</div>` : ''}
+                        <div class="product-img-wrapper">
+                            <a href="product-detail.html?id=${p._id}">
+                                <img src="${p.image}" alt="${p.name}" style="${isOutOfStock ? 'filter: grayscale(100%);' : ''}">
+                            </a>
+                        </div>
+                        <div class="product-info">
+                            <a href="product-detail.html?id=${p._id}">
+                                <h3 style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px;">${p.name} ${isOutOfStock ? '<span style="background: var(--danger-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Đã hết hàng</span>' : ''}</h3>
+                            </a>
+                            <div class="product-price">
+                                <span class="price-now">${formatCurrency(p.salePrice || p.price)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `}).join('');
+            }
+        }
+
+        function changeQty(amt) {
+            if (!currentProduct) return;
+            const input = document.getElementById('qty');
+            let val = parseInt(input.value) + amt;
+            if (val < 1) val = 1;
+            // Removed max constraint based on stock so users can wait for items
+            input.value = val;
+        }
+
+        function addToCartDetailed() {
+            if (!currentProduct) return;
+            const qty = parseInt(document.getElementById('qty').value);
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const index = cart.findIndex(item => item.id === currentProduct._id);
+
+            const price = currentProduct.salePrice || currentProduct.price;
+
+            if (index > -1) {
+                cart[index].quantity += qty;
+            } else {
+                cart.push({
+                    id: currentProduct._id,
+                    name: currentProduct.name,
+                    price: price,
+                    image: currentProduct.image,
+                    quantity: qty
+                });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            window.location.href = 'cart.html';
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+    </script>
+</body>
+
+</html>

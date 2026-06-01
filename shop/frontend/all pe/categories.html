@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giới thiệu & Danh mục | Mô Hình Store</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .about-hero {
+            padding: 150px 0 100px;
+            text-align: center;
+        }
+
+        .about-hero h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .about-hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 60px;
+        }
+
+        .stat-card {
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 24px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .achievements-section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .achievements-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(121, 40, 202, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .mission-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .mission-img {
+            border-radius: 30px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .category-explore {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 100px 0;
+        }
+
+        .achievement-card {
+            padding: 40px;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(22, 27, 34, 0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: var(--transition);
+        }
+        .achievement-card.card-1:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+        }
+        .achievement-card.card-2:hover {
+            transform: translateY(-10px);
+            border-color: var(--secondary-color);
+        }
+        .achievement-card.card-3:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-color);
+        }
+        .achievement-card.card-4:hover {
+            transform: translateY(-10px);
+            border-color: var(--success-color);
+        }
+
+        .category-card-custom {
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .category-card-custom:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--primary-color);
+        }
+        .category-card-custom img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+        .category-card-custom:hover img {
+            transform: scale(1.1);
+        }
+
+        .small-card-custom {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .small-card-custom:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        @media (max-width: 768px) {
+            .mission-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .about-hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="main-header" class="scrolled">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <img src="assets/images/logo.png" alt="Logo">
+                <span>MÔ HÌNH STORE</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Trang chủ</a>
+                <a href="products.html">Sản phẩm</a>
+                <a href="rewards.html">Khuyến mãi</a>
+                <a href="index.html?consultation=true"><i class="fas fa-headset" style="margin-right: 4px;"></i>Tư vấn</a>
+                <a href="categories.html" class="active">Về chúng tôi</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="login.html" id="user-btn"><i class="fas fa-user"></i></a>
+                <a href="cart.html" class="cart-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- About Hero -->
+    <section class="about-hero" style="position: relative; overflow: hidden;">
+        <div class="container fade-in">
+            <style>
+                @keyframes shineText {
+                    to {
+                        background-position: 200% center;
+                    }
+                }
+            </style>
+            <h1 class="logo"
+                style="font-size: 4.5rem; font-weight: 900; line-height: 1.4; padding-top: 10px; margin-bottom: 20px; color: #ffffff;">
+                Về Chúng Tôi</h1>
+            <p style="font-size: 1.25rem; font-weight: 300; color: #ffffff; max-width: 800px; margin: 0 auto 50px; line-height: 1.8;">Hành trình xây dựng cộng đồng đam mê mô hình lớn nhất Việt Nam. Chúng tôi không chỉ bán sản phẩm, chúng
+                tôi trao gửi những giá trị tinh thần và đam mê sưu tầm mãnh liệt.</p>
+
+            <div class="stats-grid">
+                <div class="stat-card glass" style="background: rgba(22, 27, 34, 0.4); border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <i class="fas fa-users" style="color: var(--primary-color);"></i>
+                    <div style="color: #fff; font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin-bottom: 5px;">15K+</div>
+                    <p style="color: #8b949e; letter-spacing: 2px; font-size: 0.8rem;">Khách hàng tin tưởng</p>
+                </div>
+                <div class="stat-card glass" style="background: rgba(22, 27, 34, 0.4); border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <i class="fas fa-box-open" style="color: var(--primary-color);"></i>
+                    <div style="color: #fff; font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin-bottom: 5px;">5000+</div>
+                    <p style="color: #8b949e; letter-spacing: 2px; font-size: 0.8rem;">Sản phẩm đa dạng</p>
+                </div>
+                <div class="stat-card glass" style="background: rgba(22, 27, 34, 0.4); border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <i class="fas fa-award" style="color: var(--primary-color);"></i>
+                    <div style="color: #fff; font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin-bottom: 5px;">10+</div>
+                    <p style="color: #8b949e; letter-spacing: 2px; font-size: 0.8rem;">Năm kinh nghiệm</p>
+                </div>
+                <div class="stat-card glass" style="background: rgba(22, 27, 34, 0.4); border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <i class="fas fa-shipping-fast" style="color: var(--primary-color);"></i>
+                    <div style="color: #fff; font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin-bottom: 5px;">24H</div>
+                    <p style="color: #8b949e; letter-spacing: 2px; font-size: 0.8rem;">Giao hàng nội thành</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Detailed Achievements -->
+    <section style="padding: 80px 0;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Cột mốc & Thành tựu</h2>
+                <p style="color: var(--text-muted);">Những con số biết nói và hành trình chinh phục đam mê</p>
+                <div class="underline"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-top: 50px;">
+                <div class="achievement-card card-1 fade-in">
+                    <div style="position: absolute; top: -10px; right: -5px; font-size: 6rem; color: var(--text-color); opacity: 0.03; font-weight: 900; line-height: 1;">01</div>
+                    <div style="width: 60px; height: 60px; border-radius: 16px; background: rgba(0, 212, 255, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                        <i class="fas fa-history" style="font-size: 1.8rem; color: var(--primary-color);"></i>
+                    </div>
+                    <h3 style="margin-bottom: 15px; font-size: 1.4rem; color: #fff; font-family: 'Outfit', sans-serif;">10 Năm Hành Trình</h3>
+                    <p style="color: #ffffff; line-height: 1.7; font-size: 0.95rem; font-weight: 300;">Bắt đầu từ một cửa hàng nhỏ năm 2015, chúng tôi đã không ngừng nỗ lực để trở thành điểm đến hàng đầu của giới sưu tầm mô hình tại Việt Nam, phục vụ hơn 15.000 khách hàng mỗi năm.</p>
+                </div>
+
+                <div class="achievement-card card-2 fade-in" style="animation-delay: 0.1s;">
+                    <div style="position: absolute; top: -10px; right: -5px; font-size: 6rem; color: var(--text-color); opacity: 0.03; font-weight: 900; line-height: 1;">02</div>
+                    <div style="width: 60px; height: 60px; border-radius: 16px; background: rgba(121, 40, 202, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                        <i class="fas fa-handshake" style="font-size: 1.8rem; color: var(--secondary-color);"></i>
+                    </div>
+                    <h3 style="margin-bottom: 15px; font-size: 1.4rem; color: #fff; font-family: 'Outfit', sans-serif;">Đối Tác Toàn Cầu</h3>
+                    <p style="color: #ffffff; line-height: 1.7; font-size: 0.95rem; font-weight: 300;">Tự hào là đối tác phân phối chính thức của các "ông lớn" như Bandai Namco, Hot Toys, và Good Smile Company. Chúng tôi cam kết 100% sản phẩm là hàng chính hãng, đầy đủ giấy tờ.</p>
+                </div>
+
+                <div class="achievement-card card-3 fade-in" style="animation-delay: 0.2s;">
+                    <div style="position: absolute; top: -10px; right: -5px; font-size: 6rem; color: var(--text-color); opacity: 0.03; font-weight: 900; line-height: 1;">03</div>
+                    <div style="width: 60px; height: 60px; border-radius: 16px; background: rgba(255, 0, 128, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                        <i class="fas fa-users" style="font-size: 1.8rem; color: var(--accent-color);"></i>
+                    </div>
+                    <h3 style="margin-bottom: 15px; font-size: 1.4rem; color: #fff; font-family: 'Outfit', sans-serif;">Cộng Đồng Lớn Mạnh</h3>
+                    <p style="color: #ffffff; line-height: 1.7; font-size: 0.95rem; font-weight: 300;">Xây dựng và duy trì cộng đồng "Mô Hình Store Group" với hơn 100.000 thành viên tích cực, nơi chia sẻ đam mê, kinh nghiệm và tổ chức các buổi offline giao lưu quy mô lớn.</p>
+                </div>
+
+                <div class="achievement-card card-4 fade-in" style="animation-delay: 0.3s;">
+                    <div style="position: absolute; top: -10px; right: -5px; font-size: 6rem; color: var(--text-color); opacity: 0.03; font-weight: 900; line-height: 1;">04</div>
+                    <div style="width: 60px; height: 60px; border-radius: 16px; background: rgba(0, 230, 118, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                        <i class="fas fa-medal" style="font-size: 1.8rem; color: var(--success-color);"></i>
+                    </div>
+                    <h3 style="margin-bottom: 15px; font-size: 1.4rem; color: #fff; font-family: 'Outfit', sans-serif;">Giải Thưởng Uy Tín</h3>
+                    <p style="color: #ffffff; line-height: 1.7; font-size: 0.95rem; font-weight: 300;">Liên tục 3 năm liền nhận giải thưởng "Hệ thống bán lẻ mô hình được yêu thích nhất" và chứng nhận "Dịch vụ khách hàng xuất sắc" do người tiêu dùng bình chọn năm 2025.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Statement -->
+    <section class="achievements-section" style="padding-top: 0;">
+        <div class="container">
+            <div class="mission-grid glass"
+                style="padding: 50px; border-radius: 30px; border: 1px solid var(--primary-color);">
+                <div class="mission-img fade-in">
+                    <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=1000&auto=format&fit=crop"
+                        alt="Store Innovation" style="width: 100%; border-radius: 20px;">
+                </div>
+                <div class="mission-content fade-in">
+                    <h2 style="font-size: 3rem; margin-bottom: 25px; font-family: var(--font-display); color: var(--primary-color); font-weight: 800;">Tầm nhìn & Sứ mệnh</h2>
+                    
+                    <p style="font-size: 1.15rem; line-height: 1.8; color: #e6edf3; margin-bottom: 15px; font-weight: 300;">Mô Hình Store được sinh ra từ niềm đam mê mãnh liệt với nghệ thuật thu nhỏ. Chúng tôi hiểu rằng mỗi mô hình không chỉ là một món đồ chơi, mà là một tác phẩm nghệ thuật, một người bạn đồng hành lưu giữ ký ức và khơi nguồn cảm hứng vô tận.</p>
+                    
+                    <p style="font-size: 1.05rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 35px;">Với phương châm <strong style="color: var(--primary-color); font-weight: 600;">"Uy tín tạo nên thương hiệu - Chất lượng khẳng định đẳng cấp"</strong>, Mô Hình Store cam kết 100% sản phẩm cung cấp tới tay khách hàng đều là <strong style="color: #fff; font-weight: 500;">hàng chính hãng cao cấp</strong>. Từ những chi tiết cơ khí tinh xảo của siêu xe Lamborghini, sự hầm hố của các cỗ máy Gundam, cho đến thần thái cuốn hút của các siêu anh hùng Marvel... tất cả đều được kiểm định khắt khe.</p>
+                    
+                    <div class="glass" style="background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); padding: 25px; border-radius: 20px; margin-bottom: 40px; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: -15px; right: -15px; font-size: 6rem; color: var(--primary-color); opacity: 0.05;"><i class="fas fa-gem"></i></div>
+                        <h3 style="color: #fff; margin-bottom: 10px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 35px; height: 35px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem;"><i class="fas fa-shield-alt"></i></div>
+                            Cam Kết Chất Lượng Tuyệt Đối
+                        </h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0; line-height: 1.7; padding-left: 45px;">Bảo hành trọn đời cho độ chuẩn xác của sản phẩm. Hoàn tiền 200% nếu phát hiện hàng nhái. Đội ngũ tư vấn am hiểu sâu sắc luôn sẵn sàng hỗ trợ 24/7.</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                        <div class="small-card-custom">
+                            <i class="fas fa-check-circle" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 15px; display: block;"></i>
+                            <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 5px;">100%</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Chính hãng</p>
+                        </div>
+                        <div class="small-card-custom">
+                            <i class="fas fa-crown" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 15px; display: block;"></i>
+                            <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 5px;">Số 1</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Uy tín tại VN</p>
+                        </div>
+                        <div class="small-card-custom">
+                            <i class="fas fa-heart" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 15px; display: block;"></i>
+                            <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 5px;">Tận tâm</h3>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Phục vụ 24/7</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Exploration -->
+    <section class="category-explore">
+        <div class="container">
+            <div class="section-title">
+                <h2>Khám phá thế giới mô hình</h2>
+                <p style="color: var(--text-muted);">Lựa chọn theo phong cách riêng của bạn</p>
+                <div class="underline"></div>
+            </div>
+            <div class="category-grid" id="category-list">
+                <!-- Dynamic -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo"
+                        style="margin-bottom: 20px; font-size: 1.5rem; font-weight: 900; color: var(--primary-color);">
+                        MÔ HÌNH STORE</div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Thiên đường mô hình cao
+                        cấp, mang lại giá trị sưu tầm đích thực cho khách hàng.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Liên kết</h3>
+                    <ul>
+                        <li><a href="index.html">Trang chủ</a></li>
+                        <li><a href="products.html">Sản phẩm</a></li>
+                        <li><a href="categories.html">Về chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Hỗ trợ</h3>
+                    <ul>
+                        <li><a href="#">Chính sách bảo mật</a></li>
+                        <li><a href="#">Điều khoản sử dụng</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Theo dõi chúng tôi</h3>
+                    <div style="display: flex; gap: 1rem; font-size: 1.5rem;">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Section moved here, under the main footer info -->
+            <div class="contact-grid"
+                style="margin-top: 50px; border-top: 1px solid var(--glass-border); padding-top: 50px;">
+                <div class="contact-card glass fade-in" style="padding: 1.5rem;">
+                    <i class="fas fa-phone-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Hotline</h3>
+                    <p style="font-size: 0.9rem;">0564821121</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.2s;">
+                    <i class="fas fa-map-marker-alt" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Địa chỉ</h3>
+                    <p style="font-size: 0.9rem;">31 Dịch Vọng Hậu, Cầu Giấy, Hà Nội</p>
+                </div>
+                <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.4s;">
+                    <i class="fas fa-envelope" style="font-size: 1.5rem;"></i>
+                    <h3 style="font-size: 1rem;">Email</h3>
+                    <p style="font-size: 0.9rem;">Mohinhstore@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by Antigravity.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/shop-api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            updateCartCount();
+
+            // User status — redirect to profile if logged in
+            const user = ShopAPI.getUserInfo();
+            if (user) {
+                document.getElementById('user-btn').innerHTML = `<i class="fas fa-user-check" style="color: var(--primary-color);"></i>`;
+                document.getElementById('user-btn').href = 'profile.html';
+            }
+        });
+
+        async function loadCategories() {
+            const categories = await ShopAPI.get('/categories');
+            if (categories) {
+                const container = document.getElementById('category-list');
+                
+                const getAiImageForCategory = (name) => {
+                    const lowerName = name.toLowerCase();
+                    if (lowerName.includes('gundam')) return 'assets/images/ai_gundam.png';
+                    if (lowerName.includes('car') || lowerName.includes('xe')) return 'assets/images/ai_car.png';
+                    if (lowerName.includes('marvel') || lowerName.includes('hero')) return 'assets/images/ai_superhero.png';
+                    if (lowerName.includes('plane') || lowerName.includes('bay')) return 'assets/images/ai_plane.png';
+                    const fallbackImages = ['assets/images/ai_gundam.png', 'assets/images/ai_car.png', 'assets/images/ai_superhero.png', 'assets/images/ai_plane.png'];
+                    return fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
+                };
+
+                container.innerHTML = categories.map(cat => `
+                    <a href="products.html?category=${cat._id}" class="category-card-custom glass fade-in">
+                        <img src="${getAiImageForCategory(cat.name)}" alt="${cat.name}">
+                        <div class="category-overlay" style="background: linear-gradient(to top, rgba(11, 14, 20, 0.95) 0%, rgba(11, 14, 20, 0.4) 50%, transparent 100%); padding: 30px; display: flex; align-items: flex-end;">
+                            <div style="width: 100%;">
+                                <h3 style="font-size: 1.6rem; font-family: 'Outfit', sans-serif; color: #fff; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">${cat.name}</h3>
+                                <p style="font-size: 0.9rem; color: var(--primary-color); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin: 0; display: flex; align-items: center; gap: 8px;">Khám phá ngay <i class="fas fa-arrow-right" style="font-size: 0.8rem;"></i></p>
+                            </div>
+                        </div>
+                    </a>
+                `).join('');
+            }
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cart-count').innerText = count;
+        }
+    </script>
+</body>
+
+</html>

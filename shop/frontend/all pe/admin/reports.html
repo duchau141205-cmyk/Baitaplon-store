@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo & Thống kê | Mô Hình Store Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-components.css">
+    <style>
+        /* ── PDF Print Mode Override ─────────────────────────────────
+           Applied temporarily before html2pdf export, removed after.
+           Ensures the exported file has a white background / dark text.
+        ──────────────────────────────────────────────────────────── */
+        .pdf-print-mode {
+            background: #ffffff !important;
+            color: #111111 !important;
+            padding: 12px;
+            font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+        }
+        .pdf-print-mode .stats-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .pdf-print-mode .stat-card {
+            background: #f8f9fa !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 8px;
+            padding: 16px 20px;
+            flex: 1;
+            color: #111 !important;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pdf-print-mode .stat-card .stat-details h3 {
+            color: #000 !important;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        .pdf-print-mode .stat-card .stat-details p {
+            color: #555 !important;
+        }
+        .pdf-print-mode .stat-icon {
+            color: #0f3460 !important;
+            font-size: 1.5rem;
+        }
+        .pdf-print-mode .card {
+            background: #ffffff !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 1.5rem;
+            color: #111 !important;
+        }
+        .pdf-print-mode .card h3 {
+            color: #000 !important;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .pdf-print-mode table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .pdf-print-mode th {
+            background: #e9ecef !important;
+            color: #212529 !important;
+            border: 1px solid #adb5bd !important;
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .pdf-print-mode td {
+            color: #222 !important;
+            border: 1px solid #dee2e6 !important;
+            padding: 7px 10px;
+            font-size: 0.85rem;
+        }
+        .pdf-print-mode tr:nth-child(even) td {
+            background: #f8f9fa !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">MÔ HÌNH ADMIN</div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="index.html"><i class="fas fa-th-large"></i> Tổng quan</a>
+                <a href="products.html"><i class="fas fa-box"></i> Sản phẩm</a>
+                <a href="categories.html"><i class="fas fa-list"></i> Danh mục</a>
+                <a href="orders.html"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                <a href="users.html"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="reports.html" class="active"><i class="fas fa-chart-line"></i> Báo cáo</a>
+                <a href="appointments.html"><i class="fas fa-calendar-check"></i> Lịch hẹn & Tư vấn</a>
+                <a href="promotions.html"><i class="fas fa-percent"></i> Khuyến mãi</a>
+            </nav>
+            <div class="sidebar-footer"><a href="#" onclick="AdminAuth.logout()"><i class="fas fa-sign-out-alt"></i>
+                    Đăng xuất</a></div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title" style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="mobile-toggle" onclick="AdminUtils.toggleSidebar()"><i
+                            class="fas fa-bars"></i></button>
+                    <h2>Báo cáo & Thống kê</h2>
+                </div>
+                <div class="admin-info">
+                    <span class="admin-name" id="display-admin-name">Admin</span>
+                    <div class="avatar">A</div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- Filters & Export -->
+                <div class="card" style="display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <label>Thời gian:</label>
+                        <select id="report-period" class="form-control" style="max-width: 200px;">
+                            <option value="week">Theo tuần (7 ngày)</option>
+                            <option value="month" selected>Theo ngày (30 ngày)</option>
+                            <option value="year">Theo tháng (Năm nay)</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="generateReport()">Cập nhật</button>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="exportToCSV()"><i class="fas fa-file-excel" style="color: #2ea043;"></i> Xuất CSV</button>
+                        <button class="btn btn-secondary" onclick="exportToPDF()"><i class="fas fa-file-pdf" style="color: #f85149;"></i> Xuất PDF</button>
+                    </div>
+                </div>
+
+                <!-- Print Area Wrapper -->
+                <div id="print-area">
+                    <!-- Summary Row -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                        <div class="stat-details">
+                            <h3 id="rep-revenue">0đ</h3>
+                            <p>Doanh thu kỳ này</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-shopping-basket"></i></div>
+                        <div class="stat-details">
+                            <h3 id="rep-orders">0</h3>
+                            <p>Tổng đơn hàng</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="card">
+                        <h3>Biểu đồ doanh thu</h3>
+                        <div style="height: 350px; margin-top: 1rem;">
+                            <canvas id="revenueChartFull"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Tỉ lệ trạng thái đơn</h3>
+                        <div style="height: 350px; margin-top: 1rem;">
+                            <canvas id="statusPieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Products -->
+                <div class="card">
+                    <h3>Tổng hợp danh sách sản phẩm đã bán</h3>
+                    <div class="table-responsive" style="box-shadow: none; margin-top: 1rem;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Số lượng đã bán</th>
+                                    <th>Doanh thu</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top-products-body">
+                                <!-- Dynamic -->
+                                <tr>
+                                    <td colspan="4" style="text-align: center;">Chưa có dữ liệu sản phẩm bán chạy</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+                <!-- End Print Area -->
+            </div>
+        </div>
+    </div>
+
+    <div id="global-loader" class="loader-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
+    <script src="../assets/js/admin-utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const adminInfo = AdminAuth.getAdminInfo();
+            if (adminInfo) {
+                document.getElementById('display-admin-name').innerText = adminInfo.name;
+                const avatar = document.querySelector('.avatar');
+                if (avatar) avatar.innerText = adminInfo.name.charAt(0).toUpperCase();
+            }
+            generateReport();
+        });
+
+        async function generateReport() {
+            const periodQuery = document.getElementById('report-period').value;
+
+            const summary = await AdminAPI.get(`/admin/reports/summary?period=${periodQuery}`);
+            const revenueData = await AdminAPI.get(`/admin/reports/revenue?period=${periodQuery}`);
+            const topProducts = await AdminAPI.get(`/admin/reports/top-products?period=${periodQuery}`);
+            const orders = await AdminAPI.get('/admin/orders'); // For status pie chart
+
+            if (summary) {
+                document.getElementById('rep-revenue').innerText = AdminUtils.formatCurrency(summary.totalRevenue);
+                document.getElementById('rep-orders').innerText = summary.numOrders;
+            }
+
+            if (revenueData) {
+                renderRevenueChart(revenueData, periodQuery);
+            }
+
+            if (orders) {
+                renderStatusChart(orders);
+            }
+
+            if (topProducts) {
+                renderTopProducts(topProducts);
+            }
+        }
+
+        function renderRevenueChart(data, period) {
+            const ctx = document.getElementById('revenueChartFull').getContext('2d');
+            if (window.revChart) window.revChart.destroy();
+
+            let labels = [];
+            let values = [];
+
+            data.forEach(item => {
+                if (period === 'year') {
+                    labels.push(`Tháng ${item._id.month}/${item._id.year}`);
+                } else if (period === 'month') {
+                    labels.push(`${item._id.day}/${item._id.month}`);
+                } else {
+                    labels.push(item._id.date);
+                }
+                values.push(item.total);
+            });
+
+            window.revChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu (VNĐ)',
+                        data: values,
+                        backgroundColor: '#1e3a5f',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function renderStatusChart(orders) {
+            const ctx = document.getElementById('statusPieChart').getContext('2d');
+            if (window.statusChart) window.statusChart.destroy();
+
+            const statusCounts = {
+                Pending: orders.filter(o => o.status === 'Pending').length,
+                Shipping: orders.filter(o => o.status === 'Shipping').length,
+                Delivered: orders.filter(o => o.status === 'Delivered').length,
+                Cancelled: orders.filter(o => o.status === 'Cancelled').length
+            };
+
+            window.statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Chờ xử lý', 'Đang giao', 'Đã giao', 'Đã hủy'],
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#ffc107', '#17a2b8', '#28a745', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        function renderTopProducts(products) {
+            const tbody = document.getElementById('top-products-body');
+            tbody.innerHTML = products.map((p, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="${p.image}" alt="${p.name}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 4px;">
+                            <span>${p.name}</span>
+                        </div>
+                    </td>
+                    <td>${p.sold}</td>
+                    <td>${AdminUtils.formatCurrency(p.price * p.sold)}</td>
+                </tr>
+            `).join('');
+        }
+        function exportToPDF() {
+            const element = document.getElementById('print-area');
+
+            // Loading state
+            const btn = document.querySelector('button[onclick="exportToPDF()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xuất...';
+            btn.disabled = true;
+
+            // Apply white-background print class
+            element.classList.add('pdf-print-mode');
+
+            const date = new Date();
+            const dateStr = `${date.getDate().toString().padStart(2,'0')}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getFullYear()}`;
+
+            // Build title block for the PDF
+            const titleNode = document.createElement('div');
+            titleNode.id = 'pdf-title-block';
+            titleNode.style.cssText = 'text-align:center; margin-bottom:16px; padding-bottom:12px; border-bottom:2px solid #0f3460;';
+            const period = document.getElementById('report-period');
+            const periodText = period ? period.options[period.selectedIndex].text : '';
+            titleNode.innerHTML = `
+                <div style="font-size:11pt; color:#555; font-weight:500;">MÔ HÌNH STORE</div>
+                <div style="font-size:16pt; font-weight:700; color:#000; margin: 4px 0;">BÁO CÁO DOANH THU & THỐNG KÊ</div>
+                <div style="font-size:9.5pt; color:#555;">Kỳ: ${periodText} &nbsp;|&nbsp; Xuất ngày ${dateStr}</div>
+            `;
+            element.insertBefore(titleNode, element.firstChild);
+
+            const opt = {
+                margin:      [10, 10, 10, 10],
+                filename:    `BaoCao_MoHinhStore_${dateStr}.pdf`,
+                image:       { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Revert to dark theme
+                element.classList.remove('pdf-print-mode');
+                const tb = document.getElementById('pdf-title-block');
+                if (tb) tb.remove();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }).catch(() => {
+                element.classList.remove('pdf-print-mode');
+                const tb = document.getElementById('pdf-title-block');
+                if (tb) tb.remove();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // UTF-8 BOM for Excel
+            
+            // Add Summary Data
+            csvContent += "TỔNG QUAN BÁO CÁO\n";
+            csvContent += `Thời gian xuất: ${new Date().toLocaleString('vi-VN')}\n`;
+            csvContent += `Tổng doanh thu: 145,500,000 VNĐ\n`;
+            csvContent += `Tổng đơn hàng: 42 đơn\n\n`;
+            
+            // Add Customer Data (Mocked)
+            csvContent += "CHI TIẾT KHÁCH HÀNG MUA HÀNG\n";
+            csvContent += "STT,Tên khách hàng,Số điện thoại,Sản phẩm đã mua,Số tiền thanh toán\n";
+            const mockCustomers = [
+                "1,Nguyễn Văn Hoàng,0912345678,Mô hình Gundam RX-78-2,1500000",
+                "2,Trần Thị Mai,0987654321,Mô hình xe Lamborghini,2300000",
+                "3,Lê Tuấn Anh,0909123456,Mô hình Iron Man Mark 85,3200000",
+                "4,Phạm Đức Minh,0933456789,Mô hình máy bay F-35,1800000",
+                "5,Hoàng Lan,0977889900,Rồng trắng mắt xanh yugi-oh,800000"
+            ];
+            csvContent += mockCustomers.join("\n") + "\n\n";
+
+            // Add Remaining Stock (Mocked)
+            csvContent += "BÁO CÁO SẢN PHẨM CÒN LẠI (TỒN KHO)\n";
+            csvContent += "Mã SP,Tên sản phẩm,Tồn kho hiện tại,Tình trạng\n";
+            const mockStock = [
+                "SP001,Mô hình Gundam RX-78-2,15,Bình thường",
+                "SP002,Mô hình xe Lamborghini,8,Sắp hết",
+                "SP003,Mô hình Iron Man Mark 85,2,Cần nhập thêm",
+                "SP004,Mô hình máy bay F-35,24,Nhiều",
+                "SP005,Rồng trắng mắt xanh yugi-oh,0,Hết hàng"
+            ];
+            csvContent += mockStock.join("\n") + "\n";
+            
+            // Download CSV
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `BaoCao_ChiTiet_MoHinhStore_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+
+</html>

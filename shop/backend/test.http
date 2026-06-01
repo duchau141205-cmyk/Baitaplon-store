@@ -1,0 +1,52 @@
+### API Testing for E-commerce System
+@baseUrl = http://localhost:5000/api
+@token = YOUR_JWT_TOKEN_HERE
+
+### 1. Register a new user
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "name": "Admin Test",
+  "email": "admin@test.com",
+  "password": "password123"
+}
+
+### 2. Login user
+# @name login
+POST {{baseUrl}}/users/login
+Content-Type: application/json
+
+{
+  "email": "admin@test.com",
+  "password": "password123"
+}
+
+### 3. Get all products (Public)
+GET {{baseUrl}}/products
+
+### 4. Create a Category (Admin Required)
+POST {{baseUrl}}/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Electronics",
+  "description": "Gadgets and devices"
+}
+
+### 5. Create a Product (Admin Required)
+POST {{baseUrl}}/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Test Phone",
+  "price": 500,
+  "description": "A great phone",
+  "image": "phone.jpg",
+  "brand": "BrandX",
+  "category": "REPLACE_WITH_CATEGORY_ID",
+  "countInStock": 50,
+  "manufacturer": "FactoryA"
+}

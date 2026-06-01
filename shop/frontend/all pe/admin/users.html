@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Khách hàng | Mô Hình Store Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-components.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header"><div class="logo">MÔ HÌNH ADMIN</div></div>
+            <nav class="sidebar-menu">
+                <a href="index.html"><i class="fas fa-th-large"></i> Tổng quan</a>
+                <a href="products.html"><i class="fas fa-box"></i> Sản phẩm</a>
+                <a href="categories.html"><i class="fas fa-list"></i> Danh mục</a>
+                <a href="orders.html"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                <a href="users.html" class="active"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
+                <a href="appointments.html"><i class="fas fa-calendar-check"></i> Lịch hẹn & Tư vấn</a>
+                <a href="promotions.html"><i class="fas fa-percent"></i> Khuyến mãi</a>
+            </nav>
+            <div class="sidebar-footer"><a href="#" onclick="AdminAuth.logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="top-header">
+                <div class="page-title" style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="mobile-toggle" onclick="AdminUtils.toggleSidebar()"><i class="fas fa-bars"></i></button>
+                    <h2>Quản lý Khách hàng</h2>
+                </div>
+                <div class="admin-info">
+                    <span class="admin-name" id="display-admin-name">Admin</span>
+                    <div class="avatar">A</div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <div class="card">
+                    <input type="text" id="search-user" class="form-control" placeholder="Tìm kiếm theo tên hoặc email..." style="max-width: 400px;">
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Khách hàng</th>
+                                <th>Email</th>
+                                <th>SĐT</th>
+                                <th>Ngày đăng ký</th>
+                                <th>Vai trò</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Dynamic -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div id="pagination" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Edit Modal -->
+    <div id="user-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Chỉnh sửa khách hàng</h3>
+                <i class="fas fa-times" style="cursor: pointer;" onclick="AdminUtils.hideModal('user-modal')"></i>
+            </div>
+            <div class="modal-body">
+                <form id="user-edit-form">
+                    <input type="hidden" id="edit-user-id">
+                    <div class="form-group">
+                        <label>Họ tên</label>
+                        <input type="text" id="edit-user-name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="edit-user-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="text" id="edit-user-phone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Vai trò</label>
+                        <select id="edit-user-role" class="form-control">
+                            <option value="customer">Khách hàng (customer)</option>
+                            <option value="staff">Nhân viên (staff)</option>
+                            <option value="admin">Quản trị viên (admin)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                        <label style="color: var(--danger-color); font-weight: 700;">Cập nhật mật khẩu mới (Bỏ trống nếu không đổi)</label>
+                        <input type="password" id="edit-user-password" class="form-control" placeholder="Nhập mật khẩu mới cho khách hàng">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="AdminUtils.hideModal('user-modal')">Hủy</button>
+                <button class="btn btn-primary" onclick="saveUserChanges()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="global-loader" class="loader-overlay"><div class="loader"></div></div>
+
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
+    <script src="../assets/js/admin-utils.js"></script>
+    <script>
+        let allUsers = [];
+        let currentPage = 1;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const adminInfo = AdminAuth.getAdminInfo();
+            if (adminInfo) {
+                document.getElementById('display-admin-name').innerText = adminInfo.name;
+                const avatar = document.querySelector('.avatar');
+                if (avatar) avatar.innerText = adminInfo.name.charAt(0).toUpperCase();
+            }
+            await loadUsers();
+            
+            // Auto refresh customer list continuously every 10 seconds
+            setInterval(() => loadUsers(currentPage), 10000);
+        });
+
+        async function loadUsers(page = 1) {
+            // Guard: don't reload if editing user details modal is open
+            const modal = document.getElementById('user-modal');
+            if (modal && modal.style.display === 'flex') {
+                return;
+            }
+            currentPage = page;
+            const data = await AdminAPI.get(`/admin/users?pageNumber=${page}`);
+            if (data && data.users) {
+                allUsers = data.users;
+                renderUsers(data.users);
+                renderPagination(data.pages, data.page);
+            } else if (data) {
+                // Fallback if API doesn't return pagination object
+                allUsers = data;
+                renderUsers(data);
+            }
+        }
+
+        function renderPagination(totalPages, currentPage) {
+            let html = '';
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="loadUsers(${i})">${i}</button>`;
+            }
+            document.getElementById('pagination').innerHTML = html;
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = users.map(u => {
+                let avatarContent = u.avatar ? `<img src="${u.avatar}" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">` : `<div class="avatar" style="width: 30px; height: 30px; font-size: 0.8rem;">${u.name.charAt(0)}</div>`;
+                return `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            ${avatarContent}
+                            <strong>${u.name}</strong>
+                        </div>
+                    </td>
+                    <td>${u.email}</td>
+                    <td>${u.phone || 'Chưa có'}</td>
+                    <td>${AdminUtils.formatDate(u.createdAt)}</td>
+                    <td><span class="badge" style="background: #eee; color: #333;">${u.role}</span></td>
+                    <td>
+                        <span class="badge ${u.isActive ? 'badge-completed' : 'badge-cancelled'}">
+                            ${u.isActive ? 'Đang hoạt động' : 'Đã khóa'}
+                        </span>
+                    </td>
+                    <td>
+                        ${u.role !== 'admin' ? `
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn btn-sm btn-primary" onclick="openEditModal('${u._id}')" title="Chỉnh sửa & Mật khẩu">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                                <button class="btn btn-sm ${u.isActive ? 'btn-danger' : 'btn-secondary'}" onclick="toggleUserStatus('${u._id}', ${u.isActive})" title="${u.isActive ? 'Khóa tài khoản' : 'Mở khóa'}">
+                                    <i class="fas ${u.isActive ? 'fa-lock' : 'fa-lock-open'}"></i>
+                                </button>
+                            </div>
+                        ` : '<small>Admin hệ thống</small>'}
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function openEditModal(id) {
+            const user = allUsers.find(u => u._id === id);
+            if (!user) return;
+
+            document.getElementById('edit-user-id').value = user._id;
+            document.getElementById('edit-user-name').value = user.name;
+            document.getElementById('edit-user-email').value = user.email;
+            document.getElementById('edit-user-phone').value = user.phone || '';
+            document.getElementById('edit-user-role').value = user.role || 'customer';
+            document.getElementById('edit-user-password').value = ''; // Always empty on open
+
+            AdminUtils.showModal('user-modal');
+        }
+
+        async function saveUserChanges() {
+            const id = document.getElementById('edit-user-id').value;
+            const updateData = {
+                name: document.getElementById('edit-user-name').value,
+                email: document.getElementById('edit-user-email').value,
+                phone: document.getElementById('edit-user-phone').value,
+                role: document.getElementById('edit-user-role').value,
+            };
+
+            const newPassword = document.getElementById('edit-user-password').value;
+            if (newPassword) {
+                updateData.password = newPassword;
+            }
+
+            const result = await AdminAPI.put(`/admin/users/${id}`, updateData);
+            if (result) {
+                AdminUtils.toast('Cập nhật thông tin thành công!');
+                AdminUtils.hideModal('user-modal');
+                loadUsers(currentPage);
+            }
+        }
+
+        async function toggleUserStatus(id, currentStatus) {
+            const action = currentStatus ? 'khóa' : 'mở khóa';
+            AdminUtils.confirm(`Bạn có chắc muốn ${action} tài khoản này?`, async () => {
+                const result = await AdminAPI.put(`/admin/users/${id}/block`, { isActive: !currentStatus });
+                if (result) {
+                    AdminUtils.toast(`Đã ${action} thành công!`);
+                    loadUsers(currentPage);
+                }
+            });
+        }
+
+        document.getElementById('search-user').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allUsers.filter(u => u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term) || (u.phone && u.phone.includes(term)));
+            renderUsers(filtered);
+        });
+    </script>
+</body>
+</html>

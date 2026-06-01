@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Khuyến mãi | MÔ HÌNH ADMIN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-components.css">
+    <style>
+        /* Custom CSS overrides for Promotions Admin */
+        .main-content {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Page Header Improvements */
+        .content-header {
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .content-header h2 {
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        /* Stats Cards */
+        .promotions-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .promo-stat-card {
+            background: rgba(22, 27, 34, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+        }
+
+        .promo-stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.08);
+        }
+
+        .promo-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .promo-stat-icon.blue {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .promo-stat-icon.green {
+            background: rgba(0, 230, 118, 0.1);
+            color: #00e676;
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .promo-stat-icon.amber {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+
+        .promo-stat-info .promo-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            line-height: 1.2;
+        }
+
+        .promo-stat-info p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Controls Card (Search & Filters) */
+        .controls-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 16px 24px;
+        }
+
+        .search-filter-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            flex-grow: 1;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(11, 14, 20, 0.5);
+            border: 1px solid var(--glass-border);
+            padding: 8px 16px;
+            border-radius: 10px;
+            width: 260px;
+            transition: var(--transition);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 12px var(--primary-glow);
+            background: rgba(11, 14, 20, 0.8);
+        }
+
+        .search-box i {
+            color: var(--text-muted);
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            width: 100%;
+            font-size: 0.85rem;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            width: auto;
+            min-width: 170px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            background-color: rgba(11, 14, 20, 0.5);
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--primary-color), #00a8cc);
+            color: #000;
+            font-weight: 700;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            padding: 10px 24px;
+            border-radius: 10px;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Coupon tag style in Table */
+        .promo-tag {
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px dashed rgba(0, 212, 255, 0.4);
+            color: var(--primary-color);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.03);
+        }
+
+        /* Badges styling */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-running {
+            background: rgba(0, 230, 118, 0.12);
+            color: #00e676;
+            border: 1px solid rgba(0, 230, 118, 0.25);
+            box-shadow: 0 0 8px rgba(0, 230, 118, 0.1);
+        }
+
+        .badge-expired {
+            background: rgba(255, 68, 68, 0.12);
+            color: #ff4444;
+            border: 1px solid rgba(255, 68, 68, 0.25);
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.1);
+        }
+
+        .badge-limit {
+            background: rgba(255, 193, 7, 0.12);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.25);
+            box-shadow: 0 0 8px rgba(255, 193, 7, 0.1);
+        }
+
+        .badge-inactive {
+            background: rgba(139, 148, 158, 0.12);
+            color: #8b949e;
+            border: 1px solid rgba(139, 148, 158, 0.25);
+        }
+
+        /* Custom Table Polish */
+        .table-container {
+            padding: 0;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background: rgba(22, 27, 34, 0.8) !important;
+            font-size: 0.78rem !important;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--glass-border) !important;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(0, 212, 255, 0.015);
+        }
+
+        code {
+            background: rgba(255, 255, 255, 0.05);
+            color: #cbd5e1;
+            padding: 3px 6px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+        }
+
+        /* Custom Switches for Form */
+        .switch-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .switch-control {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch-control input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            transition: .3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 24px;
+        }
+
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-muted);
+            transition: .3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 50%;
+        }
+
+        .switch-control input:checked + .switch-slider {
+            background-color: rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+
+        .switch-control input:checked + .switch-slider:before {
+            transform: translateX(22px);
+            background-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Table Action Buttons */
+        .table-container .btn-primary {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .table-container .btn-primary:hover {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .table-container .btn-danger {
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            border: 1px solid rgba(255, 68, 68, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .table-container .btn-danger:hover {
+            background: #ff4444;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(255, 68, 68, 0.4);
+        }
+
+        .btn-sm {
+            min-width: 34px;
+            min-height: 34px;
+            justify-content: center;
+        }
+
+        /* Modal Enhancements */
+        .modal {
+            background: rgba(5, 7, 10, 0.85);
+        }
+
+        .modal-content {
+            border-color: rgba(0, 212, 255, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 212, 255, 0.05);
+            background: radial-gradient(circle at top right, rgba(121, 40, 202, 0.05), transparent 40%), var(--card-bg);
+        }
+
+        .modal-content h2 {
+            color: var(--primary-color);
+            font-weight: 800;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.85rem;
+        }
+
+        .form-control {
+            background: rgba(11, 14, 20, 0.6);
+            border-color: var(--glass-border);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            background: rgba(11, 14, 20, 0.9);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-glow), inset 0 0 10px rgba(0, 212, 255, 0.05);
+        }
+
+        /* Responsive adjustment */
+        @media (max-width: 768px) {
+            .controls-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-filter-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                width: 100%;
+            }
+            .filter-group {
+                width: 100%;
+            }
+            .filter-select {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">MÔ HÌNH ADMIN</div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="index.html"><i class="fas fa-th-large"></i> Tổng quan</a>
+                <a href="products.html"><i class="fas fa-box"></i> Sản phẩm</a>
+                <a href="categories.html"><i class="fas fa-list"></i> Danh mục</a>
+                <a href="orders.html"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                <a href="users.html"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
+                <a href="appointments.html"><i class="fas fa-calendar-check"></i> Lịch hẹn & Tư vấn</a>
+                <a href="promotions.html" class="active"><i class="fas fa-percent"></i> Khuyến mãi</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" onclick="AdminAuth.logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-title">
+                    <h2>Quản lý Khuyến mãi</h2>
+                    <p>Tạo và quản lý các mã giảm giá cho khách hàng mua sắm</p>
+                </div>
+                <div class="admin-info" style="display: flex; align-items: center; gap: 15px;">
+                    <span id="display-admin-name">Admin</span>
+                    <div class="avatar"
+                        style="width: 40px; height: 40px; background: var(--primary-color); border-radius: 50%; color: black; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+                        A</div>
+                </div>
+            </header>
+
+            <!-- Promotions Stats Row -->
+            <div class="promotions-stats-row">
+                <div class="promo-stat-card">
+                    <div class="promo-stat-icon blue"><i class="fas fa-tag"></i></div>
+                    <div class="promo-stat-info">
+                        <div class="promo-stat-value" id="stat-total-promo">0</div>
+                        <p>Tổng mã đã tạo</p>
+                    </div>
+                </div>
+                <div class="promo-stat-card">
+                    <div class="promo-stat-icon green"><i class="fas fa-play-circle"></i></div>
+                    <div class="promo-stat-info">
+                        <div class="promo-stat-value" id="stat-active-promo">0</div>
+                        <p>Đang chạy</p>
+                    </div>
+                </div>
+                <div class="promo-stat-card">
+                    <div class="promo-stat-icon amber"><i class="fas fa-history"></i></div>
+                    <div class="promo-stat-info">
+                        <div class="promo-stat-value" id="stat-inactive-promo">0</div>
+                        <p>Hết hạn / Tạm tắt</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Controls Card -->
+            <div class="glass-card controls-card" style="margin-bottom: 30px;">
+                <div class="search-filter-wrapper">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-code" placeholder="Tìm kiếm theo mã..." oninput="handleFilterChange()">
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-type" class="form-control filter-select" onchange="handleFilterChange()">
+                            <option value="all">Kiểu giảm giá (Tất cả)</option>
+                            <option value="percentage">Phần trăm (%)</option>
+                            <option value="amount">Số tiền cố định (đ)</option>
+                        </select>
+                        <select id="filter-status" class="form-control filter-select" onchange="handleFilterChange()">
+                            <option value="all">Trạng thái (Tất cả)</option>
+                            <option value="active">Đang chạy</option>
+                            <option value="inactive">Tạm tắt</option>
+                            <option value="expired">Hết hạn / Hết lượt</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-add" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i> Thêm mã mới
+                </button>
+            </div>
+
+            <div class="glass-card table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Mô tả</th>
+                            <th>Kiểu giảm</th>
+                            <th>Giá trị</th>
+                            <th>Đơn tối thiểu</th>
+                            <th>Giảm tối đa</th>
+                            <th>Lượt dùng (Đã / Giới hạn)</th>
+                            <th>Hạn sử dụng</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="promotions-table-body">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Promotion Modal -->
+    <div id="promotion-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2 id="modal-title" style="margin-bottom: 25px;">Thêm mã khuyến mãi</h2>
+            <form id="promotion-form">
+                <input type="hidden" id="p-id">
+                
+                <div class="form-group">
+                    <label>Mã khuyến mãi (Viết hoa, không dấu)</label>
+                    <input type="text" id="p-code" class="form-control" required placeholder="VD: NHAPMOI10" style="text-transform: uppercase;">
+                </div>
+                
+                <div class="form-group">
+                    <label>Mô tả chương trình</label>
+                    <input type="text" id="p-desc" class="form-control" placeholder="VD: Giảm 10% cho đơn hàng đầu tiên">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Loại giảm giá</label>
+                        <select id="p-type" class="form-control" required onchange="toggleDiscountFields()">
+                            <option value="percentage">Phần trăm (%)</option>
+                            <option value="amount">Số tiền cố định (VND)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Giá trị giảm</label>
+                        <input type="number" id="p-val" class="form-control" required min="1" placeholder="VD: 10 hoặc 50000">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Đơn hàng tối thiểu (VND)</label>
+                        <input type="number" id="p-min-order" class="form-control" min="0" placeholder="VD: 150000">
+                    </div>
+                    <div class="form-group" id="max-discount-group">
+                        <label>Mức giảm tối đa (VND, 0: Không giới hạn)</label>
+                        <input type="number" id="p-max-discount" class="form-control" min="0" placeholder="VD: 50000">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 18px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Ngày bắt đầu</label>
+                        <input type="date" id="p-start-date" class="form-control">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Ngày kết thúc</label>
+                        <input type="date" id="p-end-date" class="form-control">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; margin-bottom: 20px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Giới hạn số lượt dùng (0: Vô hạn)</label>
+                        <input type="number" id="p-limit" class="form-control" min="0" placeholder="VD: 100">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Trạng thái mã</label>
+                        <select id="p-status" class="form-control">
+                            <option value="active">Còn hạn (Đang chạy)</option>
+                            <option value="expired">Hết hạn (Kết thúc)</option>
+                            <option value="inactive">Tạm tắt</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;">
+                    <button type="button" class="btn" style="background: #333;"
+                        onclick="AdminUtils.hideModal('promotion-modal')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thông tin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="global-loader" class="loader-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
+    <script src="../assets/js/admin-utils.js"></script>
+    <script>
+        let allPromotions = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const adminInfo = AdminAuth.getAdminInfo();
+            if (adminInfo) {
+                document.getElementById('display-admin-name').innerText = adminInfo.name;
+                const avatar = document.querySelector('.avatar');
+                if (avatar) avatar.innerText = adminInfo.name.charAt(0).toUpperCase();
+            }
+            await loadPromotions();
+        });
+
+        async function loadPromotions() {
+            const promotions = await AdminAPI.get('/promotions');
+            if (promotions) {
+                allPromotions = promotions;
+                updateStats(promotions);
+                handleFilterChange();
+            }
+        }
+
+        function updateStats(promotions) {
+            const now = new Date();
+            let activeCount = 0;
+            
+            promotions.forEach(p => {
+                const isExpired = p.endDate && now > new Date(p.endDate);
+                const limitReached = p.usageLimit > 0 && p.usageCount >= p.usageLimit;
+                const isRunning = p.isActive && !isExpired && !limitReached;
+                if (isRunning) {
+                    activeCount++;
+                }
+            });
+            
+            const totalCount = promotions.length;
+            const inactiveCount = totalCount - activeCount;
+            
+            document.getElementById('stat-total-promo').innerText = totalCount;
+            document.getElementById('stat-active-promo').innerText = activeCount;
+            document.getElementById('stat-inactive-promo').innerText = inactiveCount;
+        }
+
+        function handleFilterChange() {
+            const searchCode = document.getElementById('search-code').value.trim().toUpperCase();
+            const filterType = document.getElementById('filter-type').value;
+            const filterStatus = document.getElementById('filter-status').value;
+
+            const filtered = allPromotions.filter(p => {
+                // Search filter
+                if (searchCode && !p.code.toUpperCase().includes(searchCode)) {
+                    return false;
+                }
+                // Type filter
+                if (filterType !== 'all' && p.discountType !== filterType) {
+                    return false;
+                }
+                // Status filter
+                if (filterStatus !== 'all') {
+                    const now = new Date();
+                    const isExpired = p.endDate && now > new Date(p.endDate);
+                    const limitReached = p.usageLimit > 0 && p.usageCount >= p.usageLimit;
+                    
+                    if (filterStatus === 'active') {
+                        const isRunning = p.isActive && !isExpired && !limitReached;
+                        if (!isRunning) return false;
+                    } else if (filterStatus === 'inactive') {
+                        if (p.isActive) return false;
+                    } else if (filterStatus === 'expired') {
+                        const isExpiredOrLimit = p.isActive && (isExpired || limitReached);
+                        if (!isExpiredOrLimit) return false;
+                    }
+                }
+                return true;
+            });
+
+            renderPromotions(filtered);
+        }
+
+        function toggleDiscountFields() {
+            const type = document.getElementById('p-type').value;
+            const maxDiscountGroup = document.getElementById('max-discount-group');
+            if (type === 'amount') {
+                maxDiscountGroup.style.opacity = '0.5';
+                document.getElementById('p-max-discount').disabled = true;
+                document.getElementById('p-max-discount').value = '0';
+            } else {
+                maxDiscountGroup.style.opacity = '1';
+                document.getElementById('p-max-discount').disabled = false;
+            }
+        }
+
+        function renderPromotions(promotions) {
+            const tbody = document.getElementById('promotions-table-body');
+            
+            if (promotions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 30px;">Không tìm thấy mã khuyến mãi nào</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = promotions.map(p => {
+                const typeText = p.discountType === 'percentage' ? 'Phần trăm (%)' : 'Số tiền cố định';
+                const valueText = p.discountType === 'percentage' ? `${p.discountValue}%` : AdminUtils.formatCurrency(p.discountValue);
+                const minOrderText = p.minOrderValue > 0 ? AdminUtils.formatCurrency(p.minOrderValue) : '0đ';
+                const maxDiscountText = p.discountType === 'percentage' 
+                    ? (p.maxDiscountValue > 0 ? AdminUtils.formatCurrency(p.maxDiscountValue) : 'Không hạn chế') 
+                    : 'N/A';
+                
+                const usageText = `${p.usageCount} / ${p.usageLimit > 0 ? p.usageLimit : '∞'}`;
+                
+                let dateText = 'Vô thời hạn';
+                if (p.startDate || p.endDate) {
+                    const start = p.startDate ? new Date(p.startDate).toLocaleDateString('vi-VN') : '...';
+                    const end = p.endDate ? new Date(p.endDate).toLocaleDateString('vi-VN') : '...';
+                    dateText = `${start} - ${end}`;
+                }
+
+                // Check expired status
+                const now = new Date();
+                let isExpired = false;
+                if (p.endDate && now > new Date(p.endDate)) {
+                    isExpired = true;
+                }
+
+                let statusBadge = '';
+                if (!p.isActive) {
+                    statusBadge = `<span class="status-badge badge-inactive"><i class="fas fa-ban"></i> Tạm tắt</span>`;
+                } else if (isExpired) {
+                    statusBadge = `<span class="status-badge badge-expired"><i class="fas fa-times-circle"></i> Hết hạn</span>`;
+                } else if (p.usageLimit > 0 && p.usageCount >= p.usageLimit) {
+                    statusBadge = `<span class="status-badge badge-limit"><i class="fas fa-exclamation-triangle"></i> Hết lượt</span>`;
+                } else {
+                    statusBadge = `<span class="status-badge badge-running"><i class="fas fa-play-circle"></i> Đang chạy</span>`;
+                }
+
+                return `
+                    <tr>
+                        <td><span class="promo-tag"><i class="fas fa-tag"></i> ${p.code}</span></td>
+                        <td><span style="font-size: 0.9rem; color: #ccc;">${p.description || 'N/A'}</span></td>
+                        <td>${typeText}</td>
+                        <td><strong>${valueText}</strong></td>
+                        <td>${minOrderText}</td>
+                        <td>${maxDiscountText}</td>
+                        <td><code>${usageText}</code></td>
+                        <td style="font-size: 0.85rem;">${dateText}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="openEditModal('${p._id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="confirmDelete('${p._id}')"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('modal-title').innerText = 'Thêm mã khuyến mãi mới';
+            document.getElementById('promotion-form').reset();
+            document.getElementById('p-id').value = '';
+            document.getElementById('p-status').value = 'active';
+            toggleDiscountFields();
+            AdminUtils.showModal('promotion-modal');
+        }
+
+        function formatDateForInput(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            const year = d.getFullYear();
+            const month = (d.getMonth() + 1).toString().padStart(2, '0');
+            const day = d.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function openEditModal(id) {
+            const p = allPromotions.find(item => item._id === id);
+            if (!p) return;
+            
+            document.getElementById('modal-title').innerText = 'Chỉnh sửa mã khuyến mãi';
+            document.getElementById('p-id').value = p._id;
+            document.getElementById('p-code').value = p.code;
+            document.getElementById('p-desc').value = p.description || '';
+            document.getElementById('p-type').value = p.discountType;
+            document.getElementById('p-val').value = p.discountValue;
+            document.getElementById('p-min-order').value = p.minOrderValue || 0;
+            document.getElementById('p-max-discount').value = p.maxDiscountValue || 0;
+            document.getElementById('p-start-date').value = formatDateForInput(p.startDate);
+            document.getElementById('p-end-date').value = formatDateForInput(p.endDate);
+            document.getElementById('p-limit').value = p.usageLimit || 0;
+            
+            const now = new Date();
+            let isExpired = p.endDate && now > new Date(p.endDate);
+            
+            if (!p.isActive) {
+                document.getElementById('p-status').value = 'inactive';
+            } else if (isExpired) {
+                document.getElementById('p-status').value = 'expired';
+            } else {
+                document.getElementById('p-status').value = 'active';
+            }
+            
+            toggleDiscountFields();
+            AdminUtils.showModal('promotion-modal');
+        }
+
+        document.getElementById('promotion-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('p-id').value;
+
+            const statusVal = document.getElementById('p-status').value;
+            let isActive = true;
+            let endDate = document.getElementById('p-end-date').value || null;
+
+            if (statusVal === 'inactive') {
+                isActive = false;
+            } else if (statusVal === 'expired') {
+                isActive = true;
+                // Force expiration to yesterday if no end date or end date is in future
+                const now = new Date();
+                const d = endDate ? new Date(endDate) : null;
+                if (!d || d > now) {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    endDate = yesterday.toISOString().split('T')[0];
+                }
+            } else if (statusVal === 'active') {
+                isActive = true;
+                // If it was expired, we must clear the end date so it runs again
+                const now = new Date();
+                const d = endDate ? new Date(endDate) : null;
+                if (d && d < now) {
+                    endDate = null;
+                }
+            }
+
+            const payload = {
+                code: document.getElementById('p-code').value,
+                description: document.getElementById('p-desc').value,
+                discountType: document.getElementById('p-type').value,
+                discountValue: document.getElementById('p-val').value,
+                minOrderValue: document.getElementById('p-min-order').value,
+                maxDiscountValue: document.getElementById('p-max-discount').value,
+                startDate: document.getElementById('p-start-date').value || null,
+                endDate: endDate,
+                usageLimit: document.getElementById('p-limit').value,
+                isActive: isActive
+            };
+
+            let result;
+            if (id) {
+                result = await AdminAPI.put(`/promotions/${id}`, payload);
+            } else {
+                result = await AdminAPI.post('/promotions', payload);
+            }
+
+            if (result) {
+                AdminUtils.toast(id ? 'Cập nhật thành công!' : 'Tạo khuyến mãi thành công!');
+                AdminUtils.hideModal('promotion-modal');
+                await loadPromotions();
+            }
+        });
+
+        function confirmDelete(id) {
+            AdminUtils.confirm('Bạn có chắc chắn muốn xóa mã khuyến mãi này không?', async () => {
+                const result = await AdminAPI.delete(`/promotions/${id}`);
+                if (result) {
+                    AdminUtils.toast('Đã xóa mã khuyến mãi');
+                    loadPromotions();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

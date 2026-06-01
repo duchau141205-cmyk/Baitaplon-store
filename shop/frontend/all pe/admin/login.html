@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Admin | Mô Hình Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <style>
+        .login-page {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(121, 40, 202, 0.1) 0%, transparent 40%);
+            overflow: hidden;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            border-radius: 8px;
+            position: relative;
+            background-color: var(--card-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: var(--glass-border);
+            z-index: -1;
+            border-radius: 9px;
+            opacity: 0.5;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 6px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+            cursor: pointer;
+            border: none;
+            background: var(--primary-color);
+            color: #090c10;
+            transition: var(--transition);
+        }
+
+        .btn-login:hover {
+            background: #00b4db;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-card glass fade-in">
+            <div class="login-header">
+                <h1 class="logo">ADMIN CP</h1>
+                <p style="color: var(--text-muted); font-weight: 500;">Quản trị hệ thống Mô Hình Store</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Tài khoản quản trị</label>
+                    <input type="email" id="email" class="form-control" placeholder="admin@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu bảo mật</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-login">
+                    XÁC NHẬN ĐĂNG NHẬP
+                </button>
+            </form>
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="../index.html" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none;">&larr; Quay lại trang chủ cửa hàng</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Loader -->
+    <div id="global-loader" class="loader-overlay" style="background: rgba(9, 12, 16, 0.95);">
+        <div class="loader"></div>
+    </div>
+
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
+    <script src="../assets/js/admin-utils.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            document.getElementById('global-loader').style.display = 'flex';
+
+            const data = await AdminAPI.post('/auth/admin/login', { email, password });
+
+            document.getElementById('global-loader').style.display = 'none';
+
+            if (data) {
+                if (data.role !== 'admin' && data.role !== 'staff') {
+                    AdminUtils.toast('Bạn không có quyền truy cập trang quản trị', 'error');
+                    return;
+                }
+                AdminUtils.toast('Đăng nhập thành công!');
+                AdminAuth.login(data.token, { name: data.name, email: data.email, role: data.role });
+            } else {
+                AdminUtils.toast('Email hoặc mật khẩu không chính xác', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

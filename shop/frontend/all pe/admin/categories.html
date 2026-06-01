@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Danh mục | MÔ HÌNH ADMIN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/admin-components.css">
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">MÔ HÌNH ADMIN</div>
+            </div>
+            <nav class="sidebar-menu">
+                <a href="index.html"><i class="fas fa-th-large"></i> Tổng quan</a>
+                <a href="products.html"><i class="fas fa-box"></i> Sản phẩm</a>
+                <a href="categories.html" class="active"><i class="fas fa-list"></i> Danh mục</a>
+                <a href="orders.html"><i class="fas fa-shopping-cart"></i> Đơn hàng</a>
+                <a href="users.html"><i class="fas fa-users"></i> Khách hàng</a>
+                <a href="reports.html"><i class="fas fa-chart-line"></i> Báo cáo</a>
+                <a href="appointments.html"><i class="fas fa-calendar-check"></i> Lịch hẹn & Tư vấn</a>
+                <a href="promotions.html"><i class="fas fa-percent"></i> Khuyến mãi</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" onclick="AdminAuth.logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-title">
+                    <h2>Quản lý Danh mục</h2>
+                    <p>Phân loại sản phẩm để khách hàng dễ dàng tìm kiếm</p>
+                </div>
+                <div class="admin-info" style="display: flex; align-items: center; gap: 15px;">
+                    <span id="display-admin-name">Admin</span>
+                    <div class="avatar"
+                        style="width: 40px; height: 40px; background: var(--primary-color); border-radius: 50%; color: black; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+                        A</div>
+                </div>
+            </header>
+
+            <div class="glass-card" style="margin-bottom: 30px; display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary" onclick="openAddModal()">
+                    <i class="fas fa-plus"></i> Thêm danh mục mới
+                </button>
+            </div>
+
+            <div class="glass-card table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ảnh</th>
+                            <th>Tên danh mục</th>
+                            <th>Slug</th>
+                            <th>Mô tả</th>
+                            <th>Ngày tạo</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categories-table-body">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="category-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title" style="margin-bottom: 30px;">Thêm danh mục mới</h2>
+            <form id="category-form">
+                <input type="hidden" id="c-id">
+                <div class="form-group">
+                    <label>Tên danh mục</label>
+                    <input type="text" id="c-name" class="form-control" required placeholder="VD: Mô hình One Piece">
+                </div>
+                <div class="form-group">
+                    <label>Hình ảnh danh mục</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <input type="file" id="c-image-file" class="form-control" accept="image/*">
+                        <input type="text" id="c-image-url" class="form-control" placeholder="Hoặc nhập URL ảnh...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mô tả danh mục</label>
+                    <textarea id="c-desc" class="form-control" rows="4" placeholder="Nhập mô tả danh mục..."></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;">
+                    <button type="button" class="btn" style="background: #333;"
+                        onclick="AdminUtils.hideModal('category-modal')">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu danh mục</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="global-loader" class="loader-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <script src="../assets/js/admin-auth.js"></script>
+    <script src="../assets/js/admin-api.js"></script>
+    <script src="../assets/js/admin-utils.js"></script>
+    <script>
+        let allCategories = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const adminInfo = AdminAuth.getAdminInfo();
+            if (adminInfo) {
+                document.getElementById('display-admin-name').innerText = adminInfo.name;
+                const avatar = document.querySelector('.avatar');
+                if (avatar) avatar.innerText = adminInfo.name.charAt(0).toUpperCase();
+            }
+            await loadCategories();
+        });
+
+        async function loadCategories() {
+            const categories = await AdminAPI.get('/categories');
+            if (categories) {
+                allCategories = categories;
+                renderCategories(categories);
+            }
+        }
+
+        function renderCategories(categories) {
+            const tbody = document.getElementById('categories-table-body');
+            tbody.innerHTML = categories.map(c => `
+                <tr>
+                    <td>${c.image ? `<img src="${c.image}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">` : 'N/A'}</td>
+                    <td><strong>${c.name}</strong></td>
+                    <td><code>${c.slug || ''}</code></td>
+                    <td>${c.description || '<i>Không có mô tả</i>'}</td>
+                    <td>${AdminUtils.formatDate(c.createdAt)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="openEditModal('${c._id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger" onclick="confirmDelete('${c._id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('modal-title').innerText = 'Thêm danh mục mới';
+            document.getElementById('category-form').reset();
+            document.getElementById('c-id').value = '';
+            AdminUtils.showModal('category-modal');
+        }
+
+        function openEditModal(id) {
+            const category = allCategories.find(c => c._id === id);
+            if (!category) return;
+            document.getElementById('modal-title').innerText = 'Chỉnh sửa danh mục';
+            document.getElementById('c-id').value = category._id;
+            document.getElementById('c-name').value = category.name;
+            document.getElementById('c-desc').value = category.description || '';
+            document.getElementById('c-image-url').value = category.image || '';
+            document.getElementById('c-image-file').value = '';
+            AdminUtils.showModal('category-modal');
+        }
+
+        document.getElementById('category-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('c-id').value;
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('c-name').value);
+            formData.append('description', document.getElementById('c-desc').value);
+
+            const imageFile = document.getElementById('c-image-file').files[0];
+            const imageUrl = document.getElementById('c-image-url').value;
+
+            if (imageFile) {
+                formData.append('image', imageFile);
+            } else if (imageUrl) {
+                formData.append('image', imageUrl);
+            }
+
+            let result;
+            if (id) {
+                result = await AdminAPI.put(`/admin/categories/${id}`, formData);
+            } else {
+                result = await AdminAPI.post('/admin/categories', formData);
+            }
+
+            if (result) {
+                AdminUtils.toast(id ? 'Cập nhật thành công!' : 'Thêm danh mục thành công!');
+                AdminUtils.hideModal('category-modal');
+                loadCategories();
+            }
+        });
+
+        function confirmDelete(id) {
+            AdminUtils.confirm('Xóa danh mục sẽ ảnh hưởng đến các sản phẩm thuộc danh mục này. Bạn chắc chứ?', async () => {
+                const result = await AdminAPI.delete(`/admin/categories/${id}`);
+                if (result) {
+                    AdminUtils.toast('Đã xóa danh mục');
+                    loadCategories();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
