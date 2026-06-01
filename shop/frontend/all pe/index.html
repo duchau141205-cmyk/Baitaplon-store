@@ -107,6 +107,19 @@
         </div>
     </section>
 
+    <!-- Promotions Section -->
+    <section id="promotions-section" style="background: rgba(121, 40, 202, 0.03); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); padding: 60px 0;">
+        <div class="container">
+            <div class="section-title">
+                <h2>Ưu Đãi Cực HOT</h2>
+                <div class="underline"></div>
+            </div>
+            <div class="promo-grid" id="home-promo-list">
+                <div style="text-align: center; width: 100%; grid-column: 1/-1; color: var(--text-muted);">Đang tải ưu đãi...</div>
+            </div>
+        </div>
+    </section>
+
     <!-- New Arrivals Section -->
     <section id="new-arrivals" style="background: rgba(0,0,0,0.2); min-height: 400px;">
         <div class="container">
@@ -399,6 +412,9 @@
             // Load New Arrivals
             loadNewArrivals();
 
+            // Load Promotions
+            loadHomePromotions();
+
             // User status
             const user = ShopAPI.getUserInfo();
             if (user) {
@@ -602,6 +618,58 @@
             } catch (err) {
                 alert('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.');
             }
+        }
+
+        async function loadHomePromotions() {
+            try {
+                const promotions = await ShopAPI.get('/promotions/active');
+                const container = document.getElementById('home-promo-list');
+                
+                if (promotions && promotions.length > 0) {
+                    // Limit to 3 promotions on the homepage to avoid cluttering
+                    const activePromos = promotions.slice(0, 3);
+                    container.innerHTML = activePromos.map((promo, index) => {
+                        let mainVal = promo.discountType === 'percentage' ? promo.discountValue + '%' : (promo.discountValue / 1000) + 'k';
+                        let subVal = promo.discountType === 'percentage' ? 'OFF' : 'VNĐ';
+                        let condition = `Đơn tối thiểu: ${promo.minOrderValue > 0 ? (promo.minOrderValue / 1000) + 'k' : '0đ'}.`;
+                        
+                        let endDateText = 'Trọn đời';
+                        if (promo.endDate) {
+                            const ed = new Date(promo.endDate);
+                            endDateText = ed.toLocaleDateString('vi-VN');
+                        }
+
+                        return `
+                        <div class="voucher-card fade-in" style="animation-delay: ${index * 0.1}s;">
+                            <div class="voucher-header">
+                                <h3>Giảm ${mainVal} ${subVal === 'OFF' ? '' : subVal}</h3>
+                                <div class="voucher-badge">${endDateText === 'Trọn đời' ? 'KHÔNG HẠN' : endDateText}</div>
+                            </div>
+                            <div class="voucher-body">
+                                <p class="voucher-desc">${promo.description || condition}</p>
+                                <div class="voucher-footer">
+                                    <div class="voucher-code" onclick="copyCode('${promo.code}')" style="padding: 10px 14px;">
+                                        <span>${promo.code}</span>
+                                        <span class="copy-btn" title="Copy mã" style="padding: 4px 8px; font-size: 0.75rem;"><i class="fas fa-copy"></i> Copy</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                    }).join('');
+                } else {
+                    document.getElementById('promotions-section').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading home promotions:', error);
+                document.getElementById('promotions-section').style.display = 'none';
+            }
+        }
+
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Đã sao chép mã khuyến mãi: ' + code);
+            });
         }
     </script>
 </body>

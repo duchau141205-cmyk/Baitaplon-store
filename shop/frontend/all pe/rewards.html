@@ -329,13 +329,9 @@
             'linear-gradient(135deg, #00e676, #00bdff)',
             'linear-gradient(135deg, #7928ca, var(--accent-color))'
         ];
-
         async function loadPromotions() {
             try {
-                const response = await fetch('http://localhost:5000/api/promotions/active');
-                if (!response.ok) throw new Error('Network response was not ok');
-                const promotions = await response.json();
-
+                const promotions = await ShopAPI.get('/promotions/active');
                 const grid = document.getElementById('promo-grid');
                 if (promotions.length === 0) {
                     grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">Hiện chưa có chương trình khuyến mãi nào. Vui lòng quay lại sau!</div>';
