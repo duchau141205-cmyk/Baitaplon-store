@@ -81,6 +81,9 @@
 
     <div class="container">
         <div class="policy-container">
+            <button onclick="goBack()" style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 10px 20px; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; transition: all 0.3s; font-family: inherit; font-size: 0.9rem;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.transform='translateX(-3px)';" onmouseout="this.style.borderColor='var(--glass-border)'; this.style.transform='translateX(0)';">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </button>
             <div class="policy-card fade-in">
                 <h1><i class="fas fa-file-contract" style="color: var(--primary-color);"></i>Điều Khoản Sử Dụng</h1>
                 <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 30px;">Cập nhật lần cuối: Ngày 01 tháng 06 năm 2026</p>
@@ -157,6 +160,14 @@
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             const count = cart.reduce((total, item) => total + item.quantity, 0);
             document.getElementById('cart-count').innerText = count;
+        }
+
+        function goBack() {
+            if (document.referrer && document.referrer.includes(window.location.hostname)) {
+                window.history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
         }
     </script>
 </body>
