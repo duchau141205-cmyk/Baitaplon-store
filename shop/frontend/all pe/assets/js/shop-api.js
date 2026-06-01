@@ -94,5 +94,14 @@ const ShopAPI = {
 
     isAuthenticated() {
         return !!localStorage.getItem('user_token');
+    },
+
+    likeProduct(id) {
+        return this.post(`/products/${id}/like`, null, true);
+    },
+
+    createProductReview(id, reviewData) {
+        return this.post(`/products/${id}/reviews`, reviewData, true);
     }
 };
+

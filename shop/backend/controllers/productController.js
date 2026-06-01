@@ -205,11 +205,87 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+// @desc    Like / Unlike a product
+// @route   POST /api/products/:id/like
+// @access  Private
+const likeProduct = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+
+        if (product) {
+            const alreadyLiked = product.likes.find(
+                (userId) => userId.toString() === req.user._id.toString()
+            );
+
+            if (alreadyLiked) {
+                product.likes = product.likes.filter(
+                    (userId) => userId.toString() !== req.user._id.toString()
+                );
+                await product.save();
+                res.json({ message: 'Đã hủy thích sản phẩm', likesCount: product.likes.length, isLiked: false });
+            } else {
+                product.likes.push(req.user._id);
+                await product.save();
+                res.json({ message: 'Đã thích sản phẩm', likesCount: product.likes.length, isLiked: true });
+            }
+        } else {
+            res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server khi like sản phẩm', error: error.message });
+    }
+};
+
+// @desc    Create new review
+// @route   POST /api/products/:id/reviews
+// @access  Private
+const createProductReview = async (req, res) => {
+    try {
+        const { rating, comment } = req.body;
+        const product = await Product.findById(req.params.id);
+
+        if (product) {
+            const alreadyReviewed = product.reviews.find(
+                (r) => r.user.toString() === req.user._id.toString()
+            );
+
+            if (alreadyReviewed) {
+                alreadyReviewed.rating = Number(rating);
+                alreadyReviewed.comment = comment;
+                alreadyReviewed.name = req.user.name;
+            } else {
+                const review = {
+                    name: req.user.name,
+                    rating: Number(rating),
+                    comment,
+                    user: req.user._id
+                };
+                product.reviews.push(review);
+            }
+
+            product.numReviews = product.reviews.length;
+            product.rating =
+                product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+                product.reviews.length;
+
+            await product.save();
+            res.status(201).json({ message: 'Đã lưu đánh giá sản phẩm', product });
+        } else {
+            res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server khi đánh giá sản phẩm', error: error.message });
+    }
+};
+
 module.exports = {
     getProducts,
     searchProducts,
     getProductById,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    likeProduct,
+    createProductReview
 };
+

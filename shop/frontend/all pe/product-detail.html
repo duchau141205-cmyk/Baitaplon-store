@@ -153,6 +153,150 @@
                 font-size: 1.8rem;
             }
         }
+
+        /* Quick Actions & Reviews Styles */
+        .action-btn {
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: var(--primary-color) !important;
+            transform: translateY(-2px);
+        }
+        .action-btn.active {
+            border-color: #ff4757 !important;
+            background: rgba(255, 71, 87, 0.15) !important;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.3);
+        }
+
+        .reviews-section {
+            margin-top: 60px;
+            margin-bottom: 80px;
+            padding: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .reviews-list {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .review-card {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .review-user {
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-stars {
+            color: #ffb300;
+        }
+
+        .review-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .review-comment {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .review-form {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 8px;
+            font-size: 1.5rem;
+            margin: 15px 0;
+        }
+
+        .star-rating i {
+            color: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .star-rating i.hover,
+        .star-rating i.selected {
+            color: #ffb300;
+            text-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+        }
+
+        .review-textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px;
+            color: white;
+            font-family: inherit;
+            resize: none;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .review-textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: rgba(13, 17, 23, 0.95);
+            border: 1px solid var(--primary-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -190,6 +334,36 @@
             <div style="text-align: center; grid-column: 1/-1; padding: 100px;">Đang tải thông tin sản phẩm...</div>
         </div>
 
+        <!-- Product Reviews Section -->
+        <section class="reviews-section" id="reviews-section">
+            <div class="section-title" style="margin-bottom: 20px;">
+                <h2>Đánh giá từ khách hàng</h2>
+                <div class="underline"></div>
+            </div>
+            <div id="reviews-summary" style="display: flex; gap: 30px; align-items: center; background: rgba(255,255,255,0.01); border: 1px solid var(--glass-border); padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                <div style="text-align: center; border-right: 1px solid var(--glass-border); padding-right: 30px; min-width: 140px;">
+                    <h3 style="font-size: 3rem; font-weight: 800; color: var(--primary-color); margin-bottom: 5px;" id="avg-rating-big">0.0</h3>
+                    <div style="color: #ffb300; font-size: 1.2rem; margin-bottom: 5px;" id="avg-stars-big">
+                        <!-- Stars -->
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;" id="total-reviews-count">0 đánh giá</p>
+                </div>
+                <div>
+                    <h4 style="margin-bottom: 10px; color: white;">Chia sẻ ý kiến của bạn về sản phẩm này</h4>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Đánh giá của bạn giúp chúng tôi và những khách hàng khác có thêm thông tin chân thực nhất về chất lượng mô hình.</p>
+                </div>
+            </div>
+
+            <div class="reviews-list" id="reviews-list">
+                <!-- Dynamic reviews list -->
+            </div>
+
+            <!-- Review form -->
+            <div class="review-form" id="review-form-container">
+                <!-- Dynamic review form depending on auth status -->
+            </div>
+        </section>
+
         <!-- Related Products -->
         <section>
             <div class="section-title">
@@ -201,6 +375,10 @@
             </div>
         </section>
     </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
 
     <!-- Footer -->
     <footer>
@@ -254,10 +432,6 @@
                 <div class="contact-card glass fade-in" style="padding: 1.5rem; animation-delay: 0.4s;">
                     <i class="fas fa-envelope" style="font-size: 1.5rem;"></i>
                     <h3 style="font-size: 1rem;">Email</h3>
-                    <p style="font-size: 0.9rem;">Mohinhstore@gmail.com</p>
-                </div>
-            </div>
-
             <div class="footer-bottom">
                 <p>&copy; 2026 Mô Hình Store. All rights reserved. Designed with ❤️ by Antigravity.</p>
             </div>
@@ -267,6 +441,7 @@
     <script src="assets/js/shop-api.js"></script>
     <script>
         let currentProduct = null;
+        let selectedRating = 5;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -286,6 +461,7 @@
             if (product) {
                 currentProduct = product;
                 renderDetail(product);
+                renderReviews(product);
                 loadRelatedProducts(product.category._id || product.category);
             } else {
                 document.getElementById('product-detail').innerHTML = '<div style="text-align: center; grid-column: 1/-1; padding: 100px;">Không tìm thấy sản phẩm.</div>';
@@ -296,6 +472,9 @@
             const container = document.getElementById('product-detail');
             const discount = p.salePrice ? Math.round((1 - p.salePrice / p.price) * 100) : 0;
             const isOutOfStock = p.countInStock <= 0;
+
+            const userInfo = ShopAPI.getUserInfo();
+            const isLiked = userInfo && p.likes && p.likes.includes(userInfo.id || userInfo._id);
 
             container.innerHTML = `
                 <div class="product-gallery fade-in">
@@ -308,7 +487,7 @@
                     <p style="color: var(--primary-color); font-weight: 600; margin-bottom: 10px;">${p.category.name || 'Mô hình'}</p>
                     <h1 style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">${p.name} ${isOutOfStock ? '<span style="background: var(--danger-color); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Đã hết hàng</span>' : ''}</h1>
                     <div class="product-meta">
-                        <span><i class="fas fa-star"></i> 4.9 (120 đánh giá)</span>
+                        <span><i class="fas fa-star"></i> ${p.rating ? p.rating.toFixed(1) : '0.0'} (${p.numReviews || 0} đánh giá)</span>
                         <span><i class="fas fa-box"></i> <span style="${isOutOfStock ? 'color: var(--danger-color); font-weight: bold;' : 'color: var(--success-color);'}">${isOutOfStock ? 'Hết hàng' : `Còn ${p.countInStock} sản phẩm`}</span></span>
                         <span><i class="fas fa-shopping-cart"></i> Đã bán ${p.sold || 0}</span>
                     </div>
@@ -340,6 +519,21 @@
                         </button>
                     </div>
 
+                    <div class="quick-actions" style="display: flex; gap: 15px; margin-bottom: 30px;">
+                        <button id="like-btn" onclick="toggleLike()" class="btn action-btn glass ${isLiked ? 'active' : ''}" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.05); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+                            <i id="like-icon" class="${isLiked ? 'fas' : 'far'} fa-heart" style="color: #ff4757; transition: transform 0.2s;"></i>
+                            <span>Thích (<span id="likes-count">${p.likes ? p.likes.length : 0}</span>)</span>
+                        </button>
+                        <button onclick="shareProduct()" class="btn action-btn glass" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.05); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+                            <i class="fas fa-share-alt" style="color: var(--primary-color);"></i>
+                            <span>Chia sẻ</span>
+                        </button>
+                        <button onclick="scrollToReviews()" class="btn action-btn glass" style="flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.05); color: white; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+                            <i class="far fa-comment" style="color: #1e90ff;"></i>
+                            <span>Bình luận</span>
+                        </button>
+                    </div>
+
                     <div class="specs glass">
                         <table class="specs-table">
                             <tr>
@@ -358,6 +552,237 @@
                     </div>
                 </div>
             `;
+        }
+
+        function renderReviews(p) {
+            document.getElementById('avg-rating-big').innerText = p.rating ? p.rating.toFixed(1) : '0.0';
+            document.getElementById('total-reviews-count').innerText = `${p.numReviews || 0} đánh giá`;
+            
+            let starHtml = '';
+            const floorRating = Math.round(p.rating || 0);
+            for (let i = 1; i <= 5; i++) {
+                if (i <= floorRating) {
+                    starHtml += '<i class="fas fa-star"></i> ';
+                } else {
+                    starHtml += '<i class="far fa-star"></i> ';
+                }
+            }
+            document.getElementById('avg-stars-big').innerHTML = starHtml;
+
+            const listContainer = document.getElementById('reviews-list');
+            if (!p.reviews || p.reviews.length === 0) {
+                listContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 20px;">Sản phẩm chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!</div>';
+            } else {
+                listContainer.innerHTML = p.reviews.map(r => {
+                    let rStars = '';
+                    for (let i = 1; i <= 5; i++) {
+                        if (i <= r.rating) {
+                            rStars += '<i class="fas fa-star"></i>';
+                        } else {
+                            rStars += '<i class="far fa-star"></i>';
+                        }
+                    }
+                    const reviewDate = new Date(r.createdAt).toLocaleDateString('vi-VN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    return `
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="review-user">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary-color); display: flex; align-items: center; justify-content: center; font-weight: bold; color: black; font-size: 0.9rem;">
+                                        ${r.name ? r.name.substring(0, 1).toUpperCase() : 'U'}
+                                    </div>
+                                    <span>${r.name || 'Người dùng'}</span>
+                                </div>
+                                <div class="review-stars">
+                                    ${rStars}
+                                </div>
+                            </div>
+                            <div class="review-date">${reviewDate}</div>
+                            <div class="review-comment">${r.comment}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const formContainer = document.getElementById('review-form-container');
+            if (ShopAPI.isAuthenticated()) {
+                formContainer.innerHTML = `
+                    <h3 style="margin-bottom: 15px; color: white;">Viết đánh giá của bạn</h3>
+                    <div style="margin-bottom: 15px;">
+                        <span style="color: var(--text-muted);">Đánh giá của bạn:</span>
+                        <div class="star-rating" id="star-rating-select">
+                            <i class="fas fa-star selected" data-value="1"></i>
+                            <i class="fas fa-star selected" data-value="2"></i>
+                            <i class="fas fa-star selected" data-value="3"></i>
+                            <i class="fas fa-star selected" data-value="4"></i>
+                            <i class="fas fa-star selected" data-value="5"></i>
+                        </div>
+                    </div>
+                    <textarea id="review-comment-input" class="review-textarea" placeholder="Nhập nhận xét của bạn về sản phẩm này..."></textarea>
+                    <button class="btn btn-primary" onclick="submitReview()" style="padding: 10px 25px; border-radius: 8px;">
+                        Gửi đánh giá
+                    </button>
+                `;
+                setupStarEvents();
+            } else {
+                formContainer.innerHTML = `
+                    <div style="text-align: center; padding: 20px; border: 1px dashed var(--glass-border); border-radius: 12px; background: rgba(255,255,255,0.01);">
+                        <p style="margin-bottom: 15px; color: var(--text-muted);">Bạn cần đăng nhập để gửi đánh giá cho sản phẩm này.</p>
+                        <a href="login.html?redirect=product-detail.html?id=${p._id}" class="btn btn-primary" style="display: inline-block; padding: 8px 20px; border-radius: 8px;">
+                            Đăng nhập ngay
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        function setupStarEvents() {
+            const stars = document.querySelectorAll('#star-rating-select i');
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    const value = parseInt(e.target.getAttribute('data-value'));
+                    selectedRating = value;
+                    stars.forEach((s, idx) => {
+                        if (idx < value) {
+                            s.classList.add('selected');
+                        } else {
+                            s.classList.remove('selected');
+                        }
+                    });
+                });
+                star.addEventListener('mouseenter', (e) => {
+                    const value = parseInt(e.target.getAttribute('data-value'));
+                    stars.forEach((s, idx) => {
+                        if (idx < value) {
+                            s.classList.add('hover');
+                        } else {
+                            s.classList.remove('hover');
+                        }
+                    });
+                });
+                star.addEventListener('mouseleave', () => {
+                    stars.forEach(s => s.classList.remove('hover'));
+                });
+            });
+        }
+
+        async function toggleLike() {
+            if (!ShopAPI.isAuthenticated()) {
+                showToast('Vui lòng đăng nhập để thích sản phẩm!', 'warning');
+                return;
+            }
+            try {
+                const data = await ShopAPI.likeProduct(currentProduct._id);
+                if (data) {
+                    const likeBtn = document.getElementById('like-btn');
+                    const likeIcon = document.getElementById('like-icon');
+                    const likesCount = document.getElementById('likes-count');
+
+                    likesCount.innerText = data.likesCount;
+                    if (data.isLiked) {
+                        likeBtn.classList.add('active');
+                        likeIcon.className = 'fas fa-heart';
+                        likeIcon.style.transform = 'scale(1.3)';
+                        setTimeout(() => likeIcon.style.transform = 'scale(1)', 200);
+                        showToast('Đã thêm vào danh sách yêu thích!', 'success');
+                    } else {
+                        likeBtn.classList.remove('active');
+                        likeIcon.className = 'far fa-heart';
+                        showToast('Đã xóa khỏi danh sách yêu thích!', 'info');
+                    }
+                }
+            } catch (err) {
+                showToast(err.message || 'Lỗi khi thích sản phẩm', 'error');
+            }
+        }
+
+        function shareProduct() {
+            const shareUrl = window.location.href;
+            if (navigator.share) {
+                navigator.share({
+                    title: currentProduct.name,
+                    text: `Xem mô hình này cực chất tại Mô Hình Store: ${currentProduct.name}`,
+                    url: shareUrl
+                }).then(() => {
+                    showToast('Đã chia sẻ thành công!', 'success');
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                });
+            } else {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast('Đã sao chép liên kết sản phẩm!', 'success');
+                }).catch(err => {
+                    showToast('Không thể sao chép liên kết', 'error');
+                });
+            }
+        }
+
+        function scrollToReviews() {
+            document.getElementById('reviews-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function submitReview() {
+            const comment = document.getElementById('review-comment-input').value.trim();
+            if (!comment) {
+                showToast('Vui lòng nhập nội dung đánh giá!', 'warning');
+                return;
+            }
+
+            try {
+                const data = await ShopAPI.createProductReview(currentProduct._id, {
+                    rating: selectedRating,
+                    comment
+                });
+                if (data && data.product) {
+                    currentProduct = data.product;
+                    renderDetail(currentProduct);
+                    renderReviews(currentProduct);
+                    showToast('Gửi đánh giá thành công!', 'success');
+                }
+            } catch (err) {
+                showToast(err.message || 'Lỗi khi gửi đánh giá', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            let icon = 'fa-check-circle';
+            let color = 'var(--primary-color)';
+            if (type === 'warning') {
+                icon = 'fa-exclamation-triangle';
+                color = '#ffa502';
+            } else if (type === 'error') {
+                icon = 'fa-times-circle';
+                color = '#ff4757';
+            } else if (type === 'info') {
+                icon = 'fa-info-circle';
+                color = '#1e90ff';
+            }
+
+            toast.style.borderColor = color;
+            toast.innerHTML = `
+                <i class="fas ${icon}" style="color: ${color}; font-size: 1.2rem;"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 400);
+            }, 3000);
         }
 
         async function loadRelatedProducts(catId) {
@@ -393,7 +818,6 @@
             const input = document.getElementById('qty');
             let val = parseInt(input.value) + amt;
             if (val < 1) val = 1;
-            // Removed max constraint based on stock so users can wait for items
             input.value = val;
         }
 
