@@ -24,6 +24,7 @@ const adminProductRoutes = require('./routes/adminProductRoutes');
 const authRoutes = require('./routes/authRoutes');
 const consultationRoutes = require('./routes/consultationRoutes');
 const promotionRoutes = require('./routes/promotionRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ app.use('/api/admin/users', adminUserRoutes);
 app.use('/api/admin/reports', adminReportRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/promotions', promotionRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Serve uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

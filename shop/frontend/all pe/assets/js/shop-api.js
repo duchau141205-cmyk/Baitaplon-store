@@ -102,6 +102,18 @@ const ShopAPI = {
 
     createProductReview(id, reviewData) {
         return this.post(`/products/${id}/reviews`, reviewData, true);
+    },
+
+    getNotifications() {
+        return this.get('/notifications', true);
+    },
+
+    readNotification(id) {
+        return this.put(`/notifications/${id}/read`, null, true);
+    },
+
+    readAllNotifications() {
+        return this.put('/notifications/read-all', null, true);
     }
 };
 
@@ -315,6 +327,206 @@ document.addEventListener('DOMContentLoaded', () => {
             0%, 60%, 100% { transform: translateY(0); }
             30% { transform: translateY(-4px); }
         }
+
+        /* Notification Icon & Dropdown Styles */
+        .notification-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .notification-btn {
+            position: relative;
+            background: transparent;
+            border: none;
+            color: var(--text-color, #f0f3f6);
+            cursor: pointer;
+            padding: 5px;
+            transition: var(--transition, all 0.2s);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .notification-btn i {
+            font-size: 18px !important;
+        }
+        .notification-btn:hover i {
+            color: var(--primary-color, #00d4ff);
+        }
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--accent-color, #ff0080);
+            color: white;
+            font-size: 8px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .notification-badge.active {
+            display: flex;
+        }
+        .notification-dropdown {
+            position: absolute;
+            top: 45px;
+            right: -10px;
+            width: 320px;
+            max-height: 400px;
+            background: rgba(21, 27, 35, 0.95);
+            border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(10px) scale(0.95);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: top right;
+        }
+        .notification-dropdown.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        .notification-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notification-header h4 {
+            margin: 0;
+            font-size: 0.95rem;
+            color: white;
+            font-weight: 600;
+        }
+        .notification-mark-all {
+            background: transparent;
+            border: none;
+            color: var(--primary-color, #00d4ff);
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition, all 0.2s);
+        }
+        .notification-mark-all:hover {
+            color: #00b4db;
+            text-decoration: underline;
+        }
+        .notification-list {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        .notification-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+            transition: var(--transition, all 0.2s);
+            position: relative;
+        }
+        .notification-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .notification-item.unread {
+            background: rgba(0, 212, 255, 0.04);
+        }
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--primary-color, #00d4ff);
+            border-radius: 50%;
+        }
+        .notification-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .notification-icon.success {
+            background: rgba(46, 160, 67, 0.15);
+            color: var(--success-color, #2ea043);
+        }
+        .notification-icon.info {
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--primary-color, #00d4ff);
+        }
+        .notification-icon.danger {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger-color, #f85149);
+        }
+        .notification-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+        }
+        .notification-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-color, #f0f3f6);
+        }
+        .notification-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted, #8b949e);
+            line-height: 1.3;
+        }
+        .notification-time {
+            font-size: 0.7rem;
+            color: #555;
+            margin-top: 4px;
+        }
+        .notification-empty {
+            padding: 30px 16px;
+            text-align: center;
+            color: var(--text-muted, #8b949e);
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .notification-empty i {
+            font-size: 1.5rem;
+            color: #333;
+        }
+        .notification-footer {
+            padding: 10px 16px;
+            border-top: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+            text-align: center;
+            background: rgba(13, 17, 23, 0.5);
+        }
+        .notification-view-all {
+            color: var(--text-muted, #8b949e);
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: var(--transition, all 0.2s);
+        }
+        .notification-view-all:hover {
+            color: var(--primary-color, #00d4ff);
+        }
     `;
     document.head.appendChild(style);
 
@@ -366,6 +578,212 @@ document.addEventListener('DOMContentLoaded', () => {
     closeBtn.addEventListener('click', () => {
         chatWindow.classList.remove('active');
     });
+
+    // --- INJECT NOTIFICATION UI IF AUTHENTICATED ---
+    if (ShopAPI.isAuthenticated()) {
+        injectNotificationUI();
+    }
+
+    function injectNotificationUI() {
+        const navActions = document.querySelector('.nav-actions');
+        if (!navActions) return;
+
+        // Check if already injected
+        if (document.getElementById('header-notification-wrapper')) return;
+
+        // Create wrapper
+        const notifWrapper = document.createElement('div');
+        notifWrapper.className = 'notification-wrapper';
+        notifWrapper.id = 'header-notification-wrapper';
+        
+        notifWrapper.innerHTML = `
+            <button class="notification-btn" id="notif-toggle-btn" title="Thông báo">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notif-unread-count">0</span>
+            </button>
+            <div class="notification-dropdown" id="notif-dropdown-box">
+                <div class="notification-header">
+                    <h4>Thông báo</h4>
+                    <button class="notification-mark-all" id="notif-read-all-btn">Đọc tất cả</button>
+                </div>
+                <div class="notification-list" id="notif-list-container">
+                    <div class="notification-empty">
+                        <i class="fas fa-bell-slash"></i>
+                        <span>Không có thông báo nào</span>
+                    </div>
+                </div>
+                <div class="notification-footer">
+                    <a href="profile.html?tab=orders" class="notification-view-all">Xem lịch sử đơn hàng</a>
+                </div>
+            </div>
+        `;
+
+        // Insert before cart-icon if exists, or append
+        const cartIcon = navActions.querySelector('.cart-icon');
+        if (cartIcon) {
+            navActions.insertBefore(notifWrapper, cartIcon);
+        } else {
+            navActions.appendChild(notifWrapper);
+        }
+
+        const toggleBtn = document.getElementById('notif-toggle-btn');
+        const dropdown = document.getElementById('notif-dropdown-box');
+        const readAllBtn = document.getElementById('notif-read-all-btn');
+
+        // Toggle dropdown
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!notifWrapper.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        // Mark all as read
+        readAllBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            try {
+                await ShopAPI.readAllNotifications();
+                await fetchAndRenderNotifications();
+            } catch (err) {
+                console.error('Error marking all as read:', err);
+            }
+        });
+
+        // Helper function for relative time
+        function getRelativeTimeStr(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+            
+            if (diffMins < 1) return 'Vừa xong';
+            if (diffMins < 60) return `${diffMins} phút trước`;
+            if (diffHours < 24) return `${diffHours} giờ trước`;
+            
+            return date.toLocaleDateString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit'
+            });
+        }
+
+        // Fetch & render helper
+        async function fetchAndRenderNotifications() {
+            try {
+                const notifications = await ShopAPI.getNotifications();
+                if (!notifications) return;
+
+                const badge = document.getElementById('notif-unread-count');
+                const container = document.getElementById('notif-list-container');
+                
+                // Calculate unread count
+                const unreadCount = notifications.filter(n => !n.isRead).length;
+                if (unreadCount > 0) {
+                    badge.innerText = unreadCount;
+                    badge.classList.add('active');
+                } else {
+                    badge.classList.remove('active');
+                }
+
+                if (notifications.length === 0) {
+                    container.innerHTML = `
+                        <div class="notification-empty">
+                            <i class="fas fa-bell-slash"></i>
+                            <span>Không có thông báo nào</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = notifications.map(notif => {
+                    let iconClass = 'info';
+                    let iconHtml = '<i class="fas fa-info-circle"></i>';
+                    
+                    if (notif.type === 'OrderPlaced') {
+                        iconClass = 'success';
+                        iconHtml = '<i class="fas fa-shopping-bag"></i>';
+                    } else if (notif.type === 'OrderCancelled') {
+                        iconClass = 'danger';
+                        iconHtml = '<i class="fas fa-times-circle"></i>';
+                    } else if (notif.type === 'OrderStatusChanged') {
+                        if (notif.title.includes('giao thành công') || notif.title.includes('Delivered')) {
+                            iconClass = 'success';
+                            iconHtml = '<i class="fas fa-check-circle"></i>';
+                        } else if (notif.message.includes('vận chuyển') || notif.message.includes('Shipping')) {
+                            iconClass = 'info';
+                            iconHtml = '<i class="fas fa-truck"></i>';
+                        } else if (notif.message.includes('xác nhận') || notif.message.includes('Confirmed')) {
+                            iconClass = 'info';
+                            iconHtml = '<i class="fas fa-clipboard-check"></i>';
+                        } else if (notif.message.includes('hủy') || notif.message.includes('Cancelled')) {
+                            iconClass = 'danger';
+                            iconHtml = '<i class="fas fa-times-circle"></i>';
+                        }
+                    }
+
+                    const relativeTime = getRelativeTimeStr(notif.createdAt);
+
+                    return `
+                        <div class="notification-item ${notif.isRead ? '' : 'unread'}" data-id="${notif._id}" data-related="${notif.relatedId || ''}">
+                            <div class="notification-icon ${iconClass}">
+                                ${iconHtml}
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">${notif.title}</div>
+                                <div class="notification-desc">${notif.message}</div>
+                                <div class="notification-time">${relativeTime}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add click handlers for notification items
+                const items = container.querySelectorAll('.notification-item');
+                items.forEach(item => {
+                    item.addEventListener('click', async () => {
+                        const notifId = item.getAttribute('data-id');
+                        const relatedId = item.getAttribute('data-related');
+                        
+                        try {
+                            await ShopAPI.readNotification(notifId);
+                        } catch (err) {
+                            console.error('Error marking notification as read:', err);
+                        }
+
+                        // Direct to order page
+                        if (relatedId) {
+                            if (window.location.pathname.includes('profile.html')) {
+                                const url = new URL(window.location.href);
+                                url.searchParams.set('tab', 'orders');
+                                url.searchParams.set('orderId', relatedId);
+                                window.location.href = url.toString();
+                            } else {
+                                window.location.href = `profile.html?tab=orders&orderId=${relatedId}`;
+                            }
+                        } else {
+                            window.location.href = 'profile.html?tab=orders';
+                        }
+                    });
+                });
+
+            } catch (err) {
+                console.error('Error fetching notifications:', err);
+            }
+        }
+
+        // Initial fetch
+        fetchAndRenderNotifications();
+
+        // Poll every 10 seconds
+        setInterval(fetchAndRenderNotifications, 10000);
+    }
 });
 
 // Send Message logic from widget

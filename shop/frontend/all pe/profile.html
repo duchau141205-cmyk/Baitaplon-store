@@ -700,12 +700,18 @@
                 }
             }
 
-            loadOrders();
+            await loadOrders();
             updateCartCount();
 
             const urlParams = new URLSearchParams(window.location.search);
             const tab = urlParams.get('tab');
-            if (tab) switchTab(tab);
+            if (tab) {
+                switchTab(tab);
+                const orderId = urlParams.get('orderId');
+                if (orderId && tab === 'orders') {
+                    viewOrderDetails(orderId);
+                }
+            }
 
             // Listen for cancel reason radio button change events
             document.querySelectorAll('input[name="cancel-reason"]').forEach(radio => {

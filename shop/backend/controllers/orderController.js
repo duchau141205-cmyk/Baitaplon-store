@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const User = require('../models/User');
+const { createNotificationHelper } = require('./notificationController');
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -120,6 +121,15 @@ const addOrderItems = async (req, res) => {
             }
         }
 
+        // Tạo thông báo đặt hàng thành công
+        await createNotificationHelper(
+            req.user._id,
+            'Đặt hàng thành công',
+            `Đơn hàng của bạn đã được đặt thành công! Mã đơn: #${createdOrder._id}`,
+            'OrderPlaced',
+            createdOrder._id
+        );
+
         res.status(201).json(createdOrder);
     }
 };
@@ -184,6 +194,16 @@ const updateOrderToDelivered = async (req, res) => {
         order.status = 'Delivered';
 
         const updatedOrder = await order.save();
+
+        // Tạo thông báo giao hàng thành công
+        await createNotificationHelper(
+            order.user,
+            'Đơn hàng giao thành công',
+            `Cảm ơn bạn! Đơn hàng #${order._id} đã được giao thành công.`,
+            'OrderStatusChanged',
+            order._id
+        );
+
         res.json(updatedOrder);
     } else {
         res.status(404).json({ message: 'Order not found' });
@@ -237,6 +257,24 @@ const updateOrderStatus = async (req, res) => {
             order.deliveredAt = Date.now();
         }
         const updatedOrder = await order.save();
+
+        if (status !== oldStatus) {
+            let statusText = status;
+            if (status === 'Pending') statusText = 'chờ xử lý';
+            else if (status === 'Confirmed') statusText = 'được xác nhận';
+            else if (status === 'Shipping') statusText = 'vận chuyển';
+            else if (status === 'Delivered') statusText = 'giao thành công';
+            else if (status === 'Cancelled') statusText = 'hủy';
+
+            await createNotificationHelper(
+                order.user,
+                'Cập nhật trạng thái đơn hàng',
+                `Đơn hàng #${order._id} của bạn đã được ${statusText}.`,
+                'OrderStatusChanged',
+                order._id
+            );
+        }
+
         res.json(updatedOrder);
     } else {
         res.status(404).json({ message: 'Order not found' });
@@ -367,6 +405,16 @@ const cancelOrder = async (req, res) => {
         }
 
         const updatedOrder = await order.save();
+
+        // Tạo thông báo hủy đơn hàng thành công
+        await createNotificationHelper(
+            req.user._id,
+            'Hủy đơn hàng thành công',
+            `Bạn đã hủy thành công đơn hàng #${order._id}.`,
+            'OrderCancelled',
+            order._id
+        );
+
         res.json(updatedOrder);
     } catch (error) {
         console.error('Lỗi khi hủy đơn hàng:', error);
