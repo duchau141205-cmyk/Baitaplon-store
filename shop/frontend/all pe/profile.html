@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -522,6 +522,10 @@
                 <!-- Timeline populated via JS -->
             </div>
 
+            <div id="modal-cancel-reason-row" style="display: none; margin-top: -10px; margin-bottom: 20px; color: #dc3545; font-style: italic; font-size: 0.9rem; text-align: left; background: rgba(220,53,69,0.08); padding: 10px 15px; border-radius: 8px; border: 1px solid rgba(220,53,69,0.2);">
+                <strong>Lý do hủy đơn:</strong> <span id="modal-cancel-reason"></span>
+            </div>
+
             <div class="glass" style="padding: 20px; border-radius: 12px; margin-bottom: 20px;">
                 <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--primary-color);"><i class="fas fa-map-marker-alt"></i>
                     Thông tin giao hàng</h3>
@@ -549,6 +553,41 @@
                 </div>
                 <h3 style="font-size: 1.3rem; margin-top: 5px;">Tổng cộng: <span id="modal-total-price"
                         style="color: var(--primary-color);"></span></h3>
+            </div>
+
+            <div id="modal-actions-row" style="margin-top: 20px; text-align: right; border-top: 1px solid var(--glass-border); padding-top: 15px; display: none;">
+                <button class="btn btn-danger" id="btn-cancel-order" onclick="showCancelReasonSection()" style="background: #dc3545; border: none; padding: 10px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Hủy đơn hàng</button>
+            </div>
+
+            <div id="cancel-reason-section" style="display: none; border-top: 1px solid var(--glass-border); padding-top: 15px; margin-top: 15px;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: #dc3545; text-align: left;"><i class="fas fa-times-circle"></i> Chọn lý do hủy đơn hàng</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px; text-align: left; margin-bottom: 15px; color: #ddd;">
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="cancel-reason" value="Muốn thay đổi địa chỉ nhận hàng" checked>
+                        <span>Muốn thay đổi địa chỉ nhận hàng</span>
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="cancel-reason" value="Muốn thay đổi sản phẩm/số lượng">
+                        <span>Muốn thay đổi sản phẩm/số lượng</span>
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="cancel-reason" value="Tìm thấy giá tốt hơn ở nơi khác">
+                        <span>Tìm thấy giá tốt hơn ở nơi khác</span>
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="cancel-reason" value="Không còn nhu cầu mua nữa">
+                        <span>Không còn nhu cầu mua nữa</span>
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="cancel-reason" value="other">
+                        <span>Lý do khác (vui lòng nhập bên dưới):</span>
+                    </label>
+                    <textarea id="cancel-reason-other-text" placeholder="Nhập lý do hủy của bạn..." rows="2" style="display: none; width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; padding: 10px; border-radius: 8px; resize: none; margin-top: 5px; outline: none; font-family: inherit;" onfocus="this.style.borderColor='#dc3545'"></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="hideCancelReasonSection()" style="padding: 8px 16px; border-radius: 8px; border: 1px solid var(--glass-border); background: transparent; color: #ccc; cursor: pointer;">Quay lại</button>
+                    <button class="btn btn-danger" id="btn-confirm-cancel" onclick="submitCancelOrder()" style="padding: 8px 20px; border-radius: 8px; background: #dc3545; border: none; color: #fff; font-weight: 600; cursor: pointer;">Xác nhận hủy</button>
+                </div>
             </div>
         </div>
     </div>
@@ -667,6 +706,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const tab = urlParams.get('tab');
             if (tab) switchTab(tab);
+
+            // Listen for cancel reason radio button change events
+            document.querySelectorAll('input[name="cancel-reason"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const textarea = document.getElementById('cancel-reason-other-text');
+                    if (e.target.value === 'other') {
+                        textarea.style.display = 'block';
+                        textarea.focus();
+                    } else {
+                        textarea.style.display = 'none';
+                    }
+                });
+            });
         });
 
         let allOrders = [];
@@ -781,6 +833,14 @@
             const order = allOrders.find(o => o._id === orderId);
             if (!order) return;
 
+            // Reset cancel panel
+            document.getElementById('cancel-reason-section').style.display = 'none';
+            document.getElementById('modal-actions-row').style.display = 'none';
+            document.getElementById('cancel-reason-other-text').style.display = 'none';
+            document.getElementById('cancel-reason-other-text').value = '';
+            const radios = document.getElementsByName('cancel-reason');
+            if (radios.length > 0) radios[0].checked = true;
+
             const date = new Date(order.createdAt);
             const h = date.getHours().toString().padStart(2, '0');
             const m = date.getMinutes().toString().padStart(2, '0');
@@ -840,6 +900,16 @@
             const isCancelled = order.status === 'Cancelled';
             let stepsHTML = '';
 
+            // Handle cancellation reason display
+            const cancelReasonRow = document.getElementById('modal-cancel-reason-row');
+            const cancelReasonSpan = document.getElementById('modal-cancel-reason');
+            if (isCancelled && order.cancelReason) {
+                cancelReasonSpan.innerText = order.cancelReason;
+                cancelReasonRow.style.display = 'block';
+            } else {
+                cancelReasonRow.style.display = 'none';
+            }
+
             if (isCancelled) {
                 stepsHTML = `
                     <div class="tracking-step active" style="color: #dc3545;">
@@ -869,8 +939,79 @@
 
             document.getElementById('modal-timeline').innerHTML = stepsHTML;
 
+            // Show cancel actions if order is Pending
+            if (order.status === 'Pending') {
+                document.getElementById('modal-actions-row').style.display = 'block';
+                window.currentViewingOrderId = orderId;
+            } else {
+                document.getElementById('modal-actions-row').style.display = 'none';
+            }
+
             // Show modal
             document.getElementById('order-modal').classList.add('active');
+        }
+
+        function showCancelReasonSection() {
+            document.getElementById('modal-actions-row').style.display = 'none';
+            document.getElementById('cancel-reason-section').style.display = 'block';
+        }
+
+        function hideCancelReasonSection() {
+            document.getElementById('cancel-reason-section').style.display = 'none';
+            document.getElementById('modal-actions-row').style.display = 'block';
+        }
+
+        async function submitCancelOrder() {
+            const orderId = window.currentViewingOrderId;
+            if (!orderId) return;
+
+            let selectedReason = '';
+            const radios = document.getElementsByName('cancel-reason');
+            for (const r of radios) {
+                if (r.checked) {
+                    selectedReason = r.value;
+                    break;
+                }
+            }
+
+            if (selectedReason === 'other') {
+                const otherText = document.getElementById('cancel-reason-other-text').value.trim();
+                if (!otherText) {
+                    showToast('Vui lòng nhập lý do hủy đơn hàng của bạn!', 'error');
+                    return;
+                }
+                selectedReason = otherText;
+            }
+
+            const btnConfirm = document.getElementById('btn-confirm-cancel');
+            const originalBtnHTML = btnConfirm.innerHTML;
+            btnConfirm.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+            btnConfirm.disabled = true;
+
+            try {
+                await ShopAPI.put(`/orders/${orderId}/cancel`, { reason: selectedReason }, true);
+                showToast('Hủy đơn hàng thành công!', 'success');
+                
+                // Hide modal
+                document.getElementById('order-modal').classList.remove('active');
+                
+                // Reload profile data (like point deduction updates)
+                try {
+                    const user = await ShopAPI.get('/auth/me', true);
+                    if (user) {
+                        populateUserUI(user);
+                        localStorage.setItem('user_info', JSON.stringify(user));
+                    }
+                } catch (e) {}
+
+                // Reload order list
+                loadOrders();
+            } catch (error) {
+                showToast(error.message || 'Không thể hủy đơn hàng!', 'error');
+            } finally {
+                btnConfirm.innerHTML = originalBtnHTML;
+                btnConfirm.disabled = false;
+            }
         }
 
         // formatCurrency is defined above at line 638 — removed duplicate

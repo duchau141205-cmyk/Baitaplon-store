@@ -318,6 +318,9 @@
                         <p><strong>Phương thức:</strong> <span id="m-payment-method" class="badge badge-primary"></span></p>
                         <select id="m-status-select" class="form-control" style="margin-bottom: 0.5rem; margin-top: 0.5rem;"></select>
                         <button class="btn btn-primary btn-sm" onclick="updateStatus()">Cập nhật trạng thái</button>
+                        <p id="m-cancel-reason-row" style="display: none; margin-top: 10px; color: var(--danger-color);">
+                            <strong>Lý do hủy:</strong> <span id="m-cancel-reason" style="font-weight: 600;"></span>
+                        </p>
                     </div>
                 </div>
 
@@ -597,6 +600,16 @@
             }
             
             document.getElementById('m-total-price').innerText = AdminUtils.formatCurrency(order.totalPrice);
+
+            // Set up cancel reason row
+            const cancelRow = document.getElementById('m-cancel-reason-row');
+            const cancelSpan = document.getElementById('m-cancel-reason');
+            if (order.status === 'Cancelled' && order.cancelReason) {
+                if (cancelSpan) cancelSpan.innerText = order.cancelReason;
+                if (cancelRow) cancelRow.style.display = 'block';
+            } else {
+                if (cancelRow) cancelRow.style.display = 'none';
+            }
 
             const statusSelect = document.getElementById('m-status-select');
             const statuses = [

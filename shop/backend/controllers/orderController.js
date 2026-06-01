@@ -199,6 +199,37 @@ const updateOrderStatus = async (req, res) => {
 
     if (order) {
         const oldStatus = order.status;
+
+        // If status changed to Cancelled, and it wasn't already Cancelled
+        if (status === 'Cancelled' && oldStatus !== 'Cancelled') {
+            // Restore stock
+            const Product = require('../models/Product');
+            for (const item of order.orderItems) {
+                const product = await Product.findById(item.product);
+                if (product) {
+                    product.countInStock += item.qty;
+                    product.sold = Math.max(0, (product.sold || 0) - item.qty);
+                    await product.save();
+                }
+            }
+
+            // Deduct points from user
+            const pointsEarned = Math.floor(order.totalPrice / 10000);
+            if (pointsEarned > 0 && order.user) {
+                const user = await User.findById(order.user);
+                if (user) {
+                    user.points = Math.max(0, (user.points || 0) - pointsEarned);
+                    // Recalculate rank
+                    if (user.points >= 10000) user.rank = 'Diamond';
+                    else if (user.points >= 5000) user.rank = 'Platinum';
+                    else if (user.points >= 2000) user.rank = 'Gold';
+                    else if (user.points >= 500) user.rank = 'Silver';
+                    else user.rank = 'Bronze';
+                    await user.save();
+                }
+            }
+        }
+
         order.status = status;
         
         if (status === 'Delivered') {
@@ -279,6 +310,70 @@ const updateOrderCustomer = async (req, res) => {
     }
 };
 
+// @desc    Cancel order by customer
+// @route   PUT /api/orders/:id/cancel
+// @access  Private
+const cancelOrder = async (req, res) => {
+    const { reason } = req.body;
+
+    try {
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+        }
+
+        // Verify user owns the order
+        if (order.user.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: 'Không có quyền hủy đơn hàng này' });
+        }
+
+        // Only allow cancel if status is 'Pending'
+        if (order.status !== 'Pending') {
+            return res.status(400).json({ message: 'Chỉ đơn hàng ở trạng thái "Chờ xử lý" mới có thể hủy' });
+        }
+
+        order.status = 'Cancelled';
+        order.cancelReason = reason || 'Không có lý do cụ thể';
+
+        // Restore stock
+        const Product = require('../models/Product');
+        for (const item of order.orderItems) {
+            const product = await Product.findById(item.product);
+            if (product) {
+                product.countInStock += item.qty;
+                product.sold = Math.max(0, (product.sold || 0) - item.qty);
+                await product.save();
+            }
+        }
+
+        // Deduct points
+        const User = require('../models/User');
+        const user = await User.findById(req.user._id);
+        if (user) {
+            const pointsEarned = Math.floor(order.totalPrice / 10000);
+            if (pointsEarned > 0) {
+                user.points = Math.max(0, (user.points || 0) - pointsEarned);
+                
+                // Recalculate rank
+                if (user.points >= 10000) user.rank = 'Diamond';
+                else if (user.points >= 5000) user.rank = 'Platinum';
+                else if (user.points >= 2000) user.rank = 'Gold';
+                else if (user.points >= 500) user.rank = 'Silver';
+                else user.rank = 'Bronze';
+                
+                await user.save();
+            }
+        }
+
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+    } catch (error) {
+        console.error('Lỗi khi hủy đơn hàng:', error);
+        res.status(500).json({ message: 'Lỗi hệ thống khi hủy đơn hàng', error: error.message });
+    }
+};
+
 module.exports = {
     addOrderItems,
     getOrderById,
@@ -288,5 +383,6 @@ module.exports = {
     updateOrderStatus,
     deleteOrder,
     updateOrderItems,
-    updateOrderCustomer
+    updateOrderCustomer,
+    cancelOrder
 };
