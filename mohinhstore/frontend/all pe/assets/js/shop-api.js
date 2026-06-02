@@ -964,61 +964,24 @@ async function sendWidgetMessage() {
 
 // Local dynamic AI answering mimicking server logic (with dynamic product search!)
 async function getWidgetAiReply(userQuery) {
-    const query = userQuery.toLowerCase().trim();
-
-    // 1. Check greeting
-    if (query.match(/\b(chào|hello|hi|alo|chao|kính chào|kinh chao)\b/)) {
-        return "Xin chào! Tôi là Trợ lý AI của Mô Hình Store. Tôi có thể giúp gì cho bạn hôm nay? Bạn có thể hỏi tôi về các mẫu mô hình, chương trình khuyến mãi, địa chỉ cửa hàng hoặc chính sách giao hàng nhé!";
+    try {
+        const response = await fetch(`${BASE_URL}/ai/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: userQuery })
+        });
+        const data = await response.json();
+        if (response.ok && data.response) {
+            return data.response;
+        } else {
+            throw new Error(data.message || 'Có lỗi khi kết nối máy chủ AI');
+        }
+    } catch (e) {
+        console.error('Lỗi khi gọi AI Chatbox API:', e);
+        return "Xin lỗi, hiện tại hệ thống Trợ lý AI đang gặp sự cố kết nối. Bạn vui lòng thử lại sau hoặc liên hệ Hotline **0564821121** để được hỗ trợ nhanh nhất nhé!";
     }
-
-    // 2. Gundam products
-    if (query.includes('gundam') || query.includes('gunpla') || query.includes('robot')) {
-        try {
-            const response = await fetch('/api/products?keyword=gundam&limit=3');
-            const data = await response.json();
-            if (data && data.products && data.products.length > 0) {
-                const list = data.products.map(p => `- ${p.name} (${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.salePrice || p.price)})`).join('\n');
-                return `Dạ, Mô Hình Store đang sẵn hàng các dòng mô hình Gundam cao cấp và bán rất chạy:\n${list}\n\nBạn có muốn tôi tư vấn chi tiết hơn về mẫu nào không ạ?`;
-            }
-        } catch(e) {}
-        return "Mô Hình Store có sẵn nhiều mô hình Gundam chính hãng Bandai Nhật Bản các tỉ lệ HG, RG, MG. Bạn đang tìm mẫu Gundam cụ thể nào?";
-    }
-
-    // 3. Cars / vehicles
-    if (query.includes('xe') || query.includes('oto') || query.includes('lamborghini') || query.includes('ferrari') || query.includes('car') || query.includes('siêu xe')) {
-        try {
-            const response = await fetch('/api/products?keyword=car&limit=3');
-            const data = await response.json();
-            if (data && data.products && data.products.length > 0) {
-                const list = data.products.map(p => `- ${p.name} (${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.salePrice || p.price)})`).join('\n');
-                return `Dạ, shop đang có sẵn các mẫu mô hình siêu xe tỉ lệ cao cấp vô cùng sắc nét:\n${list}\n\nBạn quan tâm đến dòng xe đua hay xe dân dụng ạ?`;
-            }
-        } catch(e) {}
-        return "Mô Hình Store chuyên các siêu xe mô hình tĩnh kim loại tỉ lệ 1:24, 1:18 từ các hãng nổi tiếng Bburago, Maisto, Rastar. Bạn muốn tìm thương hiệu hoặc mẫu cụ thể nào?";
-    }
-
-    // 4. Promos
-    if (query.includes('khuyến mãi') || query.includes('khuyen mai') || query.includes('giảm giá') || query.includes('giam gia') || query.includes('voucher') || query.includes('code') || query.includes('mã')) {
-        return "Hiện tại Mô Hình Store đang áp dụng các ưu đãi:\n- Mã **NEWBIE**: Giảm 20% tối đa 100k cho thành viên mới.\n- Mã **FREESHIP50K**: Hỗ trợ 50k phí ship cho đơn từ 300k.\n- Mã **MOHINHVIP**: Giảm 15% cho đơn từ 1.000.000đ.\n\nHãy nhập các mã này ở giỏ hàng khi thanh toán nhé!";
-    }
-
-    // 5. Shipping
-    if (query.includes('ship') || query.includes('vận chuyển') || query.includes('giao hàng') || query.includes('giao hang') || query.includes('bao lâu')) {
-        return "Thời gian giao hàng toàn quốc của shop:\n- Nội thành Hà Nội: 1-2 ngày.\n- Các tỉnh khác: 3-5 ngày.\nMiễn phí vận chuyển (tối đa 50k) cho đơn từ 300k khi dùng mã FREESHIP50K.";
-    }
-
-    // 6. Address
-    if (query.includes('địa chỉ') || query.includes('dia chi') || query.includes('ở đâu') || query.includes('cửa hàng') || query.includes('cua hang') || query.includes('shop ở')) {
-        return "Showroom của Mô Hình Store đặt tại số **31 Dịch Vọng Hậu, Cầu Giấy, Hà Nội**.\nShowroom mở cửa từ 8:00 đến 22:00 hàng ngày, rất hân hạnh được đón tiếp bạn!";
-    }
-
-    // 7. Contact / support
-    if (query.includes('liên hệ') || query.includes('sđt') || query.includes('hotline') || query.includes('email') || query.includes('nhân viên')) {
-        return "Để liên hệ trực tiếp với đội ngũ tư vấn của shop:\n- Hotline hỗ trợ: **0564821121**\n- Email hỗ trợ: **Mohinhstore@gmail.com**\nBạn có thể nhắn tin trực tiếp ở đây, nhân viên trực tổng đài sẽ hỗ trợ bạn ngay khi có thể!";
-    }
-
-    // 8. Generic fallback
-    return "Cảm ơn câu hỏi của bạn. Tôi là Trợ lý AI của Mô Hình Store. Hiện tại tôi có thể cung cấp thông tin sản phẩm, mã giảm giá và địa chỉ showroom. Nếu cần gặp nhân viên tư vấn trực tiếp, bạn vui lòng gọi hotline **0564821121** nhé!";
 }
 
 

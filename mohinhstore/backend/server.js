@@ -25,8 +25,9 @@ const authRoutes = require('./routes/authRoutes');
 const consultationRoutes = require('./routes/consultationRoutes');
 const promotionRoutes = require('./routes/promotionRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
-dotenv.config();
+dotenv.config({ override: true });
 
 connectDB();
 
@@ -71,6 +72,7 @@ app.use('/api/admin/reports', adminReportRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Serve uploads folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

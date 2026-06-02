@@ -144,14 +144,16 @@ async function syncChanges() {
         return;
     }
 
-    // 4. Push to origin master
-    log('Đang đẩy dữ liệu lên GitHub (push origin master)...');
+    // 4. Push to origin master (Temporarily disabled for safe localhost testing)
+    log('[Localhost Mode] Đang chạy thử nghiệm - Bỏ qua bước git push origin master.');
+    /*
     const pushRes = await runCmd(`"${gitExe}" push origin master`);
     if (pushRes.success) {
         log('ĐỒNG BỘ THÀNH CÔNG! Website online đang được Render tự động deploy.');
     } else {
         log(`[LỖI] Không thể push lên GitHub: ${pushRes.stderr}`);
     }
+    */
 }
 
 // Watch directory
