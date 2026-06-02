@@ -250,7 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 goHomeBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    // Clear tokens and redirect
+                    // Clear tokens, set from_admin preview flag and redirect
+                    sessionStorage.setItem('from_admin', 'true');
                     localStorage.removeItem('adminToken');
                     localStorage.removeItem('adminInfo');
                     localStorage.removeItem('user_token');

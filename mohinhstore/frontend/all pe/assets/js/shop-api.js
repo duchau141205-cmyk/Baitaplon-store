@@ -141,6 +141,111 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Check if redirected from Admin preview mode
+    if (sessionStorage.getItem('from_admin') === 'true') {
+        injectAdminBackButton();
+    }
+
+    function injectAdminBackButton() {
+        if (document.getElementById('admin-back-preview-widget')) return;
+
+        // Inject CSS for the back button
+        const backBtnStyle = document.createElement('style');
+        backBtnStyle.innerHTML = `
+            .admin-back-widget {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                z-index: 9999;
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                animation: slideUpIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .admin-back-btn {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: linear-gradient(135deg, #ff0080, #7928ca);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 30px;
+                font-weight: 700;
+                font-size: 0.88rem;
+                box-shadow: 0 4px 20px rgba(121, 40, 202, 0.4), 0 0 0 1px rgba(255,255,255,0.1) inset;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                text-decoration: none;
+            }
+            .admin-back-btn:hover {
+                transform: translateY(-3px) scale(1.05);
+                box-shadow: 0 8px 25px rgba(121, 40, 202, 0.6), 0 0 0 1px rgba(255,255,255,0.2) inset;
+            }
+            .admin-back-btn i {
+                font-size: 0.95rem;
+                transition: transform 0.2s;
+            }
+            .admin-back-btn:hover i {
+                transform: translateX(-3px);
+            }
+            .admin-back-close {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #151b23;
+                border: 1px solid rgba(255,255,255,0.15);
+                color: #aaa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.7rem;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .admin-back-close:hover {
+                background: #ff4d4d;
+                color: white;
+                border-color: #ff4d4d;
+            }
+            @keyframes slideUpIn {
+                from { transform: translateY(50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(backBtnStyle);
+
+        // Inject HTML
+        const widget = document.createElement('div');
+        widget.className = 'admin-back-widget';
+        widget.id = 'admin-back-preview-widget';
+        widget.innerHTML = `
+            <a href="admin/login.html" class="admin-back-btn" id="admin-back-action-btn">
+                <i class="fas fa-arrow-left"></i> Quay lại Admin
+            </a>
+            <button class="admin-back-close" id="admin-back-close-btn" title="Tắt chế độ xem trước">&times;</button>
+        `;
+        document.body.appendChild(widget);
+
+        // Click handler to clear flag and go to admin login
+        const actionBtn = document.getElementById('admin-back-action-btn');
+        actionBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            sessionStorage.removeItem('from_admin');
+            window.location.href = 'admin/login.html';
+        });
+
+        // Click handler to just hide the widget
+        const closeBtn = document.getElementById('admin-back-close-btn');
+        closeBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('from_admin');
+            widget.style.opacity = '0';
+            widget.style.transform = 'translateY(20px)';
+            widget.style.transition = 'all 0.3s ease';
+            setTimeout(() => widget.remove(), 300);
+        });
+    }
+
     // 1. Inject CSS Styles
     const style = document.createElement('style');
     style.innerHTML = `
