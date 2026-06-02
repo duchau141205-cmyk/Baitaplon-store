@@ -185,16 +185,16 @@
                         </span>
                     </td>
                     <td>
-                        ${u.role !== 'admin' ? `
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn btn-sm btn-primary" onclick="openEditModal('${u._id}')" title="Chỉnh sửa & Mật khẩu">
-                                    <i class="fas fa-edit"></i> Sửa
-                                </button>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn btn-sm btn-primary" onclick="openEditModal('${u._id}')" title="Chỉnh sửa & Mật khẩu">
+                                <i class="fas fa-edit"></i> Sửa
+                            </button>
+                            ${u.email !== 'admin@mohinh.com' ? `
                                 <button class="btn btn-sm ${u.isActive ? 'btn-danger' : 'btn-secondary'}" onclick="toggleUserStatus('${u._id}', ${u.isActive})" title="${u.isActive ? 'Khóa tài khoản' : 'Mở khóa'}">
                                     <i class="fas ${u.isActive ? 'fa-lock' : 'fa-lock-open'}"></i>
                                 </button>
-                            </div>
-                        ` : '<small>Admin hệ thống</small>'}
+                            ` : ''}
+                        </div>
                     </td>
                 </tr>
             `}).join('');

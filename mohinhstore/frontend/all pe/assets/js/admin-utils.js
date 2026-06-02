@@ -121,6 +121,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
+        } else if (adminInfo && adminInfo.role === 'admin') {
+            // Sidebar Navigation shortcuts for admin between admin and staff portals
+            const sidebarMenu = document.querySelector('.sidebar-menu');
+            if (sidebarMenu) {
+                if (window.location.pathname.includes('staff.html')) {
+                    // On staff.html, add a link to index.html (Admin Dashboard)
+                    const adminLink = document.createElement('a');
+                    adminLink.href = 'index.html';
+                    adminLink.style.cssText = 'display: flex; align-items: center; gap: 15px; padding: 15px 25px; color: #aaa; text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; border-left: 4px solid transparent;';
+                    adminLink.innerHTML = '<i class="fas fa-chart-line" style="color: #00d4ff; width: 20px; text-align: center; font-size: 0.95rem;"></i> Trang Quản trị';
+                    adminLink.addEventListener('mouseover', () => {
+                        adminLink.style.color = 'white';
+                        adminLink.style.background = 'rgba(255, 255, 255, 0.05)';
+                    });
+                    adminLink.addEventListener('mouseout', () => {
+                        adminLink.style.color = '#aaa';
+                        adminLink.style.background = 'none';
+                    });
+                    sidebarMenu.appendChild(adminLink);
+                } else {
+                    // On admin pages, add a link to staff.html (Staff Portal)
+                    const staffLink = document.createElement('a');
+                    staffLink.href = 'staff.html';
+                    staffLink.innerHTML = '<i class="fas fa-user-tie" style="color: #ffc107;"></i> Cổng Nhân viên';
+                    sidebarMenu.appendChild(staffLink);
+                }
+            }
         }
 
         // Profile Dropdown Menu Injection

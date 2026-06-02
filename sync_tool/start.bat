@@ -27,7 +27,7 @@ echo.
 
 :: 3. Khoi dong Backend Server
 echo [3/3] Dang chuan bi khoi dong Backend Server...
-cd /d "%~dp0..\shop\backend"
+cd /d "%~dp0..\mohinhstore\backend"
 if not exist node_modules (
     echo Khong tim thay node_modules, dang tu dong cai dat thu vien...
     npm install
