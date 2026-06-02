@@ -2,8 +2,8 @@
  * ADMIN UTILITIES 
  */
 
-// Check sidebar state immediately on script load to prevent layout shift
-if (localStorage.getItem('sidebar_collapsed') === 'true') {
+// Check sidebar state immediately on script load to prevent layout shift (skip on staff.html)
+if (localStorage.getItem('sidebar_collapsed') === 'true' && !window.location.pathname.includes('staff.html')) {
     if (document.body) {
         document.body.classList.add('sidebar-collapsed');
     } else {
@@ -116,7 +116,14 @@ function initAdminUtils() {
 
     // 1. Sidebar Collapse Button & Styles Injection
     const sidebar = document.querySelector('.sidebar');
-    if (sidebar) {
+    const isStaffPage = window.location.pathname.includes('staff.html');
+
+    // Force remove collapsed class on staff.html to ensure sidebar is always expanded
+    if (isStaffPage && document.body) {
+        document.body.classList.remove('sidebar-collapsed');
+    }
+
+    if (sidebar && !isStaffPage) {
         // Dynamically wrap text nodes of sidebar links in span tags for clean transition
         const sidebarLinks = document.querySelectorAll('.sidebar-menu a, .sidebar-menu button, .sidebar-footer a');
         sidebarLinks.forEach(link => {
@@ -185,22 +192,22 @@ function initAdminUtils() {
                 transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
                 position: absolute;
                 right: -11px;
-                top: 28px;
+                top: 50%;
                 z-index: 1001;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
                 opacity: 0;
-                transform: scale(0.8);
+                transform: translateY(-50%) scale(0.8);
             }
             .sidebar:hover #sidebar-collapse-btn {
                 opacity: 1;
-                transform: scale(1);
+                transform: translateY(-50%) scale(1);
             }
             #sidebar-collapse-btn:hover {
                 background: #151b23;
                 color: var(--primary-color);
                 border-color: var(--primary-color);
                 box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
-                transform: scale(1.1) !important;
+                transform: translateY(-50%) scale(1.1) !important;
             }
             
             /* Collapsed State Styles */
