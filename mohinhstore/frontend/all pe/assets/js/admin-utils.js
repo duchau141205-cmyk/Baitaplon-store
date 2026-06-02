@@ -98,7 +98,7 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
-// Hide restricted sidebar links for staff role
+// Hide restricted sidebar links for staff role & Inject Profile Dropdown
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof AdminAuth !== 'undefined') {
         const adminInfo = AdminAuth.getAdminInfo();
@@ -121,6 +121,153 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
+        }
+
+        // Profile Dropdown Menu Injection
+        const adminInfoEl = document.querySelector('.admin-info');
+        if (adminInfoEl) {
+            // Style sheet injection
+            const dropdownStyle = document.createElement('style');
+            dropdownStyle.innerHTML = `
+                .admin-info {
+                    position: relative;
+                    cursor: pointer;
+                    padding: 6px 12px;
+                    border-radius: 20px;
+                    background: rgba(255, 255, 255, 0.02);
+                    border: 1px solid var(--glass-border);
+                    transition: all 0.2s ease;
+                }
+                .admin-info:hover {
+                    background: rgba(255, 255, 255, 0.06);
+                    border-color: rgba(0, 212, 255, 0.25);
+                }
+                .admin-profile-dropdown {
+                    display: none;
+                    position: absolute;
+                    top: 50px;
+                    right: 0;
+                    width: 230px;
+                    background: rgba(21, 27, 35, 0.95);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    border-radius: 12px;
+                    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+                    backdrop-filter: blur(15px);
+                    z-index: 9999;
+                    padding: 8px 0;
+                    flex-direction: column;
+                    transform-origin: top right;
+                    animation: dropdownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+                .admin-profile-dropdown.show {
+                    display: flex;
+                }
+                .admin-profile-dropdown-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 10px 16px;
+                    color: #8b949e;
+                    font-size: 0.88rem;
+                    font-weight: 500;
+                    transition: all 0.2s ease;
+                }
+                .admin-profile-dropdown-item i {
+                    font-size: 0.95rem;
+                    text-align: center;
+                }
+                .admin-profile-dropdown-item:hover {
+                    background: rgba(0, 212, 255, 0.08);
+                    color: #00d4ff;
+                }
+                .admin-profile-dropdown-divider {
+                    height: 1px;
+                    background: rgba(255, 255, 255, 0.08);
+                    margin: 6px 0;
+                }
+                @keyframes dropdownFade {
+                    from { opacity: 0; transform: translateY(10px) scale(0.95); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+            `;
+            document.head.appendChild(dropdownStyle);
+
+            // Create dropdown menu element
+            const dropdown = document.createElement('div');
+            dropdown.className = 'admin-profile-dropdown';
+            
+            // Build items based on role
+            const currentRole = adminInfo ? adminInfo.role : 'admin';
+            let menuHtml = '';
+            
+            if (currentRole === 'admin') {
+                menuHtml += `
+                    <a href="staff.html" class="admin-profile-dropdown-item">
+                        <i class="fas fa-user-tie" style="color: #ffc107; width: 16px;"></i> Cổng Nhân viên
+                    </a>
+                    <a href="index.html" class="admin-profile-dropdown-item">
+                        <i class="fas fa-chart-line" style="color: #00d4ff; width: 16px;"></i> Trang quản trị (Admin)
+                    </a>
+                    <div class="admin-profile-dropdown-divider"></div>
+                `;
+            } else if (currentRole === 'staff') {
+                menuHtml += `
+                    <a href="staff.html" class="admin-profile-dropdown-item">
+                        <i class="fas fa-desktop" style="color: #00d4ff; width: 16px;"></i> Cổng Nhân viên
+                    </a>
+                    <div class="admin-profile-dropdown-divider"></div>
+                `;
+            }
+            
+            menuHtml += `
+                <a href="#" class="admin-profile-dropdown-item" id="admin-dropdown-gohome">
+                    <i class="fas fa-home" style="color: #2ea043; width: 16px;"></i> Xem website (Đăng xuất)
+                </a>
+                <a href="#" class="admin-profile-dropdown-item" id="admin-dropdown-logout" style="color: #ff4d4d;">
+                    <i class="fas fa-sign-out-alt" style="color: #ff4d4d; width: 16px;"></i> Đăng xuất
+                </a>
+            `;
+            
+            dropdown.innerHTML = menuHtml;
+            adminInfoEl.appendChild(dropdown);
+
+            // Toggle logic
+            adminInfoEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!adminInfoEl.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+
+            // Go to guest homepage action
+            const goHomeBtn = document.getElementById('admin-dropdown-gohome');
+            if (goHomeBtn) {
+                goHomeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Clear tokens and redirect
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminInfo');
+                    localStorage.removeItem('user_token');
+                    localStorage.removeItem('user_info');
+                    window.location.href = '../index.html';
+                });
+            }
+
+            // Logout action
+            const logoutBtn = document.getElementById('admin-dropdown-logout');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    AdminAuth.logout();
+                });
+            }
         }
     }
 });
