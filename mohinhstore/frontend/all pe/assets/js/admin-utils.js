@@ -171,30 +171,36 @@ function initAdminUtils() {
             
             /* Collapse Button */
             #sidebar-collapse-btn {
-                background: #151b23;
-                border: 1px solid var(--primary-color);
-                color: var(--primary-color);
+                background: #0f1217;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: var(--text-muted);
                 cursor: pointer;
-                width: 26px;
-                height: 26px;
+                width: 22px;
+                height: 22px;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 0.75rem;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                font-size: 0.65rem;
+                transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
                 position: absolute;
-                right: -13px;
+                right: -11px;
                 top: 28px;
                 z-index: 1001;
-                box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            .sidebar:hover #sidebar-collapse-btn {
+                opacity: 1;
+                transform: scale(1);
             }
             #sidebar-collapse-btn:hover {
-                background: var(--primary-color);
-                color: #090c10;
+                background: #151b23;
+                color: var(--primary-color);
                 border-color: var(--primary-color);
-                transform: scale(1.1);
-                box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+                transform: scale(1.1) !important;
             }
             
             /* Collapsed State Styles */
@@ -240,10 +246,10 @@ function initAdminUtils() {
             body.sidebar-collapsed .sidebar-menu a,
             body.sidebar-collapsed .sidebar-menu button {
                 font-size: 0 !important;
-                justify-content: center;
-                padding: 12px 0;
-                gap: 0;
-                border-left-width: 0;
+                justify-content: center !important;
+                padding: 12px 0 !important;
+                gap: 0 !important;
+                border-left: 0 !important;
             }
             body.sidebar-collapsed .sidebar-menu a i,
             body.sidebar-collapsed .sidebar-menu button i {
@@ -255,8 +261,8 @@ function initAdminUtils() {
             }
             body.sidebar-collapsed .sidebar-footer a {
                 font-size: 0 !important;
-                justify-content: center;
-                padding: 12px 0;
+                justify-content: center !important;
+                padding: 12px 0 !important;
             }
             body.sidebar-collapsed .sidebar-footer a i {
                 font-size: 1.25rem !important;
