@@ -7,8 +7,8 @@ backend/.env
 .env
 
 # Upload folder (ảnh sản phẩm - quản lý riêng)
-backend/uploads/*
-!backend/uploads/.gitkeep
+# backend/uploads/*
+# !backend/uploads/.gitkeep
 
 # Logs
 *.log
