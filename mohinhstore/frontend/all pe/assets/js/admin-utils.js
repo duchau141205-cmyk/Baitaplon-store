@@ -2,6 +2,17 @@
  * ADMIN UTILITIES 
  */
 
+// Check sidebar state immediately on script load to prevent layout shift
+if (localStorage.getItem('sidebar_collapsed') === 'true') {
+    if (document.body) {
+        document.body.classList.add('sidebar-collapsed');
+    } else {
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('sidebar-collapsed');
+        });
+    }
+}
+
 const AdminUtils = {
     // Format currency to VNĐ
     formatCurrency(amount) {
@@ -99,203 +110,389 @@ style.innerHTML = `
 document.head.appendChild(style);
 
 // Hide restricted sidebar links for staff role & Inject Profile Dropdown
-document.addEventListener('DOMContentLoaded', () => {
-    if (typeof AdminAuth !== 'undefined') {
-        const adminInfo = AdminAuth.getAdminInfo();
-        if (adminInfo && adminInfo.role === 'staff') {
-            // Update logo text
-            const logo = document.querySelector('.sidebar-header .logo');
-            if (logo) {
-                logo.innerText = 'MÔ HÌNH STAFF';
-            }
+function initAdminUtils() {
+    if (window.adminUtilsInitialized) return;
+    window.adminUtilsInitialized = true;
 
-            const menuLinks = document.querySelectorAll('.sidebar-menu a');
-            menuLinks.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href) {
-                    if (href === 'index.html' || href.endsWith('/index.html')) {
-                        link.setAttribute('href', 'staff.html');
-                        link.innerHTML = '<i class="fas fa-desktop"></i> Tổng quan công việc';
-                    } else if (href.includes('products.html') || href.includes('categories.html') || href.includes('users.html') || href.includes('reports.html') || href.includes('promotions.html')) {
-                        link.style.display = 'none';
-                    }
+    // 1. Sidebar Collapse Button & Styles Injection
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        // Dynamically wrap text nodes of sidebar links in span tags for clean transition
+        const sidebarLinks = document.querySelectorAll('.sidebar-menu a, .sidebar-menu button, .sidebar-footer a');
+        sidebarLinks.forEach(link => {
+            Array.from(link.childNodes).forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '') {
+                    const span = document.createElement('span');
+                    span.className = 'sidebar-text';
+                    span.textContent = node.nodeValue.trim();
+                    node.parentNode.replaceChild(span, node);
                 }
             });
-        } else if (adminInfo && adminInfo.role === 'admin') {
-            // Sidebar Navigation shortcuts for admin between admin and staff portals
-            const sidebarMenu = document.querySelector('.sidebar-menu');
-            if (sidebarMenu) {
-                if (window.location.pathname.includes('staff.html')) {
-                    // On staff.html, add a link to index.html (Admin Dashboard)
-                    const adminLink = document.createElement('a');
-                    adminLink.href = 'index.html';
-                    adminLink.style.cssText = 'display: flex; align-items: center; gap: 15px; padding: 15px 25px; color: #aaa; text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; border-left: 4px solid transparent;';
-                    adminLink.innerHTML = '<i class="fas fa-chart-line" style="color: #00d4ff; width: 20px; text-align: center; font-size: 0.95rem;"></i> Trang Quản trị';
-                    adminLink.addEventListener('mouseover', () => {
-                        adminLink.style.color = 'white';
-                        adminLink.style.background = 'rgba(255, 255, 255, 0.05)';
-                    });
-                    adminLink.addEventListener('mouseout', () => {
-                        adminLink.style.color = '#aaa';
-                        adminLink.style.background = 'none';
-                    });
-                    sidebarMenu.appendChild(adminLink);
-                } else {
-                    // On admin pages, add a link to staff.html (Staff Portal)
-                    const staffLink = document.createElement('a');
-                    staffLink.href = 'staff.html';
-                    staffLink.innerHTML = '<i class="fas fa-user-tie" style="color: #ffc107;"></i> Cổng Nhân viên';
-                    sidebarMenu.appendChild(staffLink);
+        });
+
+        // Dynamically wrap logo text in span.logo-text for clean transition
+        const logo = document.querySelector('.logo');
+        if (logo) {
+            Array.from(logo.childNodes).forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '') {
+                    const span = document.createElement('span');
+                    span.className = 'logo-text';
+                    span.textContent = node.nodeValue.trim();
+                    node.parentNode.replaceChild(span, node);
                 }
-            }
+            });
         }
 
-        // Profile Dropdown Menu Injection
-        const adminInfoEl = document.querySelector('.admin-info');
-        if (adminInfoEl) {
-            // Style sheet injection
-            const dropdownStyle = document.createElement('style');
-            dropdownStyle.innerHTML = `
-                .admin-info {
-                    position: relative;
-                    cursor: pointer;
-                    padding: 6px 12px;
-                    border-radius: 20px;
-                    background: rgba(255, 255, 255, 0.02);
-                    border: 1px solid var(--glass-border);
-                    transition: all 0.2s ease;
-                }
-                .admin-info:hover {
-                    background: rgba(255, 255, 255, 0.06);
-                    border-color: rgba(0, 212, 255, 0.25);
-                }
-                .admin-profile-dropdown {
-                    display: none;
-                    position: absolute;
-                    top: 50px;
-                    right: 0;
-                    width: 230px;
-                    background: rgba(21, 27, 35, 0.95);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 12px;
-                    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
-                    backdrop-filter: blur(15px);
-                    z-index: 9999;
-                    padding: 8px 0;
-                    flex-direction: column;
-                    transform-origin: top right;
-                    animation: dropdownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-                }
-                .admin-profile-dropdown.show {
-                    display: flex;
-                }
-                .admin-profile-dropdown-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    padding: 10px 16px;
-                    color: #8b949e;
-                    font-size: 0.88rem;
-                    font-weight: 500;
-                    transition: all 0.2s ease;
-                }
-                .admin-profile-dropdown-item i {
-                    font-size: 0.95rem;
-                    text-align: center;
-                }
-                .admin-profile-dropdown-item:hover {
-                    background: rgba(0, 212, 255, 0.08);
-                    color: #00d4ff;
-                }
-                .admin-profile-dropdown-divider {
-                    height: 1px;
-                    background: rgba(255, 255, 255, 0.08);
-                    margin: 6px 0;
-                }
-                @keyframes dropdownFade {
-                    from { opacity: 0; transform: translateY(10px) scale(0.95); }
-                    to { opacity: 1; transform: translateY(0) scale(1); }
-                }
-            `;
-            document.head.appendChild(dropdownStyle);
-
-            // Create dropdown menu element
-            const dropdown = document.createElement('div');
-            dropdown.className = 'admin-profile-dropdown';
-            
-            // Build items based on role
-            const currentRole = adminInfo ? adminInfo.role : 'admin';
-            let menuHtml = '';
-            
-            if (currentRole === 'admin') {
-                menuHtml += `
-                    <a href="staff.html" class="admin-profile-dropdown-item">
-                        <i class="fas fa-user-tie" style="color: #ffc107; width: 16px;"></i> Cổng Nhân viên
-                    </a>
-                    <a href="index.html" class="admin-profile-dropdown-item">
-                        <i class="fas fa-chart-line" style="color: #00d4ff; width: 16px;"></i> Trang quản trị (Admin)
-                    </a>
-                    <div class="admin-profile-dropdown-divider"></div>
-                `;
-            } else if (currentRole === 'staff') {
-                menuHtml += `
-                    <a href="staff.html" class="admin-profile-dropdown-item">
-                        <i class="fas fa-desktop" style="color: #00d4ff; width: 16px;"></i> Cổng Nhân viên
-                    </a>
-                    <div class="admin-profile-dropdown-divider"></div>
-                `;
+        const collapseStyle = document.createElement('style');
+        collapseStyle.innerHTML = `
+            /* Smooth transitions */
+            .sidebar {
+                transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            .main-content {
+                transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             }
             
-            menuHtml += `
-                <a href="#" class="admin-profile-dropdown-item" id="admin-dropdown-gohome">
-                    <i class="fas fa-home" style="color: #2ea043; width: 16px;"></i> Xem website (Đăng xuất)
-                </a>
-                <a href="#" class="admin-profile-dropdown-item" id="admin-dropdown-logout" style="color: #ff4d4d;">
-                    <i class="fas fa-sign-out-alt" style="color: #ff4d4d; width: 16px;"></i> Đăng xuất
-                </a>
-            `;
+            /* Sidebar text and logo transitions */
+            .sidebar-text {
+                transition: opacity 0.2s ease, visibility 0.2s ease;
+                opacity: 1;
+                visibility: visible;
+                display: inline-block;
+                white-space: nowrap;
+            }
+            .logo-text {
+                transition: opacity 0.2s ease, visibility 0.2s ease;
+                opacity: 1;
+                visibility: visible;
+                display: inline-block;
+                white-space: nowrap;
+            }
             
-            dropdown.innerHTML = menuHtml;
-            adminInfoEl.appendChild(dropdown);
+            /* Collapse Button */
+            #sidebar-collapse-btn {
+                background: #151b23;
+                border: 1px solid var(--primary-color);
+                color: var(--primary-color);
+                cursor: pointer;
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: absolute;
+                right: -13px;
+                top: 28px;
+                z-index: 1001;
+                box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+            }
+            #sidebar-collapse-btn:hover {
+                background: var(--primary-color);
+                color: #090c10;
+                border-color: var(--primary-color);
+                transform: scale(1.1);
+                box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+            }
+            
+            /* Collapsed State Styles */
+            body.sidebar-collapsed .sidebar {
+                width: 70px;
+            }
+            body.sidebar-collapsed .main-content {
+                margin-left: 70px;
+            }
+            body.sidebar-collapsed .sidebar-header {
+                padding: 24px 10px;
+            }
+            body.sidebar-collapsed .sidebar-text {
+                opacity: 0;
+                visibility: hidden;
+                width: 0;
+                overflow: hidden;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            body.sidebar-collapsed .logo-text {
+                opacity: 0;
+                visibility: hidden;
+                width: 0;
+                overflow: hidden;
+            }
+            body.sidebar-collapsed .logo {
+                font-size: 0 !important;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            body.sidebar-collapsed .logo::after {
+                content: 'M';
+                font-size: 1.4rem;
+                font-weight: 800;
+                color: var(--primary-color);
+                display: block;
+            }
+            body.sidebar-collapsed .sidebar-menu {
+                padding: 16px 8px;
+            }
+            body.sidebar-collapsed .sidebar-menu a,
+            body.sidebar-collapsed .sidebar-menu button {
+                font-size: 0 !important;
+                justify-content: center;
+                padding: 12px 0;
+                gap: 0;
+                border-left-width: 0;
+            }
+            body.sidebar-collapsed .sidebar-menu a i,
+            body.sidebar-collapsed .sidebar-menu button i {
+                font-size: 1.25rem !important;
+                margin: 0 !important;
+            }
+            body.sidebar-collapsed .sidebar-footer {
+                padding: 16px 8px;
+            }
+            body.sidebar-collapsed .sidebar-footer a {
+                font-size: 0 !important;
+                justify-content: center;
+                padding: 12px 0;
+            }
+            body.sidebar-collapsed .sidebar-footer a i {
+                font-size: 1.25rem !important;
+                margin: 0 !important;
+            }
+            body.sidebar-collapsed #sidebar-collapse-btn i {
+                transform: rotate(180deg);
+            }
+        `;
+        document.head.appendChild(collapseStyle);
 
-            // Toggle logic
-            adminInfoEl.addEventListener('click', (e) => {
+        if (!document.getElementById('sidebar-collapse-btn')) {
+            const collapseBtn = document.createElement('button');
+            collapseBtn.id = 'sidebar-collapse-btn';
+            collapseBtn.title = 'Thu gọn / Mở rộng menu';
+            collapseBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            
+            const sidebarHeader = document.querySelector('.sidebar-header');
+            if (sidebarHeader) {
+                sidebarHeader.style.position = 'relative';
+                sidebarHeader.appendChild(collapseBtn);
+            } else {
+                sidebar.appendChild(collapseBtn);
+            }
+            
+            collapseBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                dropdown.classList.toggle('show');
+                const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+                localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
             });
+        }
 
-            // Close when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!adminInfoEl.contains(e.target)) {
-                    dropdown.classList.remove('show');
+        if (typeof AdminAuth !== 'undefined') {
+            const adminInfo = AdminAuth.getAdminInfo();
+            if (adminInfo && adminInfo.role === 'staff') {
+                // Update logo text
+                const logo = document.querySelector('.sidebar-header .logo');
+                if (logo) {
+                    logo.innerText = 'MÔ HÌNH STAFF';
                 }
-            });
 
-            // Go to guest homepage action
-            const goHomeBtn = document.getElementById('admin-dropdown-gohome');
-            if (goHomeBtn) {
-                goHomeBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Clear tokens, set from_admin preview flag and redirect
-                    sessionStorage.setItem('from_admin', 'true');
-                    localStorage.removeItem('adminToken');
-                    localStorage.removeItem('adminInfo');
-                    localStorage.removeItem('user_token');
-                    localStorage.removeItem('user_info');
-                    window.location.href = '../index.html';
+                const menuLinks = document.querySelectorAll('.sidebar-menu a');
+                menuLinks.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href) {
+                        if (href === 'index.html' || href.endsWith('/index.html')) {
+                            link.setAttribute('href', 'staff.html');
+                            link.innerHTML = '<i class="fas fa-desktop"></i> <span class="sidebar-text">Tổng quan công việc</span>';
+                        } else if (href.includes('products.html') || href.includes('categories.html') || href.includes('users.html') || href.includes('reports.html') || href.includes('promotions.html')) {
+                            link.style.display = 'none';
+                        }
+                    }
                 });
+            } else if (adminInfo && adminInfo.role === 'admin') {
+                // Sidebar Navigation shortcuts for admin between admin and staff portals
+                const sidebarMenu = document.querySelector('.sidebar-menu');
+                if (sidebarMenu) {
+                    if (window.location.pathname.includes('staff.html')) {
+                        // On staff.html, add a link to index.html (Admin Dashboard)
+                        const adminLink = document.createElement('a');
+                        adminLink.href = 'index.html';
+                        adminLink.style.cssText = 'display: flex; align-items: center; gap: 15px; padding: 15px 25px; color: #aaa; text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; border-left: 4px solid transparent;';
+                        adminLink.innerHTML = '<i class="fas fa-chart-line" style="color: #00d4ff; width: 20px; text-align: center; font-size: 0.95rem;"></i> <span class="sidebar-text">Trang Quản trị</span>';
+                        adminLink.addEventListener('mouseover', () => {
+                            adminLink.style.color = 'white';
+                            adminLink.style.background = 'rgba(255, 255, 255, 0.05)';
+                        });
+                        adminLink.addEventListener('mouseout', () => {
+                            adminLink.style.color = '#aaa';
+                            adminLink.style.background = 'none';
+                        });
+                        sidebarMenu.appendChild(adminLink);
+                    } else {
+                        // On admin pages, add a link to staff.html (Staff Portal)
+                        const staffLink = document.createElement('a');
+                        staffLink.href = 'staff.html';
+                        staffLink.innerHTML = '<i class="fas fa-user-tie" style="color: #ffc107;"></i> <span class="sidebar-text">Cổng Nhân viên</span>';
+                        sidebarMenu.appendChild(staffLink);
+                    }
+                }
             }
 
-            // Logout action
-            const logoutBtn = document.getElementById('admin-dropdown-logout');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
+            // Profile Dropdown Menu Injection
+            const adminInfoEl = document.querySelector('.admin-info');
+            if (adminInfoEl) {
+                // Style sheet injection
+                const dropdownStyle = document.createElement('style');
+                dropdownStyle.innerHTML = `
+                    .admin-info {
+                        position: relative;
+                        cursor: pointer;
+                        padding: 6px 12px;
+                        border-radius: 20px;
+                        background: rgba(255, 255, 255, 0.02);
+                        border: 1px solid var(--glass-border);
+                        transition: all 0.2s ease;
+                    }
+                    .admin-info:hover {
+                        background: rgba(255, 255, 255, 0.06);
+                        border-color: rgba(0, 212, 255, 0.25);
+                    }
+                    .admin-profile-dropdown {
+                        display: none;
+                        position: absolute;
+                        top: 50px;
+                        right: 0;
+                        width: 230px;
+                        background: rgba(21, 27, 35, 0.95);
+                        border: 1px solid rgba(255, 255, 255, 0.08);
+                        border-radius: 12px;
+                        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+                        backdrop-filter: blur(15px);
+                        z-index: 9999;
+                        padding: 8px 0;
+                        flex-direction: column;
+                        transform-origin: top right;
+                        animation: dropdownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                    }
+                    .admin-profile-dropdown.show {
+                        display: flex;
+                    }
+                    .admin-profile-dropdown-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        padding: 10px 16px;
+                        color: #8b949e;
+                        font-size: 0.88rem;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                    }
+                    .admin-profile-dropdown-item i {
+                        font-size: 0.95rem;
+                        text-align: center;
+                    }
+                    .admin-profile-dropdown-item:hover {
+                        background: rgba(0, 212, 255, 0.08);
+                        color: #00d4ff;
+                    }
+                    .admin-profile-dropdown-divider {
+                        height: 1px;
+                        background: rgba(255, 255, 255, 0.08);
+                        margin: 6px 0;
+                    }
+                    @keyframes dropdownFade {
+                        from { opacity: 0; transform: translateY(10px) scale(0.95); }
+                        to { opacity: 1; transform: translateY(0) scale(1); }
+                    }
+                `;
+                document.head.appendChild(dropdownStyle);
+
+                // Create dropdown menu element
+                const dropdown = document.createElement('div');
+                dropdown.className = 'admin-profile-dropdown';
+                
+                // Build items based on role
+                const currentRole = adminInfo ? adminInfo.role : 'admin';
+                let menuHtml = '';
+                
+                if (currentRole === 'admin') {
+                    menuHtml += `
+                        <a href="staff.html" class="admin-profile-dropdown-item">
+                            <i class="fas fa-user-tie" style="color: #ffc107; width: 16px;"></i> Cổng Nhân viên
+                        </a>
+                        <a href="index.html" class="admin-profile-dropdown-item">
+                            <i class="fas fa-chart-line" style="color: #00d4ff; width: 16px;"></i> Trang quản trị (Admin)
+                        </a>
+                        <div class="admin-profile-dropdown-divider"></div>
+                    `;
+                } else if (currentRole === 'staff') {
+                    menuHtml += `
+                        <a href="staff.html" class="admin-profile-dropdown-item">
+                            <i class="fas fa-desktop" style="color: #00d4ff; width: 16px;"></i> Cổng Nhân viên
+                        </a>
+                        <div class="admin-profile-dropdown-divider"></div>
+                    `;
+                }
+                
+                menuHtml += `
+                    <a href="#" class="admin-profile-dropdown-item" id="admin-dropdown-gohome">
+                        <i class="fas fa-home" style="color: #2ea043; width: 16px;"></i> Xem website (Đăng xuất)
+                    </a>
+                    <a href="#" class="admin-profile-dropdown-item" id="admin-dropdown-logout" style="color: #ff4d4d;">
+                        <i class="fas fa-sign-out-alt" style="color: #ff4d4d; width: 16px;"></i> Đăng xuất
+                    </a>
+                `;
+                
+                dropdown.innerHTML = menuHtml;
+                adminInfoEl.appendChild(dropdown);
+
+                // Toggle logic
+                adminInfoEl.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    AdminAuth.logout();
+                    dropdown.classList.toggle('show');
                 });
+
+                // Close when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!adminInfoEl.contains(e.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+
+                // Go to guest homepage action
+                const goHomeBtn = document.getElementById('admin-dropdown-gohome');
+                if (goHomeBtn) {
+                    goHomeBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Clear tokens, set from_admin preview flag and redirect
+                        sessionStorage.setItem('from_admin', 'true');
+                        localStorage.removeItem('adminToken');
+                        localStorage.removeItem('adminInfo');
+                        localStorage.removeItem('user_token');
+                        localStorage.removeItem('user_info');
+                        window.location.href = '../index.html';
+                    });
+                }
+
+                // Logout action
+                const logoutBtn = document.getElementById('admin-dropdown-logout');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        AdminAuth.logout();
+                    });
+                }
             }
         }
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAdminUtils);
+} else {
+    initAdminUtils();
+}
+
