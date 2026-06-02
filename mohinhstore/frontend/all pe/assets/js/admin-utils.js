@@ -301,8 +301,9 @@ function initAdminUtils() {
                 localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
             });
         }
+    }
 
-        if (typeof AdminAuth !== 'undefined') {
+    if (typeof AdminAuth !== 'undefined') {
             const adminInfo = AdminAuth.getAdminInfo();
             if (adminInfo && adminInfo.role === 'staff') {
                 // Update logo text
@@ -500,7 +501,6 @@ function initAdminUtils() {
                 }
             }
         }
-    }
 }
 
 if (document.readyState === 'loading') {
