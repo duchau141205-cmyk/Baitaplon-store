@@ -1053,7 +1053,7 @@
 
         // Tab Switching
         function switchTab(tab) {
-            const tabs = ['orders', 'consultations', 'security'];
+            const tabs = ['orders', 'consultations', 'security', 'favorites'];
             tabs.forEach(t => {
                 const sec = document.getElementById('section-' + t);
                 const btn = document.getElementById('tab-' + t);
@@ -1061,6 +1061,75 @@
                 if (btn) btn.classList.toggle('active', t === tab);
             });
             if (tab === 'consultations') loadConsultations();
+            if (tab === 'favorites') loadFavorites();
+        }
+
+        async function loadFavorites() {
+            const grid = document.getElementById('favorites-grid');
+            grid.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 40px; grid-column: 1/-1;">Đang tải danh sách yêu thích...</div>';
+            
+            try {
+                const products = await ShopAPI.get('/products/liked', true);
+                if (!products || products.length === 0) {
+                    grid.innerHTML = `
+                        <div style="text-align: center; color: var(--text-muted); padding: 60px; grid-column: 1/-1;">
+                            <i class="far fa-heart" style="font-size: 3rem; color: rgba(255,255,255,0.1); margin-bottom: 15px; display: block;"></i>
+                            Bạn chưa yêu thích sản phẩm nào.
+                            <a href="products.html" class="btn btn-primary" style="display: inline-block; margin-top: 15px; padding: 8px 20px; border-radius: 8px;">
+                                Khám phá ngay
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = products.map(p => {
+                    const isOutOfStock = p.countInStock <= 0;
+                    return `
+                        <div class="product-card glass fade-in ${isOutOfStock ? 'out-of-stock' : ''}" style="${isOutOfStock ? 'opacity: 0.7;' : ''}">
+                            ${isOutOfStock ? `<div class="product-badge" style="background: var(--danger-color); color: white;">Hết hàng</div>` : ''}
+                            <div class="product-img-wrapper">
+                                <a href="product-detail.html?id=${p._id}">
+                                    <img src="${p.image}" alt="${p.name}" style="${isOutOfStock ? 'filter: grayscale(100%);' : ''}">
+                                </a>
+                            </div>
+                            <div class="product-info">
+                                <a href="product-detail.html?id=${p._id}">
+                                    <h3 style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px; font-size: 0.95rem; margin-bottom: 5px;">${p.name} ${isOutOfStock ? '<span style="background: var(--danger-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Đã hết hàng</span>' : ''}</h3>
+                                </a>
+                                <div class="product-price" style="margin-bottom: 15px;">
+                                    <span class="price-now">${formatCurrency(p.salePrice || p.price)}</span>
+                                </div>
+                                <div style="display: flex; gap: 10px;">
+                                    <a href="product-detail.html?id=${p._id}" class="btn btn-primary" style="flex: 1; padding: 8px; border-radius: 8px; text-align: center; font-size: 0.8rem; text-decoration: none;">
+                                        Xem chi tiết
+                                    </a>
+                                    <button class="btn btn-secondary" onclick="unlikeFromProfile('${p._id}', event)" style="padding: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.2); color: #ff4757; cursor: pointer; width: 38px;">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Failed to load favorites', err);
+                grid.innerHTML = '<div style="text-align: center; color: var(--danger-color); padding: 40px; grid-column: 1/-1;">Lỗi hệ thống khi tải danh sách.</div>';
+            }
+        }
+
+        async function unlikeFromProfile(id, event) {
+            event.stopPropagation();
+            try {
+                const res = await ShopAPI.likeProduct(id);
+                if (res) {
+                    showToast('Đã xóa khỏi danh sách yêu thích', 'success');
+                    loadFavorites();
+                }
+            } catch (err) {
+                console.error('Failed to unlike product', err);
+                showToast('Lỗi khi bỏ yêu thích', 'danger');
+            }
         }
 
         function showToast(msg, type = 'success') {
