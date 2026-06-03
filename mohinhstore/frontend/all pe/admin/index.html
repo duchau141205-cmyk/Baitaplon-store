@@ -9,6 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="../assets/css/admin-components.css">
+    <style>
+        body {
+            font-family: var(--font-body);
+        }
+        @media (max-width: 992px) {
+            #chart-row-container {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -89,10 +99,18 @@
                 </div>
 
                 <!-- Charts Row -->
-                <div class="card" id="chart-row-container">
-                    <h3>Doanh thu 30 ngày gần nhất</h3>
-                    <div style="height: 300px; margin-top: 1rem;">
-                        <canvas id="revenueChart"></canvas>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;" id="chart-row-container">
+                    <div class="card" style="margin-bottom: 0;">
+                        <h3>Doanh thu 30 ngày gần nhất</h3>
+                        <div style="height: 300px; margin-top: 1rem;">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card" style="margin-bottom: 0;">
+                        <h3>Tỉ lệ trạng thái đơn</h3>
+                        <div style="height: 300px; margin-top: 1rem;">
+                            <canvas id="statusPieChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -204,6 +222,7 @@
                 renderRecentOrders(recentOrdersRes);
                 // Real Chart Data logic (last 7 days)
                 renderChart(recentOrdersRes);
+                renderStatusChart(recentOrdersRes);
             }
 
             if (topProducts) {
@@ -302,6 +321,41 @@
                         y: {
                             ticks: { color: '#8b949e' },
                             grid: { color: 'rgba(255,255,255,0.05)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderStatusChart(orders) {
+            const ctx = document.getElementById('statusPieChart').getContext('2d');
+            if (window.statusChart) window.statusChart.destroy();
+
+            const statusCounts = {
+                Pending: orders.filter(o => o.status === 'Pending').length,
+                Shipping: orders.filter(o => o.status === 'Shipping').length,
+                Delivered: orders.filter(o => o.status === 'Delivered').length,
+                Cancelled: orders.filter(o => o.status === 'Cancelled').length
+            };
+
+            window.statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Chờ xử lý', 'Đang giao', 'Đã giao', 'Đã hủy'],
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#ffc107', '#17a2b8', '#28a745', '#dc3545'],
+                        borderWidth: 1,
+                        borderColor: 'rgba(255, 255, 255, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#8b949e' }
                         }
                     }
                 }
