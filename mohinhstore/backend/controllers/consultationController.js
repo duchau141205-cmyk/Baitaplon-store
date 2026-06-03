@@ -210,7 +210,14 @@ const generateAiResponse = async (userQuery) => {
     // 5. Check promotion / discount
     if (query.includes('khuyến mãi') || query.includes('khuyen mai') || query.includes('giảm giá') || query.includes('giam gia') || query.includes('voucher') || query.includes('code') || query.includes('mã')) {
         try {
-            const promotions = await Promotion.find({ isActive: true }).limit(3);
+            const now = new Date();
+            const promotions = await Promotion.find({
+                isActive: true,
+                $and: [
+                    { $or: [{ startDate: null }, { startDate: { $lte: now } }] },
+                    { $or: [{ endDate: null }, { endDate: { $gte: now } }] }
+                ]
+            }).limit(3);
             if (promotions && promotions.length > 0) {
                 const list = promotions.map(p => `- **${p.code}**: ${p.description}`).join('\n');
                 return `Chào bạn! Hiện tại Mô Hình Store đang chạy các chương trình ưu đãi rất hấp dẫn:\n${list}\n\nBạn có thể sao chép và nhập mã khuyến mãi này tại trang thanh toán để được giảm giá ngay nhé!`;
