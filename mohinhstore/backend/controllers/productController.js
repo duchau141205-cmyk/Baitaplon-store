@@ -278,6 +278,18 @@ const createProductReview = async (req, res) => {
     }
 };
 
+// @desc    Get logged in user's liked products
+// @route   GET /api/products/liked
+// @access  Private
+const getLikedProducts = async (req, res) => {
+    try {
+        const products = await Product.find({ likes: req.user._id }).populate('category', 'name');
+        res.json(products);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server khi lấy danh sách yêu thích', error: error.message });
+    }
+};
+
 module.exports = {
     getProducts,
     searchProducts,
@@ -286,6 +298,7 @@ module.exports = {
     updateProduct,
     deleteProduct,
     likeProduct,
-    createProductReview
+    createProductReview,
+    getLikedProducts
 };
 
