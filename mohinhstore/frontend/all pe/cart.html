@@ -355,10 +355,21 @@
         async function proceedToCheckout() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
             if (cart.length === 0) {
-                alert('Giỏ hàng đang trống!');
+                const empty = document.getElementById('empty-cart');
+                if (empty) empty.style.display = 'block';
                 return;
             }
             window.location.href = 'checkout.html';
+        }
+
+        let searchTimer;
+        function goSearch(val) {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                if (val.trim().length > 1) {
+                    window.location.href = 'products.html?search=' + encodeURIComponent(val.trim());
+                }
+            }, 600);
         }
     </script>
 </body>
