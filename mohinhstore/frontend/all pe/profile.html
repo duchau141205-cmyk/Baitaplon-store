@@ -1052,6 +1052,16 @@
             document.getElementById('cart-count').innerText = count;
         }
 
+        function addToCart(id, name, price, image) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const index = cart.findIndex(item => item.id === id);
+            if (index > -1) cart[index].quantity += 1;
+            else cart.push({ id, name, price, image, quantity: 1 });
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showToast('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+        }
+
         // Tab Switching
         function switchTab(tab) {
             const tabs = ['orders', 'consultations', 'security', 'favorites'];
@@ -1086,8 +1096,10 @@
                 
                 grid.innerHTML = products.map(p => {
                     const isOutOfStock = p.countInStock <= 0;
+                    const discount = p.salePrice && p.price ? Math.round((1 - p.salePrice / p.price) * 100) : 0;
                     return `
                         <div class="product-card glass fade-in ${isOutOfStock ? 'out-of-stock' : ''}" style="${isOutOfStock ? 'opacity: 0.7;' : ''}">
+                            ${discount > 0 && !isOutOfStock ? `<div class="product-badge">-${discount}%</div>` : ''}
                             ${isOutOfStock ? `<div class="product-badge" style="background: var(--danger-color); color: white;">Hết hàng</div>` : ''}
                             <div class="product-img-wrapper">
                                 <a href="product-detail.html?id=${p._id}">
@@ -1099,15 +1111,25 @@
                                     <h3 style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px; font-size: 0.95rem; margin-bottom: 5px;">${p.name} ${isOutOfStock ? '<span style="background: var(--danger-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Đã hết hàng</span>' : ''}</h3>
                                 </a>
                                 <div class="product-price" style="margin-bottom: 15px;">
-                                    <span class="price-now">${formatCurrency(p.salePrice || p.price)}</span>
+                                    ${p.salePrice && p.salePrice > 0
+                                        ? `<span class="price-now">${formatCurrency(p.salePrice)}</span><span class="price-old" style="text-decoration: line-through; color: var(--text-muted); font-size: 0.85rem; margin-left: 8px;">${formatCurrency(p.price)}</span>`
+                                        : `<span class="price-now">${formatCurrency(p.price)}</span>`
+                                    }
                                 </div>
-                                <div style="display: flex; gap: 10px;">
-                                    <a href="product-detail.html?id=${p._id}" class="btn btn-primary" style="flex: 1; padding: 8px; border-radius: 8px; text-align: center; font-size: 0.8rem; text-decoration: none;">
-                                        Xem chi tiết
-                                    </a>
-                                    <button class="btn btn-secondary" onclick="unlikeFromProfile('${p._id}', event)" style="padding: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.2); color: #ff4757; cursor: pointer; width: 38px;">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="display: flex; gap: 10px;">
+                                        <a href="product-detail.html?id=${p._id}" class="btn btn-primary" style="flex: 1; padding: 8px; border-radius: 8px; text-align: center; font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                                            Xem chi tiết
+                                        </a>
+                                        <button class="btn btn-secondary" onclick="unlikeFromProfile('${p._id}', event)" style="padding: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.2); color: #ff4757; cursor: pointer; width: 38px; height: 38px; flex-shrink: 0;" title="Bỏ yêu thích">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    ${!isOutOfStock ? `
+                                        <button class="add-to-cart-btn" onclick="addToCart('${p._id}', '${p.name.replace(/'/g, "\\'")}', ${p.salePrice || p.price}, '${p.image}')" style="width: 100%; border: none; background: var(--gradient-primary); color: white; padding: 8px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform 0.2s;">
+                                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                                        </button>
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
