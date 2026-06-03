@@ -953,3 +953,116 @@ footer {
     background: var(--primary-color);
     color: #000;
 }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE — Tablet (≤992px) & Mobile (≤576px)
+═══════════════════════════════════════════════ */
+
+@media (max-width: 992px) {
+    .detail-container {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+
+    .product-gallery {
+        position: static !important;
+    }
+
+    .checkout-container {
+        grid-template-columns: 1fr !important;
+    }
+
+    .checkout-summary {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Nav */
+    .nav-links {
+        display: none;
+    }
+
+    .nav-container {
+        padding: 0 16px;
+    }
+
+    /* Hero */
+    .hero-slider {
+        height: 80vh !important;
+    }
+
+    .hero-content h1,
+    .slide-content h1 {
+        font-size: 2rem !important;
+    }
+
+    /* Products grid */
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* Cart */
+    .cart-container {
+        grid-template-columns: 1fr !important;
+    }
+
+    .cart-item {
+        grid-template-columns: 70px 1fr !important;
+        grid-template-rows: auto auto auto !important;
+    }
+
+    .item-qty { grid-column: 2; }
+    .item-price { grid-column: 2; }
+    .remove-btn { grid-column: 2; }
+
+    /* Footer */
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2rem;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Section padding */
+    section { padding: 60px 0 !important; }
+
+    /* Profile page */
+    .profile-container {
+        grid-template-columns: 1fr !important;
+    }
+
+    .profile-sidebar {
+        position: static !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .hero-slider {
+        height: 70vh !important;
+    }
+
+    .hero-content h1,
+    .slide-content h1 {
+        font-size: 1.6rem !important;
+    }
+
+    .nav-actions .search-wrapper {
+        display: none;
+    }
+
+    /* Detail page */
+    .price-big {
+        font-size: 1.8rem !important;
+    }
+
+    .product-info-detail h1 {
+        font-size: 1.6rem !important;
+    }
+}
