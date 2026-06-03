@@ -446,6 +446,11 @@
         let selectedRating = 5;
 
         document.addEventListener('DOMContentLoaded', async () => {
+            if (ShopAPI.isAuthenticated()) {
+                document.getElementById('user-btn').innerHTML = `<i class="fas fa-user-check" style="color: var(--primary-color);"></i>`;
+                document.getElementById('user-btn').href = 'profile.html';
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id');
 
