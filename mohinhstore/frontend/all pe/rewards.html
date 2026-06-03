@@ -421,6 +421,16 @@
             const count = cart.reduce((total, item) => total + item.quantity, 0);
             document.getElementById('cart-count').innerText = count;
         }
+
+        let searchTimer;
+        function goSearch(val) {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                if (val.trim().length > 1) {
+                    window.location.href = 'products.html?search=' + encodeURIComponent(val.trim());
+                }
+            }, 600);
+        }
     </script>
 </body>
 
