@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = 'd:/BAITAPLON/shop/frontend/all pe';
+const path = __dirname;
 const files = fs.readdirSync(path).filter(f => f.endsWith('.html') && f !== 'index.html');
 
 const search = '<a href="index.html" class="logo">MÔ HÌNH STORE</a>';

@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
+const path = require('path');
 
 async function restore() {
   await mongoose.connect('mongodb://localhost:27017/mohinh_store');
   const productSchema = new mongoose.Schema({ name: String, image: String, createdAt: Date, updatedAt: Date }, { strict: false });
   const Product = mongoose.model('Product', productSchema);
 
-  const files = fs.readdirSync('d:/BAITAPLON/shop/backend/uploads');
+  const files = fs.readdirSync(path.join(__dirname, 'uploads'));
   const images = files.map(f => {
       let m = f.match(/image-(\d+)\./);
       return m ? { file: '/uploads/' + f, ts: parseInt(m[1]) } : null;
