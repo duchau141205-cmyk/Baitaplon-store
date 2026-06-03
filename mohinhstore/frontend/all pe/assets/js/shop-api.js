@@ -984,7 +984,7 @@ async function getWidgetAiReply(userQuery) {
     }
 }
 
-// --- Dynamic Live Search Autocomplete Dropdown ---
+// --- Dynamic Live Search Autocomplete & Mobile Navigation Menu ---
 const searchSuggestionStyle = document.createElement('style');
 searchSuggestionStyle.innerHTML = `
     .search-wrapper {
@@ -1051,10 +1051,107 @@ searchSuggestionStyle.innerHTML = `
         font-size: 0.9rem;
         text-align: center;
     }
+
+    /* --- Mobile Menu Styles --- */
+    .mobile-menu-btn {
+        display: none;
+    }
+    @media (max-width: 768px) {
+        .mobile-menu-btn {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 10px;
+            order: 2;
+            transition: color 0.2s ease;
+        }
+        .mobile-menu-btn:hover {
+            color: #00e5ff;
+        }
+        #main-header .nav-links {
+            display: none !important;
+            flex-direction: column;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(20, 24, 30, 0.98);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            gap: 15px;
+            z-index: 9999;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        #main-header .nav-links.mobile-active {
+            display: flex !important;
+        }
+        #main-header .nav-links a {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+            text-align: left;
+        }
+        #main-header .nav-links a:last-child {
+            border-bottom: none;
+        }
+        #main-header .nav-actions {
+            order: 3;
+        }
+    }
 `;
 document.head.appendChild(searchSuggestionStyle);
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Mobile Menu Toggle Logic ---
+    const navContainer = document.querySelector('#main-header .nav-container');
+    const navLinks = document.querySelector('#main-header .nav-links');
+    
+    if (navContainer && navLinks) {
+        // Create hamburger button if it doesn't already exist
+        if (!navContainer.querySelector('.mobile-menu-btn')) {
+            const menuBtn = document.createElement('button');
+            menuBtn.className = 'mobile-menu-btn';
+            menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            menuBtn.setAttribute('aria-label', 'Toggle navigation menu');
+
+            // Insert before nav-actions
+            const navActions = navContainer.querySelector('.nav-actions');
+            if (navActions) {
+                navContainer.insertBefore(menuBtn, navActions);
+            } else {
+                navContainer.appendChild(menuBtn);
+            }
+
+            // Toggle menu on click
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navLinks.classList.toggle('mobile-active');
+                const icon = menuBtn.querySelector('i');
+                if (navLinks.classList.contains('mobile-active')) {
+                    icon.className = 'fas fa-times';
+                } else {
+                    icon.className = 'fas fa-bars';
+                }
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
+                    navLinks.classList.remove('mobile-active');
+                    menuBtn.querySelector('i').className = 'fas fa-bars';
+                }
+            });
+        }
+    }
+
+    // --- Live Search Autocomplete Logic ---
     // If we are on products.html, we don't intercept search-input
     if (window.location.pathname.includes('products.html')) {
         return;
