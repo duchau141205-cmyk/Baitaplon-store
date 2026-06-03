@@ -227,16 +227,9 @@
     </div>
 
     <!-- Success Modal -->
-    <div id="success-modal" style="display:none; position: fixed; inset: 0; background: rgba(9, 12, 16, 0.95); z-index: 3000; align-items: center; justify-content: center; text-align: center;">
-        <div class="glass fade-in" style="padding: 60px; border-radius: 8px; max-width: 500px;">
-            <div style="width: 100px; height: 100px; background: var(--success-color); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 30px;">
-                <i class="fas fa-check"></i>
-            </div>
-            <h2 style="font-size: 2rem; margin-bottom: 15px;">ĐẶT HÀNG THÀNH CÔNG!</h2>
-            <p style="color: var(--text-muted); margin-bottom: 30px;">Cảm ơn bạn đã tin tưởng Mô Hình Store. Đơn hàng của bạn đang được xử lý.</p>
-            <button class="btn btn-primary" style="padding: 15px 40px;" onclick="window.location.href='profile.html'">
-                THEO DÕI ĐƠN HÀNG
-            </button>
+    <div id="success-modal" style="display:none; position: fixed; inset: 0; background: rgba(9, 12, 16, 0.95); z-index: 3000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
+        <div class="glass fade-in" id="success-modal-content" style="padding: 40px; border-radius: 12px; max-width: 500px; width: 100%; text-align: center; margin: auto;">
+            <!-- Content will be injected dynamically based on payment method -->
         </div>
     </div>
 
