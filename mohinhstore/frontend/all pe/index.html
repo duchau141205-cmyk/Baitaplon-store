@@ -55,6 +55,20 @@
                 if (video) {
                     video.muted = true;
                     video.play().catch(e => console.log('Autoplay prevented:', e));
+
+                    // Tối ưu hóa hiệu năng: Tự động dừng video khi cuộn qua khỏi màn hình (Viewport)
+                    if ('IntersectionObserver' in window) {
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    video.play().catch(e => {});
+                                } else {
+                                    video.pause();
+                                }
+                            });
+                        }, { threshold: 0.15 });
+                        observer.observe(video);
+                    }
                 }
             });
         </script>
@@ -485,7 +499,7 @@
                 } else {
                     renderRandomProducts();
                     if (randomInterval) clearInterval(randomInterval);
-                    randomInterval = setInterval(renderRandomProducts, 4000);
+                    randomInterval = setInterval(renderRandomProducts, 8000);
                 }
             }
         }
