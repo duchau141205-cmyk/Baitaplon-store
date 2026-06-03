@@ -287,9 +287,9 @@
 
         async function fetchActivePromotions() {
             try {
-                const response = await fetch('http://localhost:5000/api/promotions/active');
-                if (response.ok) {
-                    availablePromotions = await response.json();
+                const data = await ShopAPI.get('/promotions/active');
+                if (data) {
+                    availablePromotions = data;
                     renderAvailablePromotions();
                 }
             } catch (err) {
