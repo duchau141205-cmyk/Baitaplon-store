@@ -8,14 +8,17 @@ const getCategories = async (req, res) => {
     res.json(categories);
 };
 
-// Simple slugify helper
+// Simple slugify helper (with Vietnamese support)
 const slugify = (text) => {
     return text.toString().toLowerCase()
-        .replace(/\s+/g, '-')           // Replace spaces with -
-        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-        .replace(/^-+/, '')             // Trim - from start of text
-        .replace(/-+$/, '');            // Trim - from end of text
+        .normalize('NFD')                                 // Decompose accents
+        .replace(/[\u0300-\u036f]/g, '')                  // Remove accents
+        .replace(/[đ]/g, 'd')                             // Replace letter đ
+        .replace(/\s+/g, '-')                             // Replace spaces with -
+        .replace(/[^\w\-]+/g, '')                         // Remove all non-word chars
+        .replace(/\-\-+/g, '-')                           // Replace multiple - with single -
+        .replace(/^-+/, '')                               // Trim - from start of text
+        .replace(/-+$/, '');                              // Trim - from end of text
 };
 
 // @desc    Create a category
