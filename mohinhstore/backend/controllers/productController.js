@@ -92,12 +92,19 @@ const searchProducts = async (req, res) => {
 // @route   GET /api/products/:id
 // @access  Public
 const getProductById = async (req, res) => {
-    const product = await Product.findById(req.params.id).populate('category', 'name');
+    try {
+        const product = await Product.findById(req.params.id).populate('category', 'name');
 
-    if (product) {
-        res.json(product);
-    } else {
-        res.status(404).json({ message: 'Product not found' });
+        if (product) {
+            res.json(product);
+        } else {
+            res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+        }
+    } catch (error) {
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'ID sản phẩm không hợp lệ' });
+        }
+        res.status(500).json({ message: 'Lỗi server khi lấy chi tiết sản phẩm', error: error.message });
     }
 };
 
