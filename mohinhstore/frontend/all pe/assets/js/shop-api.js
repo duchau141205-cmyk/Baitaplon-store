@@ -984,4 +984,165 @@ async function getWidgetAiReply(userQuery) {
     }
 }
 
+// --- Dynamic Live Search Autocomplete Dropdown ---
+const searchSuggestionStyle = document.createElement('style');
+searchSuggestionStyle.innerHTML = `
+    .search-wrapper {
+        position: relative;
+    }
+    .search-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 10px;
+        background: rgba(20, 24, 30, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        max-height: 350px;
+        overflow-y: auto;
+        display: none;
+        padding: 8px 0;
+    }
+    .search-suggestion-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+        text-align: left;
+    }
+    .search-suggestion-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .search-suggestion-item img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .search-suggestion-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    .search-suggestion-name {
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .search-suggestion-price {
+        color: #00e5ff;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+    .search-suggestion-empty {
+        padding: 16px;
+        color: #8b949e;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+`;
+document.head.appendChild(searchSuggestionStyle);
+
+document.addEventListener('DOMContentLoaded', () => {
+    // If we are on products.html, we don't intercept search-input
+    if (window.location.pathname.includes('products.html')) {
+        return;
+    }
+
+    const searchInput = document.getElementById('search-input');
+    if (!searchInput) return;
+
+    // Create suggestions container
+    const wrapper = searchInput.closest('.search-wrapper');
+    if (!wrapper) return;
+    
+    // Ensure position relative on wrapper
+    wrapper.style.position = 'relative';
+
+    const suggestionsContainer = document.createElement('div');
+    suggestionsContainer.className = 'search-suggestions';
+    wrapper.appendChild(suggestionsContainer);
+
+    let searchTimeout;
+
+    // Override the global executeSearch if defined inline
+    window.executeSearch = function() {
+        clearTimeout(searchTimeout);
+        const query = searchInput.value.trim();
+
+        if (!query) {
+            suggestionsContainer.innerHTML = '';
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/products/search?q=${encodeURIComponent(query)}`);
+                if (!response.ok) return;
+                const products = await response.json();
+
+                if (products && products.length > 0) {
+                    const limit = products.slice(0, 5); // top 5
+                    suggestionsContainer.innerHTML = limit.map(p => {
+                        const price = p.salePrice || p.price;
+                        const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+                        return `
+                            <div class="search-suggestion-item" onclick="window.location.href='product-detail.html?id=${p._id}'">
+                                <img src="${p.image}" alt="${p.name}">
+                                <div class="search-suggestion-info">
+                                    <span class="search-suggestion-name">${p.name}</span>
+                                    <span class="search-suggestion-price">${formattedPrice}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    suggestionsContainer.style.display = 'block';
+                } else {
+                    suggestionsContainer.innerHTML = `<div class="search-suggestion-empty">Không tìm thấy sản phẩm nào</div>`;
+                    suggestionsContainer.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Failed to fetch search suggestions:', err);
+            }
+        }, 300);
+    };
+
+    // Listen for Enter keypress
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const query = searchInput.value.trim();
+            if (query) {
+                window.location.href = `products.html?keyword=${encodeURIComponent(query)}`;
+            }
+        }
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+
+    // Show when focus back if there is query
+    searchInput.addEventListener('focus', () => {
+        if (searchInput.value.trim()) {
+            suggestionsContainer.style.display = 'block';
+        }
+    });
+});
+
+
 
