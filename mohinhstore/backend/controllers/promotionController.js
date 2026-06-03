@@ -211,8 +211,10 @@ const getActivePromotions = async (req, res) => {
         const now = new Date();
         const promotions = await Promotion.find({
             isActive: true,
-            $or: [{ startDate: null }, { startDate: { $lte: now } }],
-            $or: [{ endDate: null }, { endDate: { $gte: now } }]
+            $and: [
+                { $or: [{ startDate: null }, { startDate: { $lte: now } }] },
+                { $or: [{ endDate: null }, { endDate: { $gte: now } }] }
+            ]
         }).sort({ discountValue: -1 });
         
         // Filter out those that hit usage limit
