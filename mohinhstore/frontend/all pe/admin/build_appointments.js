@@ -1,5 +1,5 @@
 const fs = require('fs');
-const staffFile = 'd:/BAITAPLON/shop/frontend/all pe/admin/staff.html';
+const staffFile = 'd:/BAITAPLON/mohinhstore/frontend/all pe/admin/staff.html';
 const staffContent = fs.readFileSync(staffFile, 'utf8');
 
 const tabAppointmentsStart = staffContent.indexOf('<div id="tab-appointments"');
@@ -29,12 +29,12 @@ const fullHtml = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Lịch hẹn & Tư vấn | Mô Hình Store Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/admin.css">
     <link rel="stylesheet" href="../assets/css/admin-components.css">
     <style>
         body {
-            font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+            font-family: var(--font-body);
         }
     </style>
 </head>
@@ -188,5 +188,5 @@ ${jsCode2}
 </body>
 </html>`;
 
-fs.writeFileSync('d:/BAITAPLON/shop/frontend/all pe/admin/appointments.html', fullHtml);
+fs.writeFileSync('d:/BAITAPLON/mohinhstore/frontend/all pe/admin/appointments.html', fullHtml);
 console.log('appointments.html completely rebuilt.');

@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 bottom: 30px;
                 left: 30px;
                 z-index: 9999;
-                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-family: 'Inter', sans-serif;
                 animation: slideUpIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             }
             .admin-back-btn {
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bottom: 30px;
             right: 30px;
             z-index: 9999;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         .ai-chat-btn {
             width: 60px;
