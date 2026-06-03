@@ -206,7 +206,7 @@
                 <div id="bank-info" style="display: none; margin-top: 20px; padding: 15px; border-radius: 12px; background: rgba(0, 212, 255, 0.1); border: 1px dashed var(--primary-color);">
                     <p style="font-size: 0.8rem; margin-bottom: 5px;"><strong>THÔNG TIN CHUYỂN KHOẢN:</strong></p>
                     <p style="font-size: 0.8rem;">Ngân hàng: <strong>MB BANK</strong></p>
-                    <p style="font-size: 0.8rem;">STK: <strong>123456789</strong></p>
+                    <p style="font-size: 0.8rem;">STK: <strong>191412059999</strong></p>
                     <p style="font-size: 0.8rem;">Chủ TK: <strong>MÔ HÌNH STORE</strong></p>
                     <p style="font-size: 12px; margin-top: 5px; color: var(--primary-color);">* Ghi chú: Mã đơn hàng + SĐT</p>
                 </div>
@@ -520,7 +520,7 @@
                     if (selectedPayment === 'Bank Transfer') {
                         // Generate VietQR URL
                         const bankId = 'MB'; // MB Bank
-                        const accountNo = '123456789';
+                        const accountNo = '191412059999';
                         const template = 'qr_only'; // compact template
                         const accountName = 'MO HINH STORE';
                         const shortId = result._id.substring(result._id.length - 6).toUpperCase();
@@ -542,7 +542,7 @@
                                     <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Số tiền:</span> <strong>${formatCurrency(result.totalPrice)}</strong></div>
                                     <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Nội dung CK:</span> <strong style="color: #00e5ff;">MHSTORE ${shortId} ${phone}</strong></div>
                                     <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Ngân hàng:</span> <strong>MB BANK</strong></div>
-                                    <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Số tài khoản:</span> <strong>123456789</strong></div>
+                                    <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Số tài khoản:</span> <strong>191412059999</strong></div>
                                     <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Chủ tài khoản:</span> <strong>MO HINH STORE</strong></div>
                                 </div>
                             </div>
