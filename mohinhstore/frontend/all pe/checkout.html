@@ -517,6 +517,53 @@
                         console.error('Failed to refresh user points', e);
                     }
 
+                    if (selectedPayment === 'Bank Transfer') {
+                        // Generate VietQR URL
+                        const bankId = 'MB'; // MB Bank
+                        const accountNo = '123456789';
+                        const template = 'qr_only'; // compact template
+                        const accountName = 'MO HINH STORE';
+                        const shortId = result._id.substring(result._id.length - 6).toUpperCase();
+                        const description = encodeURIComponent(`MHSTORE ${shortId} ${phone}`);
+                        
+                        const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${result.totalPrice}&addInfo=${description}&accountName=${encodeURIComponent(accountName)}`;
+                        
+                        document.getElementById('success-modal-content').innerHTML = `
+                            <div style="width: 80px; height: 80px; background: #28a745; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 20px;">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <h2 style="font-size: 1.8rem; margin-bottom: 10px; color: var(--primary-color);">ĐẶT HÀNG THÀNH CÔNG!</h2>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Mã đơn: <strong>#${result._id}</strong></p>
+                            
+                            <div style="background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: 12px; border: 1px dashed var(--primary-color); margin-bottom: 25px;">
+                                <p style="font-size: 0.85rem; font-weight: 700; margin-bottom: 15px; color: #00e5ff;"><i class="fas fa-qrcode"></i> QUÉT MÃ QR THANH TOÁN (VIETQR)</p>
+                                <img src="${qrUrl}" alt="VietQR Code" style="max-width: 200px; width: 100%; border-radius: 8px; border: 4px solid white; margin-bottom: 15px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                                <div style="text-align: left; font-size: 0.85rem; color: white; display: flex; flex-direction: column; gap: 6px;">
+                                    <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Số tiền:</span> <strong>${formatCurrency(result.totalPrice)}</strong></div>
+                                    <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Nội dung CK:</span> <strong style="color: #00e5ff;">MHSTORE ${shortId} ${phone}</strong></div>
+                                    <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Ngân hàng:</span> <strong>MB BANK</strong></div>
+                                    <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Số tài khoản:</span> <strong>123456789</strong></div>
+                                    <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted);">Chủ tài khoản:</span> <strong>MO HINH STORE</strong></div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary" style="padding: 12px 30px; width: 100%; font-weight: 700; border-radius: 8px;" onclick="window.location.href='profile.html'">
+                                XÁC NHẬN ĐÃ CHUYỂN & THEO DÕI ĐƠN HÀNG
+                            </button>
+                        `;
+                    } else {
+                        document.getElementById('success-modal-content').innerHTML = `
+                            <div style="width: 80px; height: 80px; background: #28a745; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 20px;">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <h2 style="font-size: 1.8rem; margin-bottom: 10px; color: var(--primary-color);">ĐẶT HÀNG THÀNH CÔNG!</h2>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Mã đơn: <strong>#${result._id}</strong></p>
+                            <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 0.95rem;">Đơn hàng của bạn ở chế độ <strong>Thanh toán khi nhận hàng (COD)</strong> và đang được xử lý.</p>
+                            <button class="btn btn-primary" style="padding: 12px 30px; width: 100%; font-weight: 700; border-radius: 8px;" onclick="window.location.href='profile.html'">
+                                THEO DÕI ĐƠN HÀNG
+                            </button>
+                        `;
+                    }
                     document.getElementById('success-modal').style.display = 'flex';
                 } else {
                     alert('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại. Lưu ý: Bạn cần Đăng nhập để đặt hàng!');
