@@ -12,7 +12,8 @@ const addOrderItems = async (req, res) => {
         paymentMethod,
         totalPrice,
         notes,
-        promoCode
+        promoCode,
+        shippingPrice
     } = req.body;
 
     if (orderItems && orderItems.length === 0) {
@@ -86,12 +87,13 @@ const addOrderItems = async (req, res) => {
             }
         }
 
-        const calculatedTotalPrice = Math.max(0, subtotal - checkedDiscount);
+        const calculatedTotalPrice = Math.max(0, subtotal - checkedDiscount) + Number(shippingPrice || 0);
 
         const order = new Order({
             orderItems,
             user: req.user._id,
             shippingAddress,
+            shippingPrice: Number(shippingPrice || 0),
             paymentMethod,
             totalPrice: calculatedTotalPrice,
             notes,

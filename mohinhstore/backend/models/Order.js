@@ -24,6 +24,11 @@ const orderSchema = mongoose.Schema({
         city: { type: String, required: true },
         phone: { type: String, required: true },
     },
+    shippingPrice: {
+        type: Number,
+        required: true,
+        default: 0
+    },
     notes: {
         type: String,
         default: ''
