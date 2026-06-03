@@ -9,15 +9,18 @@ const protect = async (req, req_res, next) => {
             token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = await User.findById(decoded.id).select('-password');
-            next();
+            if (!req.user) {
+                return req_res.status(401).json({ message: 'Người dùng không tồn tại hoặc đã bị xóa' });
+            }
+            return next();
         } catch (error) {
             console.error(error);
-            req_res.status(401).json({ message: 'Not authorized, token failed' });
+            return req_res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }
 
     if (!token) {
-        req_res.status(401).json({ message: 'Not authorized, no token' });
+        return req_res.status(401).json({ message: 'Not authorized, no token' });
     }
 };
 
