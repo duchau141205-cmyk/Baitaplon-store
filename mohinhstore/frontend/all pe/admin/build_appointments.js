@@ -1,5 +1,6 @@
 const fs = require('fs');
-const staffFile = 'd:/BAITAPLON/mohinhstore/frontend/all pe/admin/staff.html';
+const path = require('path');
+const staffFile = path.join(__dirname, 'staff.html');
 const staffContent = fs.readFileSync(staffFile, 'utf8');
 
 const tabAppointmentsStart = staffContent.indexOf('<div id="tab-appointments"');
@@ -188,5 +189,5 @@ ${jsCode2}
 </body>
 </html>`;
 
-fs.writeFileSync('d:/BAITAPLON/mohinhstore/frontend/all pe/admin/appointments.html', fullHtml);
+fs.writeFileSync(path.join(__dirname, 'appointments.html'), fullHtml);
 console.log('appointments.html completely rebuilt.');

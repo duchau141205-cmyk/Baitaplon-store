@@ -1,6 +1,7 @@
 const fs = require('fs');
-const staffFile = 'd:/BAITAPLON/shop/frontend/all pe/admin/staff.html';
-const apptFile = 'd:/BAITAPLON/shop/frontend/all pe/admin/appointments.html';
+const path = require('path');
+const staffFile = path.join(__dirname, 'staff.html');
+const apptFile = path.join(__dirname, 'appointments.html');
 
 const staffContent = fs.readFileSync(staffFile, 'utf8');
 let apptContent = fs.readFileSync(apptFile, 'utf8');
