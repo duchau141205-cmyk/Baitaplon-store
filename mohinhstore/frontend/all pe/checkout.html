@@ -262,6 +262,7 @@
         let discountAmount = 0;
         let availablePromotions = [];
         let validCheckoutItems = [];
+        let shippingPrice = 0;
 
         function togglePromotions() {
             const container = document.getElementById('available-promotions-container');
@@ -415,9 +416,73 @@
                 if (discountRow) discountRow.style.display = 'none';
             }
 
-            const finalTotal = Math.max(0, total - discountAmount);
+            const finalTotal = Math.max(0, total - discountAmount) + shippingPrice;
             document.getElementById('total-price').innerText = formatCurrency(finalTotal);
             document.getElementById('total-points').innerText = Math.floor(finalTotal / 10000);
+        }
+
+        function calculateShipping() {
+            const citySelect = document.getElementById('city');
+            const shippingFeeEl = document.getElementById('shipping-fee');
+            const deliveryEstimateEl = document.getElementById('delivery-estimate');
+            const deliveryDateEl = document.getElementById('delivery-date');
+
+            if (!citySelect) return;
+            const city = citySelect.value;
+
+            const subtotal = validCheckoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+            // Free shipping on order total >= 1,000,000đ
+            const isFreeShipping = subtotal >= 1000000;
+
+            let deliveryDaysText = "";
+            let daysMin = 0;
+            let daysMax = 0;
+
+            if (city === 'HCM' || city === 'HN') {
+                shippingPrice = isFreeShipping ? 0 : 20000;
+                deliveryDaysText = "1 - 2 ngày (Nhanh)";
+                daysMin = 1;
+                daysMax = 2;
+            } else if (city === 'DN' || city === 'HP' || city === 'CT') {
+                shippingPrice = isFreeShipping ? 0 : 30000;
+                deliveryDaysText = "2 - 3 ngày (Nhanh)";
+                daysMin = 2;
+                daysMax = 3;
+            } else if (city === 'OTHER') {
+                shippingPrice = isFreeShipping ? 0 : 45000;
+                deliveryDaysText = "3 - 5 ngày (Tiết kiệm)";
+                daysMin = 3;
+                daysMax = 5;
+            } else {
+                shippingPrice = 0;
+                shippingFeeEl.innerText = "Chưa chọn khu vực";
+                deliveryEstimateEl.style.display = 'none';
+                return;
+            }
+
+            if (isFreeShipping) {
+                shippingFeeEl.innerHTML = '<span style="color: #28a745; font-weight: 700;">Miễn phí ship</span> <span style="text-decoration: line-through; font-size: 0.8rem; color: var(--text-muted);">' + formatCurrency(city === 'HCM' || city === 'HN' ? 20000 : (city === 'OTHER' ? 45000 : 30000)) + '</span>';
+            } else {
+                shippingFeeEl.innerText = formatCurrency(shippingPrice);
+            }
+
+            // Estimate exact dates
+            const today = new Date();
+            const dateMin = new Date();
+            const dateMax = new Date();
+            dateMin.setDate(today.getDate() + daysMin);
+            dateMax.setDate(today.getDate() + daysMax);
+
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            const formattedDateMin = dateMin.toLocaleDateString('vi-VN', options);
+            const formattedDateMax = dateMax.toLocaleDateString('vi-VN', options);
+
+            deliveryDateEl.innerText = `${deliveryDaysText} (Dự kiến nhận từ ${formattedDateMin} đến ${formattedDateMax})`;
+            deliveryEstimateEl.style.display = 'flex';
+
+            // Re-render summary to update total price
+            renderSummary();
         }
 
         async function applyPromoCode() {
@@ -482,6 +547,13 @@
             const phone = document.getElementById('phone').value;
             const address = document.getElementById('address').value;
             const notes = document.getElementById('notes').value;
+            const citySelect = document.getElementById('city');
+
+            if (!citySelect || !citySelect.value) {
+                alert('Vui lòng chọn Tỉnh / Thành phố!');
+                return;
+            }
+            const city = citySelect.options[citySelect.selectedIndex].text;
 
             if (!name || !phone || !address) {
                 alert('Vui lòng điền đầy đủ thông tin giao hàng!');
@@ -497,21 +569,22 @@
             }));
 
             const subtotal = validCheckoutItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const finalTotalPrice = Math.max(0, subtotal - discountAmount);
+            const finalTotalPrice = Math.max(0, subtotal - discountAmount) + shippingPrice;
 
             const orderData = {
                 orderItems,
                 shippingAddress: {
                     address,
                     phone,
-                    city: 'HCM', // Mocked city for now
+                    city,
                     postalCode: '70000',
                     country: 'Việt Nam'
                 },
                 paymentMethod: selectedPayment,
                 totalPrice: finalTotalPrice,
                 notes: notes,
-                promoCode: appliedPromoCode || ''
+                promoCode: appliedPromoCode || '',
+                shippingPrice
             };
 
             // Show loader
