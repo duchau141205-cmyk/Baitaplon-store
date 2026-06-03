@@ -130,7 +130,10 @@
                 <a href="categories.html">Về chúng tôi</a>
             </nav>
             <div class="nav-actions">
-                <i class="fas fa-search"></i>
+                <div class="search-wrapper">
+                    <input type="text" id="search-input" placeholder="Tìm mô hình..." oninput="goSearch(this.value)">
+                    <i class="fas fa-search"></i>
+                </div>
                 <a href="login.html" id="user-btn"><i class="fas fa-user"></i></a>
                 <a href="cart.html" class="cart-icon">
                     <i class="fas fa-shopping-bag"></i>
